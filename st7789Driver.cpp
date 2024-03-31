@@ -1,6 +1,7 @@
 #include "st7789Driver.h"
-#include "hardware/structs/spi.h"
 #include "hardware/spi.h"
+#include "hardware/structs/spi.h"
+#include "pico/binary_info.h"
 #include "pico/stdlib.h"
 #include "fonts.h"
 
@@ -9,13 +10,13 @@
 void st7789Driver::WriteCommand(uint8_t cmd)
 {
 	gpio_put(DISPLAY_DC, 0);
-    spi_write_blocking(0, &cmd, 1);
+    spi_write_blocking(spi_default, &cmd, 1);
 }
 
 void st7789Driver::WriteData(uint8_t *buff, uint32_t buff_size)
 {
 	gpio_put(DISPLAY_DC, 1);
-    spi_write_blocking(0, buff, buff_size);
+    spi_write_blocking(spi_default, buff, buff_size);
 }
 
 void st7789Driver::WriteSmallData(uint8_t data)
@@ -422,7 +423,28 @@ void st7789Driver::TearEffect(uint8_t tear)
 
 void st7789Driver::Init(void)
 {
-	//spi_init();
+    gpio_init(DISPLAY_BACKLIGHT);
+    gpio_set_dir(DISPLAY_BACKLIGHT, GPIO_OUT);
+    gpio_put(DISPLAY_BACKLIGHT, 1);
+
+    gpio_init(DISPLAY_RST);
+    gpio_set_dir(DISPLAY_RST, GPIO_OUT);
+    gpio_put(DISPLAY_RST, 0);
+
+    gpio_init(DISPLAY_DC);
+    gpio_set_dir(DISPLAY_DC, GPIO_OUT);
+    gpio_put(DISPLAY_DC, 0);
+
+    // Enable SPI 0 at 1 MHz and connect to GPIOs
+    spi_init(spi_default, 80 * 1000 * 1000);
+    gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, GPIO_FUNC_SPI);
+    gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, GPIO_FUNC_SPI);
+    gpio_set_function(PICO_DEFAULT_SPI_TX_PIN, GPIO_FUNC_SPI);
+    gpio_set_function(PICO_DEFAULT_SPI_CSN_PIN, GPIO_FUNC_SPI);
+    bi_decl(bi_4pins_with_func((uint32_t)PICO_DEFAULT_SPI_RX_PIN, (uint32_t)PICO_DEFAULT_SPI_TX_PIN, (uint32_t)PICO_DEFAULT_SPI_SCK_PIN, (uint32_t)PICO_DEFAULT_SPI_CSN_PIN, GPIO_FUNC_SPI));
+
+    spi_set_format(spi_default, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
+
 	sleep_ms(25);
     gpio_put(DISPLAY_RST, 0);
 	sleep_ms(50);
@@ -472,7 +494,8 @@ void st7789Driver::Init(void)
   	WriteCommand (ST7789_NORON);		//	Normal Display on
   	WriteCommand (ST7789_DISPON);	//	Main screen turned on
 
-  	//sleep_ms(50);
-	//Fill_Color(WHITE);				//	Fill with Black.
+    SetRotation(ST7789_ROTATION);
 
+  	sleep_ms(50);
+	Fill_Color(BLACK);				//	Fill with Black.
 }

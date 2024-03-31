@@ -40,7 +40,7 @@ pico_sdk_init()
 add_executable(st7789 main.cpp fonts.cpp st7789Driver.cpp)
 
 # pull in common dependencies
-target_link_libraries(st7789 pico_stdlib hardware_spi)
+target_link_libraries(st7789 pico_stdlib pico_multicore hardware_spi)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(st7789)
