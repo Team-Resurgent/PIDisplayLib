@@ -37,7 +37,7 @@ project(st7789 C CXX ASM)
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
-add_executable(st7789 main.c)
+add_executable(st7789 main.cpp fonts.cpp st7789Driver.cpp)
 
 # pull in common dependencies
 target_link_libraries(st7789 pico_stdlib hardware_spi)
