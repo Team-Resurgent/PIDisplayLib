@@ -46,3 +46,5 @@ target_link_libraries(st7789 pico_stdlib pico_multicore hardware_spi)
 pico_add_extra_outputs(st7789)
 
 # add url via pico_set_program_url
+pico_enable_stdio_usb(st7789 1)
+pico_enable_stdio_uart(st7789 0)
