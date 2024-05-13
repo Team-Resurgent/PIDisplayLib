@@ -53,7 +53,7 @@ void displayDriver::initSpi(uint32_t baudRate, bool hasBacklight)
     gpio_set_function(SPI_DISPLAY_CSN, GPIO_FUNC_SPI);
     bi_decl(bi_4pins_with_func((uint32_t)SPI_DISPLAY_RX, (uint32_t)SPI_DISPLAY_TX, (uint32_t)SPI_DISPLAY_SCK, (uint32_t)SPI_DISPLAY_CSN, GPIO_FUNC_SPI));
 
-    spi_set_format(spi_default, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
+    spi_set_format(spi_default, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
 
     sleep_ms(10);
 	gpio_put(SPI_DISPLAY_RST, 0);

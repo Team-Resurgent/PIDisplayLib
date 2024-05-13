@@ -19,7 +19,7 @@
 #define ST7789_DISPLAY_ON 0x29
 #define ST7789_COLUMN_ADDRESS_SET 0x2A // 5 Byte Command
 #define ST7789_ROW_ADDRESS_SET 0x2B // 5 Byte Command
-#define ST7789_MEMORY_WRITE 0x2C
+#define ST7789_MEMORY_WRITE 0x2C // 2+ Byte Command
 #define ST7789_PARTIAL_START_END 0x30 // 5 Byte Command
 #define ST7789_VERTICAL_SCROLLING_DIRECTION 0x33 // 7 Byte Command
 #define ST7789_TEARING_EFFECT_LINE_OFF 0x34
@@ -206,9 +206,9 @@ void displayST7789::fill(uint32_t colorR8G8B8)
 void displayST7789::drawDisplay()
 {
 	uint16_t xStart = 0 + DISPLAY_ST7789_X_SHIFT;
-    uint16_t xEnd = DISPLAY_ST7789_WIDTH + DISPLAY_ST7789_X_SHIFT;
+    uint16_t xEnd = DISPLAY_ST7789_WIDTH + DISPLAY_ST7789_X_SHIFT - 1;
 	uint16_t yStart = 0 + DISPLAY_ST7789_Y_SHIFT;
-    uint16_t yEnd = DISPLAY_ST7789_HEIGHT + DISPLAY_ST7789_Y_SHIFT;
+    uint16_t yEnd = DISPLAY_ST7789_HEIGHT + DISPLAY_ST7789_Y_SHIFT - 1;
 
 	writeSpiCommand(ST7789_COLUMN_ADDRESS_SET);
     uint8_t columnData[] = {(uint8_t)(xStart >> 8), (uint8_t)(xStart & 0xFF), (uint8_t)(xEnd >> 8), (uint8_t)(xEnd & 0xFF)};
@@ -219,6 +219,7 @@ void displayST7789::drawDisplay()
     writeSpiData(rowData, sizeof(rowData));
 
 	writeSpiCommand(ST7789_MEMORY_WRITE);
+    writeSpiData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
 }
 
 void displayST7789::brightness(uint8_t value)
