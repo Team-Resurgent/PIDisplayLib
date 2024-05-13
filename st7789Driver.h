@@ -1,37 +1,31 @@
 #pragma once
 
+#include "displayConfig.h"
 #include "pico/stdlib.h"
 #include "fonts.h"
 
-#define DISPLAY_BACKLIGHT 22
-#define DISPLAY_RST 21 
-#define DISPLAY_DC  20
-#define DISPLAY_CS  PICO_DEFAULT_SPI_CSN_PIN
-#define DISPLAY_MOSI PICO_DEFAULT_SPI_TX_PIN 
-#define DISPLAY_SCLK PICO_DEFAULT_SPI_SCK_PIN
+#define ST7789_WHITE       0xFFFF
+#define ST7789_BLACK       0x0000
+#define ST7789_BLUE        0x001F
+#define ST7789_RED         0xF800
+#define ST7789_MAGENTA     0xF81F
+#define ST7789_GREEN       0x07E0
+#define ST7789_CYAN        0x7FFF
+#define ST7789_YELLOW      0xFFE0
+#define ST7789_GRAY        0X8430
+#define ST7789_BRED        0XF81F
+#define ST7789_GRED        0XFFE0
+#define ST7789_GBLUE       0X07FF
+#define ST7789_BROWN       0XBC40
+#define ST7789_BRRED       0XFC07
+#define ST7789_DARKBLUE    0X01CF
+#define ST7789_LIGHTBLUE   0X7D7C
+#define ST7789_GRAYBLUE    0X5458
 
-#define WHITE       0xFFFF
-#define BLACK       0x0000
-#define BLUE        0x001F
-#define RED         0xF800
-#define MAGENTA     0xF81F
-#define GREEN       0x07E0
-#define CYAN        0x7FFF
-#define YELLOW      0xFFE0
-#define GRAY        0X8430
-#define BRED        0XF81F
-#define GRED        0XFFE0
-#define GBLUE       0X07FF
-#define BROWN       0XBC40
-#define BRRED       0XFC07
-#define DARKBLUE    0X01CF
-#define LIGHTBLUE   0X7D7C
-#define GRAYBLUE    0X5458
-
-#define LIGHTGREEN  0X841F
-#define LGRAY       0XC618
-#define LGRAYBLUE   0XA651
-#define LBBLUE      0X2B12
+#define ST7789_LIGHTGREEN  0X841F
+#define ST7789_LGRAY       0XC618
+#define ST7789_LGRAYBLUE   0XA651
+#define ST7789_LBBLUE      0X2B12
 
 /* Control Registers and constant codes */
 #define ST7789_NOP     0x00
@@ -100,7 +94,7 @@ public:
 	static void WriteSmallData(uint8_t data);
 	static void SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 	static void SetRotation(uint8_t m);
-	static void Fill_Color(uint16_t color);
+	static void FillColor(uint16_t color);
 	static void DrawPixel(uint16_t x, uint16_t y, uint16_t color);
 	static void Fill(uint16_t xSta, uint16_t ySta, uint16_t xEnd, uint16_t yEnd, uint16_t color);
 	static void DrawPixel_4px(uint16_t x, uint16_t y, uint16_t color);
@@ -109,8 +103,8 @@ public:
 	static void DrawCircle(uint16_t x0, uint16_t y0, uint8_t r, uint16_t color);
 	static void DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t *data);
 	static void InvertColors(uint8_t invert);
-	static void WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor);
-	static void WriteString(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color, uint16_t bgcolor);
+	static void drawChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor);
+	static void drawString(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color, uint16_t bgcolor);
 	static void DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
 	static void DrawTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, uint16_t color);
 	static void DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, uint16_t color);

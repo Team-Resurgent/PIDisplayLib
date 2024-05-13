@@ -10,9 +10,8 @@ typedef struct {
 
 class fonts
 {
-private:
-    /* data */
 public:
+    static FontDef Font_8x8();
     static FontDef Font_7x10();
     static FontDef Font_11x18();
     static FontDef Font_16x26();

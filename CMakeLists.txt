@@ -31,20 +31,20 @@ if (PICO_SDK_VERSION_STRING VERSION_LESS "1.4.0")
   message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.4.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
-project(st7789 C CXX ASM)
+project(displayLib C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
-add_executable(st7789 main.cpp fonts.cpp st7789Driver.cpp)
+add_executable(displayLib main.cpp fonts.cpp color.cpp displayBuffer.cpp displayDriver.cpp displaySH1122.cpp st7789Driver.cpp)
 
 # pull in common dependencies
-target_link_libraries(st7789 pico_stdlib pico_multicore hardware_spi)
+target_link_libraries(displayLib pico_stdlib pico_multicore hardware_spi hardware_i2c)
 
 # create map/bin/hex file etc.
-pico_add_extra_outputs(st7789)
+pico_add_extra_outputs(displayLib)
 
 # add url via pico_set_program_url
-pico_enable_stdio_usb(st7789 1)
-pico_enable_stdio_uart(st7789 0)
+pico_enable_stdio_usb(displayLib 1)
+pico_enable_stdio_uart(displayLib 0)

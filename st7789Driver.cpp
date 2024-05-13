@@ -9,13 +9,13 @@
 
 void st7789Driver::WriteCommand(uint8_t cmd)
 {
-	gpio_put(DISPLAY_DC, 0);
+	gpio_put(SPI_DISPLAY_DC, 0);
     spi_write_blocking(spi_default, &cmd, 1);
 }
 
 void st7789Driver::WriteData(uint8_t *buff, uint32_t buff_size)
 {
-	gpio_put(DISPLAY_DC, 1);
+	gpio_put(SPI_DISPLAY_DC, 1);
     spi_write_blocking(spi_default, buff, buff_size);
 }
 
@@ -67,7 +67,7 @@ void st7789Driver::SetRotation(uint8_t m)
 	}
 }
 
-void st7789Driver::Fill_Color(uint16_t color)
+void st7789Driver::FillColor(uint16_t color)
 {
 	uint16_t i;
     uint16_t offset;
@@ -243,7 +243,7 @@ void st7789Driver::InvertColors(uint8_t invert)
 	WriteCommand(invert ? 0x21 /* INVON */ : 0x20 /* INVOFF */);
 }
 
-void st7789Driver::WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor)
+void st7789Driver::drawChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor)
 {
 	uint32_t i, b, j;
 
@@ -264,7 +264,7 @@ void st7789Driver::WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint
 	}
 }
 
-void st7789Driver::WriteString(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color, uint16_t bgcolor)
+void st7789Driver::drawString(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color, uint16_t bgcolor)
 {
 	while (*str) {
 		if (x + font.width >= ST7789_WIDTH) {
@@ -280,7 +280,7 @@ void st7789Driver::WriteString(uint16_t x, uint16_t y, const char *str, FontDef 
 				continue;
 			}
 		}
-		WriteChar(x, y, *str, font, color, bgcolor);
+		drawChar(x, y, *str, font, color, bgcolor);
 		x += font.width;
 		str++;
 	}
@@ -423,32 +423,32 @@ void st7789Driver::TearEffect(uint8_t tear)
 
 void st7789Driver::Init(void)
 {
-    gpio_init(DISPLAY_BACKLIGHT);
-    gpio_set_dir(DISPLAY_BACKLIGHT, GPIO_OUT);
-    gpio_put(DISPLAY_BACKLIGHT, 1);
+    gpio_init(SPI_DISPLAY_BACKLIGHT);
+    gpio_set_dir(SPI_DISPLAY_BACKLIGHT, GPIO_OUT);
+    gpio_put(SPI_DISPLAY_BACKLIGHT, 1);
 
-    gpio_init(DISPLAY_RST);
-    gpio_set_dir(DISPLAY_RST, GPIO_OUT);
-    gpio_put(DISPLAY_RST, 0);
+    gpio_init(SPI_DISPLAY_RST);
+    gpio_set_dir(SPI_DISPLAY_RST, GPIO_OUT);
+    gpio_put(SPI_DISPLAY_RST, 0);
 
-    gpio_init(DISPLAY_DC);
-    gpio_set_dir(DISPLAY_DC, GPIO_OUT);
-    gpio_put(DISPLAY_DC, 0);
+    gpio_init(SPI_DISPLAY_DC);
+    gpio_set_dir(SPI_DISPLAY_DC, GPIO_OUT);
+    gpio_put(SPI_DISPLAY_DC, 0);
 
     // Enable SPI 0 at 1 MHz and connect to GPIOs
     spi_init(spi_default, 80 * 1000 * 1000);
-    gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, GPIO_FUNC_SPI);
-    gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, GPIO_FUNC_SPI);
-    gpio_set_function(PICO_DEFAULT_SPI_TX_PIN, GPIO_FUNC_SPI);
-    gpio_set_function(PICO_DEFAULT_SPI_CSN_PIN, GPIO_FUNC_SPI);
-    bi_decl(bi_4pins_with_func((uint32_t)PICO_DEFAULT_SPI_RX_PIN, (uint32_t)PICO_DEFAULT_SPI_TX_PIN, (uint32_t)PICO_DEFAULT_SPI_SCK_PIN, (uint32_t)PICO_DEFAULT_SPI_CSN_PIN, GPIO_FUNC_SPI));
+    gpio_set_function(SPI_DISPLAY_RX, GPIO_FUNC_SPI);
+    gpio_set_function(SPI_DISPLAY_SCK, GPIO_FUNC_SPI);
+    gpio_set_function(SPI_DISPLAY_TX, GPIO_FUNC_SPI);
+    gpio_set_function(SPI_DISPLAY_CSN, GPIO_FUNC_SPI);
+    bi_decl(bi_4pins_with_func((uint32_t)SPI_DISPLAY_RX, (uint32_t)SPI_DISPLAY_TX, (uint32_t)SPI_DISPLAY_SCK, (uint32_t)SPI_DISPLAY_CSN, GPIO_FUNC_SPI));
 
     spi_set_format(spi_default, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
 
 	sleep_ms(25);
-    gpio_put(DISPLAY_RST, 0);
+    gpio_put(SPI_DISPLAY_RST, 0);
 	sleep_ms(50);
-    gpio_put(DISPLAY_RST, 1);
+    gpio_put(SPI_DISPLAY_RST, 1);
     sleep_ms(50);
     WriteCommand(ST7789_SWRESET);
     sleep_ms(100);
@@ -497,5 +497,5 @@ void st7789Driver::Init(void)
     SetRotation(ST7789_ROTATION);
 
   	sleep_ms(50);
-	Fill_Color(BLACK);				//	Fill with Black.
+	FillColor(ST7789_BLACK);				//	Fill with Black.
 }
