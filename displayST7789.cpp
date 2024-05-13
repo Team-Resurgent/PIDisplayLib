@@ -23,7 +23,7 @@
 #define ST7789_PARTIAL_START_END 0x30 // 5 Byte Command
 #define ST7789_VERTICAL_SCROLLING_DIRECTION 0x33 // 7 Byte Command
 #define ST7789_TEARING_EFFECT_LINE_OFF 0x34
-#define ST7789_TEARING_EFFECT_LINE_OFF 0x35
+#define ST7789_TEARING_EFFECT_LINE_ON 0x35
 #define ST7789_MEMORY_ADDRESS_DATA_CONTROL 0x36 // 2 Byte Command
 #define ST7789_VERTICAL_SCROLLING_START_ADDRESS 0x37 // 3 Byte Command
 #define ST7789_IDLE_MODE_OFF 0x38
@@ -41,7 +41,7 @@
 #define ST7789_PORCH_CONTROL 0xB2 // 6 Byte Command
 #define ST7789_FRAME_RATE_CONTROL1 0xB3 // 4 Byte Command
 #define ST7789_PARTIAL_CONTROL 0xB5 // 2 Byte Command
-#define ST7789_GATE_CONTROL 0xB7 // 2 Byte Command
+#define ST7789_GATE_CONTROL1 0xB7 // 2 Byte Command
 #define ST7789_GATE_ON_TIMING_ADJUSTMENT 0xB8 // 5 Byte Command
 #define ST7789_DIGITAL_GAMMA_ENABLE 0xBA // 2 Byte Command
 #define ST7789_VCOM_SETTING 0xBB // 2 Byte Command
@@ -64,7 +64,7 @@
 #define ST7789_NEGATIVE_VOLTAGE_GAMMA_CONTROL 0xE1 // 15 Byte Command
 #define ST7789_DIGITAL_GAMMA_LOOKUP_TABLE_RED 0xE2 // 65 Byte Command
 #define ST7789_DIGITAL_GAMMA_LOOKUP_TABLE_BLUE 0xE3 // 65 Byte Command
-#define ST7789_GATE_CONTROL 0xE4 // 4 Byte Command
+#define ST7789_GATE_CONTROL2 0xE4 // 4 Byte Command
 #define ST7789_SPI2_ENABLE 0xE7 // 2 Byte Command
 #define ST7789_POWER_CONTROL2 0xE8 // 2 Byte Command
 #define ST7789_EQUALIZE_TIME_CONTROL 0xE9 // 4 Byte Command
@@ -100,7 +100,7 @@ displayST7789::displayST7789()
 	uint8_t porchData[] = { 0x0c, 0x0c, 0x00, 0x33, 0x33 };
 	writeSpiData(porchData, sizeof(porchData));
 
-    writeSpiCommand(ST7789_GATE_CONTROL);
+    writeSpiCommand(ST7789_GATE_CONTROL1);
     writeSpiDataByte(0x35);
     writeSpiCommand(ST7789_VCOM_SETTING);
     writeSpiDataByte(0x20);
