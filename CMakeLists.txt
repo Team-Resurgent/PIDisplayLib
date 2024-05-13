@@ -37,7 +37,7 @@ project(PIDisplayLib C CXX ASM)
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
-add_executable(PIDisplayLib main.cpp fonts.cpp color.cpp displayBuffer.cpp displayDriver.cpp displaySH1122.cpp st7789Driver.cpp)
+add_executable(PIDisplayLib main.cpp fonts.cpp color.cpp displayBuffer.cpp displayDriver.cpp displaySH1122.cpp displayST7789.cpp)
 
 # pull in common dependencies
 target_link_libraries(PIDisplayLib pico_stdlib pico_multicore hardware_spi hardware_i2c)

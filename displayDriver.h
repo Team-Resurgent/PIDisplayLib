@@ -35,6 +35,7 @@ public:
     virtual void fill(uint32_t colorR8G8B8) = 0;
     virtual void drawDisplay() = 0;
 
+    virtual void brightness(uint8_t value) = 0;
     virtual void contrast(uint8_t value) = 0;
     virtual void invert(bool value) = 0;
     virtual void rotate(uint16_t degrees) = 0;

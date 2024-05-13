@@ -19,6 +19,7 @@
 #define ST7789_DISPLAY_ON 0x29
 #define ST7789_COLUMN_ADDRESS_SET 0x2A // 5 Byte Command
 #define ST7789_ROW_ADDRESS_SET 0x2B // 5 Byte Command
+#define ST7789_MEMORY_WRITE 0x2C
 #define ST7789_PARTIAL_START_END 0x30 // 5 Byte Command
 #define ST7789_VERTICAL_SCROLLING_DIRECTION 0x33 // 7 Byte Command
 #define ST7789_TEARING_EFFECT_LINE_OFF 0x34
@@ -77,6 +78,7 @@
 #define ST7789_MEMORY_ADDRESS_DATA_CONTROL_MX  0x40
 #define ST7789_MEMORY_ADDRESS_DATA_CONTROL_MV  0x20
 #define ST7789_MEMORY_ADDRESS_DATA_CONTROL_ML  0x10
+#define ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB 0x00
 
 displayST7789::displayST7789()
 {
@@ -183,64 +185,91 @@ void displayST7789::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y,
 
 void displayST7789::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
 {
-    // if (x >= DISPLAY_ST7789_WIDTH || y >= DISPLAY_ST7789_HEIGHT)
-    // {
-    //     return;
-    // }
+    if (x >= DISPLAY_ST7789_WIDTH || y >= DISPLAY_ST7789_HEIGHT)
+    {
+        return;
+    }
 
-    // uint8_t gray4 = color::convertRGB8toGray4(colorR8G8B8);
-    // uint8_t* buffer = getDisplayBuffer()->getBuffer();
-    // uint32_t pixelOffset = (y * (DISPLAY_ST7789_WIDTH >> 1)) + (x >> 1);
-    // uint8_t currentPixel = buffer[pixelOffset];
-    // if ((x & 1) == 0) 
-    // {
-    //     currentPixel &= 0x0f;
-    //     currentPixel |= (gray4 << 4);
-    // }
-    // else
-    // {
-    //     currentPixel &= 0xf0;
-    //     currentPixel |= gray4;
-    // }
-    // buffer[pixelOffset] = currentPixel;
+    uint16_t r5g6b5 = color::convertR8G8B8toR5G6B5(colorR8G8B8);
+    uint8_t* buffer = getDisplayBuffer()->getBuffer();
+    uint32_t pixelOffset = (y * (DISPLAY_ST7789_WIDTH << 1)) + (x << 1);
+    buffer[pixelOffset] = static_cast<uint8_t>((r5g6b5 & 0xff00) >> 8);
+    buffer[pixelOffset + 1] = static_cast<uint8_t>(r5g6b5 & 0xff);
 }
 
 void displayST7789::fill(uint32_t colorR8G8B8)
 {
-    // uint8_t gray4 = color::convertRGB8toGray4(colorR8G8B8);
-    // memset(getDisplayBuffer()->getBuffer(), (gray4 << 4) | gray4, getDisplayBuffer()->getBufferSize());
+    uint16_t r5g6b5 = color::convertR8G8B8toR5G6B5(colorR8G8B8);
+    memset((uint16_t*)getDisplayBuffer()->getBuffer(), r5g6b5, getDisplayBuffer()->getBufferSize() >> 1);
 }
 
 void displayST7789::drawDisplay()
 {
-    // writeSpiDualCommand(ST7789_CMD_SET_ROW_ADDR, 0x00);
-    // writeSpiCommand(ST7789_CMD_SET_LOW_COLUMN_ADDR);
-    // writeSpiCommand(ST7789_CMD_SET_HIGH_COLUMN_ADDR);
-    // writeSpiData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
+	uint16_t xStart = 0 + DISPLAY_ST7789_X_SHIFT;
+    uint16_t xEnd = DISPLAY_ST7789_WIDTH + DISPLAY_ST7789_X_SHIFT;
+	uint16_t yStart = 0 + DISPLAY_ST7789_Y_SHIFT;
+    uint16_t yEnd = DISPLAY_ST7789_HEIGHT + DISPLAY_ST7789_Y_SHIFT;
+
+	writeSpiCommand(ST7789_COLUMN_ADDRESS_SET);
+    uint8_t columnData[] = {(uint8_t)(xStart >> 8), (uint8_t)(xStart & 0xFF), (uint8_t)(xEnd >> 8), (uint8_t)(xEnd & 0xFF)};
+    writeSpiData(columnData, sizeof(columnData));
+
+	writeSpiCommand(ST7789_ROW_ADDRESS_SET);
+    uint8_t rowData[] = {(uint8_t)(yStart >> 8), (uint8_t)(yStart & 0xFF), (uint8_t)(yEnd >> 8), (uint8_t)(yEnd & 0xFF)};
+    writeSpiData(rowData, sizeof(rowData));
+
+	writeSpiCommand(ST7789_MEMORY_WRITE);
+}
+
+void displayST7789::brightness(uint8_t value)
+{
+    // TODO test
+    writeSpiCommand(ST7789_WRITE_DISPLAY_BRIGHTNESS);
+    writeSpiDataByte(value);
 }
 
 void displayST7789::contrast(uint8_t value)
 {
-    //writeSpiDualCommand(ST7789_CMD_SET_CONTRAST_CURRENT, value);
+    // NA 
 }
 
 void displayST7789::invert(bool value)
 {
-    //writeSpiCommand(value ? ST7789_CMD_SET_REVERSE_DISPLAY : ST7789_CMD_SET_NORMAL_DISPLAY);
+    // TODO test
+    writeSpiCommand(value ? ST7789_DISPLAY_INVERSION_OFF : ST7789_DISPLAY_INVERSION_ON);
 }
 
 void displayST7789::rotate(uint16_t degrees)
 {
-    // if (degrees == 0)
-    // {
-    //     writeSpiCommand(ST7789_CMD_SET_DISPLAY_START_LINE | 0x00 );
-	//     writeSpiCommand(ST7789_CMD_SET_SEGMENT_REMAP | 0x00);
-	//     writeSpiCommand(ST7789_CMD_SET_SCAN_DIRECTION | 0x00);
-    // }
-    // else if (degrees == 180)
-    // {
-    //     writeSpiCommand(ST7789_CMD_SET_DISPLAY_START_LINE | (uint8_t)DISPLAY_ST7789_WIDTH);
-	//     writeSpiCommand(ST7789_CMD_SET_SEGMENT_REMAP | 0x01);
-	//     writeSpiCommand(ST7789_CMD_SET_SCAN_DIRECTION | 0x08);
-    // }
+    if (degrees == 0)
+    {
+        writeSpiCommand(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
+	    writeSpiDataByte((uint8_t)(
+            ST7789_MEMORY_ADDRESS_DATA_CONTROL_MX | 
+            ST7789_MEMORY_ADDRESS_DATA_CONTROL_MY | 
+            ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB)
+        );
+    }
+    else if (degrees == 90)
+    {
+        writeSpiCommand(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeSpiDataByte((uint8_t)(
+            ST7789_MEMORY_ADDRESS_DATA_CONTROL_MY | 
+            ST7789_MEMORY_ADDRESS_DATA_CONTROL_MV | 
+            ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB)
+        );
+    }
+    else if (degrees == 180)
+    {
+        writeSpiCommand(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeSpiDataByte(ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB);
+    }
+    else if (degrees == 270)
+    {
+        writeSpiCommand(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeSpiDataByte((uint8_t)(
+            ST7789_MEMORY_ADDRESS_DATA_CONTROL_MX | 
+            ST7789_MEMORY_ADDRESS_DATA_CONTROL_MV | 
+            ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB));
+    }
 }

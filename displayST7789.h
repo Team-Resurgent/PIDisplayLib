@@ -8,6 +8,8 @@
 #define DISPLAY_ST7789_BAUDRATE (10 * 1024 * 1024)
 #define DISPLAY_ST7789_WIDTH 240
 #define DISPLAY_ST7789_HEIGHT 240
+#define DISPLAY_ST7789_X_SHIFT 20
+#define DISPLAY_ST7789_Y_SHIFT 0
 #define DISPLAY_ST7789_BITS_PER_PIXEL 16
 
 class displayST7789 : displayDriver
@@ -30,6 +32,7 @@ public:
     void fill(uint32_t colorR8G8B8);
     void drawDisplay();
 
+    void brightness(uint8_t value);
     void contrast(uint8_t value);
     void invert(bool value);
     void rotate(uint16_t degrees);

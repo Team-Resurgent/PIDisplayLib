@@ -30,6 +30,7 @@ public:
     void fill(uint32_t colorR8G8B8);
     void drawDisplay();
 
+    void brightness(uint8_t value);
     void contrast(uint8_t value);
     void invert(bool value);
     void rotate(uint16_t degrees);

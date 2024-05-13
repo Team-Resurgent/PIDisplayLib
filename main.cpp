@@ -5,9 +5,9 @@
 #include <stdlib.h>
 
 #include "fonts.h"
-#include "st7789Driver.h"
 #include "displayDriver.h"
 #include "displaySH1122.h"
+#include "displayST7789.h"
 #include "color.h"
 #include <math.h>
 
@@ -34,6 +34,7 @@ int main()
 
 	printf("Initializing Display\n");
 
+	//displayDriver* display = (displayDriver*)new displayST7789();
 	displayDriver* display = (displayDriver*)new displaySH1122();
 	display->contrast(0x80);
 	display->invert(false);

@@ -149,6 +149,11 @@ void displaySH1122::drawDisplay()
     writeSpiData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
 }
 
+void displaySH1122::brightness(uint8_t value)
+{
+    // NA
+}
+
 void displaySH1122::contrast(uint8_t value)
 {
     writeSpiDualCommand(SH1122_CMD_SET_CONTRAST_CURRENT, value);
