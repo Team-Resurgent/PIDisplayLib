@@ -450,6 +450,7 @@ void st7789Driver::Init(void)
 	sleep_ms(50);
     gpio_put(SPI_DISPLAY_RST, 1);
     sleep_ms(50);
+	
     WriteCommand(ST7789_SWRESET);
     sleep_ms(100);
     WriteCommand(ST7789_COLMOD);		//	Set color mode

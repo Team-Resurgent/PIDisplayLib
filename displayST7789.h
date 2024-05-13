@@ -5,15 +5,15 @@
 #include "fonts.h"
 
 // Config
-#define DISPLAY_SH1122_BAUDRATE (10 * 1024 * 1024)
-#define DISPLAY_SH1122_WIDTH 256
-#define DISPLAY_SH1122_HEIGHT 64
-#define DISPLAY_SH1122_BITS_PER_PIXEL 4
+#define DISPLAY_ST7789_BAUDRATE (10 * 1024 * 1024)
+#define DISPLAY_ST7789_WIDTH 240
+#define DISPLAY_ST7789_HEIGHT 240
+#define DISPLAY_ST7789_BITS_PER_PIXEL 16
 
-class displaySH1122 : displayDriver
+class displayST7789 : displayDriver
 {
 public:
-    displaySH1122();
+    displayST7789();
 
     void drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character);
     void drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message);

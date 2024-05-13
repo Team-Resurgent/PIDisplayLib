@@ -5,8 +5,11 @@
 class color
 {
 public:
-    static uint8_t convertRGB8toGray8(uint32_t rgbColor);
-    static uint8_t convertRGB8toGray4(uint32_t rgbColor);
-    static uint32_t convertGray8toRGB8(uint8_t gray8);
-    static uint32_t convertGray4toRGB8(uint8_t gray4);
+    static uint8_t convertR8G8B8toGray8(uint32_t colorR8G8B8);
+    static uint8_t convertR8G8B8toGray4(uint32_t colorR8G8B8);
+    static uint8_t convertR8G8B8toR5G6B5(uint32_t colorR8G8B8);
+
+    static uint32_t convertGray8toR8G8B8(uint8_t gray8);
+    static uint32_t convertGray4toR8G8B8(uint8_t gray4);
+    static uint32_t convertR5G6B5toR8G8B8(uint8_t colorR5G6B5);
 };
