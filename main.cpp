@@ -38,17 +38,17 @@ int main()
 	//displayDriver* display = (displayDriver*)new displaySH1122();
 	//display->contrast(0x80);
 	//display->invert(false);
-	//display->rotate(0);
+	display->rotate(90);
 
 	while (true)
 	{
 		display->fill(0xff0000);
-		//display->drawString(0xffffff, fonts::Font_8x8(), 30, 2, "PrometheOS: V1.3.0");
-		//display->drawString(0xffffff, fonts::Font_8x8(), 30, 12, "Free Mem: 112MB");
-		//display->drawString(0xffffff, fonts::Font_8x8(), 30, 22, "IP: 192.168.0.100");
-		//display->drawString(0xffffff, fonts::Font_8x8(), 30, 32, "FAN: 40% CPU: 35c");
-		//display->drawString(0xffffff, fonts::Font_8x8(), 30, 42, "Encoder: Focus");
-		//display->drawString(0xffffff, fonts::Font_8x8(), 30, 52, "Video Mode: 480p");
+		display->drawString(0xffffff, fonts::Font_8x8(), 30, 2, "PrometheOS: V1.3.0");
+		display->drawString(0xffffff, fonts::Font_8x8(), 30, 12, "Free Mem: 112MB");
+		display->drawString(0xffffff, fonts::Font_8x8(), 30, 22, "IP: 192.168.0.100");
+		display->drawString(0xffffff, fonts::Font_8x8(), 30, 32, "FAN: 40% CPU: 35c");
+		display->drawString(0xffffff, fonts::Font_8x8(), 30, 42, "Encoder: Focus");
+		display->drawString(0xffffff, fonts::Font_8x8(), 30, 52, "Video Mode: 480p");
 		display->drawDisplay();
 		sleep_ms(10);
 	}

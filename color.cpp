@@ -18,7 +18,7 @@ uint16_t color::convertR8G8B8toR5G6B5(uint32_t colorR8G8B8)
     uint16_t r8 = (colorR8G8B8 >> 16) & 0xff;
     uint16_t g8 = (colorR8G8B8 >> 8) & 0xff;
     uint16_t b8 = colorR8G8B8 & 0xff;
-    return ((r8 >> 3) << 11) | ((g8 >> 2) << 6) | (b8 >> 3);
+    return ((r8 >> 3) << 11) | ((g8 >> 2) << 5) | (b8 >> 3);
 }
 
 uint32_t color::convertGray8toR8G8B8(uint8_t gray8) 
