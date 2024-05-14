@@ -7,6 +7,7 @@
 #include "fonts.h"
 #include "displayDriver.h"
 #include "displayGC9A01A.h"
+#include "displaySH1106.h"
 #include "displaySH1122.h"
 #include "displayST7789.h"
 #include "color.h"
@@ -37,7 +38,8 @@ int main()
 
 	//displayDriver* display = (displayDriver*)new displayGC9A01A();
 	//displayDriver* display = (displayDriver*)new displayST7789();
-	displayDriver* display = (displayDriver*)new displaySH1122();
+	//displayDriver* display = (displayDriver*)new displaySH1122();
+	displayDriver* display = (displayDriver*)new displaySH1106();
 	//display->contrast(0x80);
 	//display->brightness(0xff);
 	//display->invert(false);

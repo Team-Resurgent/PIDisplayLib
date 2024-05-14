@@ -77,8 +77,8 @@ displayGC9A01A::displayGC9A01A()
 
     initSpi(DISPLAY_GC9A01A_BAUDRATE, true);
 
-    // writeSpiCommand(GC9A01A_SOFTWARE_RESET);
-    // sleep_ms(100);
+    writeSpiCommandByte(GC9A01A_SOFTWARE_RESET);
+    sleep_ms(100);
 
     // writeSpiCommand(GC9A01A_INTERFACE_PIXEL_FORMAT);	
     // writeSpiDataByte(GC9A01A_INTERFACE_PIXEL_FORMAT_16BIT);
@@ -91,100 +91,88 @@ displayGC9A01A::displayGC9A01A()
 
 //https://github.com/adafruit/Adafruit_GC9A01A/blob/main/Adafruit_GC9A01A.cpp
 
-    //?
+    // Unknown
     writeSpiCommandByte(0xEB);
     writeSpiDataByte(0x14);
     
     writeSpiCommandByte(GC9A01A_INNER_REGISTER_ENABLE1);
     writeSpiCommandByte(GC9A01A_INNER_REGISTER_ENABLE2);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0xEB);
     writeSpiDataByte(0x14);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x84);
     writeSpiDataByte(0x40);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x85);
     writeSpiDataByte(0xFF);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x86);
     writeSpiDataByte(0xFF);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x87);
     writeSpiDataByte(0xFF);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x88);
     writeSpiDataByte(0x0A);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x89);
     writeSpiDataByte(0x21);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x8A);
     writeSpiDataByte(0x00);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x8B);
     writeSpiDataByte(0x80);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x8C);
     writeSpiDataByte(0x01);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x8D);
     writeSpiDataByte(0x01);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x8E);
     writeSpiDataByte(0xFF);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x8F);
     writeSpiDataByte(0xFF);
-    
     
     writeSpiCommandByte(GC9A01A_DISPLAY_FUNCTION_CONTROL);
     writeSpiDataByte(0x00);
     writeSpiDataByte(0x00);
     
-    writeSpiCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);
-#if ORIENTATION == 0
-    writeSpiDataByte(0x10);
-#elif ORIENTATION == 1
-    writeSpiDataByte(0x20);
-#elif ORIENTATION == 2
-    writeSpiDataByte(0x40);
-#else
-    writeSpiDataByte(0x80);
-#endif
-    
     writeSpiCommandByte(GC9A01A_INTERFACE_PIXEL_FORMAT); 
     writeSpiDataByte(GC9A01A_INTERFACE_PIXEL_FORMAT_16BIT);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x90);
     writeSpiDataByte(0x08);
     writeSpiDataByte(0x08);
     writeSpiDataByte(0x08);
     writeSpiDataByte(0x08);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0xBD);
     writeSpiDataByte(0x06);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0xBC);
     writeSpiDataByte(0x00);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0xFF);
     writeSpiDataByte(0x60);
     writeSpiDataByte(0x01);
@@ -199,16 +187,16 @@ displayGC9A01A::displayGC9A01A()
     writeSpiCommandByte(GC9A02A_VREG1A_VOLTAGE_CONTROL);
     writeSpiDataByte(0x22);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0xBE);
     writeSpiDataByte(0x11);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0xE1);
     writeSpiDataByte(0x10);
     writeSpiDataByte(0x0E);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0xDF);
     writeSpiDataByte(0x21);
     writeSpiDataByte(0x0c);
@@ -246,20 +234,20 @@ displayGC9A01A::displayGC9A01A()
     writeSpiDataByte(0x37);
     writeSpiDataByte(0x6F);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0xED);
     writeSpiDataByte(0x1B);
     writeSpiDataByte(0x0B);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0xAE);
     writeSpiDataByte(0x77);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0xCD);
     writeSpiDataByte(0x63);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x70);
     writeSpiDataByte(0x07);
     writeSpiDataByte(0x07);
@@ -274,7 +262,7 @@ displayGC9A01A::displayGC9A01A()
     writeSpiCommandByte(GC9A01A_FRAME_RATE_CONTROL);
     writeSpiDataByte(0x34);
 
-    //?    
+    // Unknown    
     writeSpiCommandByte(0x62);
     writeSpiDataByte(0x18);
     writeSpiDataByte(0x0D);
@@ -289,7 +277,7 @@ displayGC9A01A::displayGC9A01A()
     writeSpiDataByte(0x70);
     writeSpiDataByte(0x70);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x63);
     writeSpiDataByte(0x18);
     writeSpiDataByte(0x11);
@@ -304,7 +292,7 @@ displayGC9A01A::displayGC9A01A()
     writeSpiDataByte(0x70);
     writeSpiDataByte(0x70);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x64);
     writeSpiDataByte(0x28);
     writeSpiDataByte(0x29);
@@ -314,7 +302,7 @@ displayGC9A01A::displayGC9A01A()
     writeSpiDataByte(0x00);
     writeSpiDataByte(0x07);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x66);
     writeSpiDataByte(0x3C);
     writeSpiDataByte(0x00);
@@ -327,7 +315,7 @@ displayGC9A01A::displayGC9A01A()
     writeSpiDataByte(0x00);
     writeSpiDataByte(0x00);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x67);
     writeSpiDataByte(0x00);
     writeSpiDataByte(0x3C);
@@ -340,7 +328,7 @@ displayGC9A01A::displayGC9A01A()
     writeSpiDataByte(0x32);
     writeSpiDataByte(0x98);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x74);
     writeSpiDataByte(0x10);
     writeSpiDataByte(0x85);
@@ -350,19 +338,15 @@ displayGC9A01A::displayGC9A01A()
     writeSpiDataByte(0x4E);
     writeSpiDataByte(0x00);
     
-    //?
+    // Unknown
     writeSpiCommandByte(0x98);
     writeSpiDataByte(0x3e);
     writeSpiDataByte(0x07);
-    
-    writeSpiCommandByte(GC9A01A_TEARING_EFFECT_LINE_ON);
-    writeSpiCommandByte(GC9A01A_DISPLAY_INVERSION_ON);
-    
-    writeSpiCommandByte(GC9A01A_SLEEP_OUT);
-    sleep_ms(120);
-    writeSpiCommandByte(GC9A01A_DISPLAY_ON);
-    sleep_ms(20);
 
+    writeSpiCommandByte(GC9A01A_DISPLAY_INVERSION_ON);
+	writeSpiCommandByte(GC9A01A_SLEEP_OUT);
+  	writeSpiCommandByte(GC9A01A_PARTIAL_MODE_OFF);
+  	writeSpiCommandByte(GC9A01A_DISPLAY_ON);
 
     rotate(0);
 
@@ -494,14 +478,15 @@ void displayGC9A01A::rotate(uint16_t degrees)
     if (degrees == 0)
     {
         writeSpiCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeSpiDataByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB);
+        writeSpiDataByte(
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MX | 
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB);
     }
     else if (degrees == 90)
     {
         writeSpiCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
         writeSpiDataByte((uint8_t)(
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MV | 
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MX | 
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB)
         );
     }
@@ -509,7 +494,6 @@ void displayGC9A01A::rotate(uint16_t degrees)
     {
         writeSpiCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
 	    writeSpiDataByte((uint8_t)(
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MX | 
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MY | 
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB)
         );
@@ -518,6 +502,8 @@ void displayGC9A01A::rotate(uint16_t degrees)
     {
         writeSpiCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
         writeSpiDataByte((uint8_t)(
+            
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MX | 
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MV | 
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MY | 
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB));

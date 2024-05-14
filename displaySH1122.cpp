@@ -23,7 +23,7 @@
 #define SH1122_CMD_SET_SCAN_DIRECTION 0xC0
 #define SH1122_CMD_SET_DISPLAY_OFFSET 0xD3 // 2 Byte Command
 #define SH1122_CMD_SET_CLOCK_DIVIDER 0xD5 // 2 Byte Command
-#define SS1122_CMD_SET_DISCHARGE_PRECHARGE_PERIOD 0xD9 // 2 Byte Command
+#define SH1122_CMD_SET_DISCHARGE_PRECHARGE_PERIOD 0xD9 // 2 Byte Command
 #define SH1122_CMD_SET_VCOM_DESELECT_LEVEL 0xDB // 2 Byte Command
 #define SH1122_CMD_SET_VSEGM_LEVEL 0xDC // 2 Byte Command
 #define SH1122_CMD_SET_DISCHARGE_VSL_LEVEL 0x30
@@ -67,7 +67,7 @@ displaySH1122::displaySH1122()
     uint8_t clockDividerData[] = {SH1122_CMD_SET_CLOCK_DIVIDER, 0x50};
     writeSpiCommand(clockDividerData, sizeof(clockDividerData));
 
-    uint8_t dischargePeriodData[] = {SS1122_CMD_SET_DISCHARGE_PRECHARGE_PERIOD, 0x22};
+    uint8_t dischargePeriodData[] = {SH1122_CMD_SET_DISCHARGE_PRECHARGE_PERIOD, 0x22};
     writeSpiCommand(dischargePeriodData, sizeof(dischargePeriodData));
 
     uint8_t vcomDeselectData[] = {SH1122_CMD_SET_VCOM_DESELECT_LEVEL, 0x35};
@@ -160,7 +160,8 @@ void displaySH1122::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
 void displaySH1122::fill(uint32_t colorR8G8B8)
 {
     uint8_t gray4 = color::convertR8G8B8toGray4(colorR8G8B8);
-    memset(getDisplayBuffer()->getBuffer(), (gray4 << 4) | gray4, getDisplayBuffer()->getBufferSize());
+    uint8_t value = (gray4 << 4) | gray4;
+    memset(getDisplayBuffer()->getBuffer(), value, getDisplayBuffer()->getBufferSize());
 }
 
 void displaySH1122::drawDisplay()

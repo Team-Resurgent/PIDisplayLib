@@ -13,6 +13,11 @@ uint8_t color::convertR8G8B8toGray4(uint32_t colorR8G8B8)
     return convertR8G8B8toGray8(colorR8G8B8) >> 4;
 }
 
+uint8_t color::convertR8G8B8toGray1(uint32_t colorR8G8B8)
+{
+    return convertR8G8B8toGray8(colorR8G8B8) >> 7;
+}
+
 uint16_t color::convertR8G8B8toR5G6B5(uint32_t colorR8G8B8)
 {
     uint16_t r8 = (colorR8G8B8 >> 16) & 0xff;
@@ -32,6 +37,11 @@ uint32_t color::convertGray8toR8G8B8(uint8_t gray8)
 uint32_t color::convertGray4toR8G8B8(uint8_t gray4) 
 {
     return convertGray8toR8G8B8((gray4 & 0xf) << 4);
+}
+
+uint32_t color::convertGray1toR8G8B8(uint8_t gray1) 
+{
+    return convertGray8toR8G8B8((gray1 & 0x1) << 7);
 }
 
 uint32_t color::convertR5G6B5toR8G8B8(uint16_t colorR5G6B5)
