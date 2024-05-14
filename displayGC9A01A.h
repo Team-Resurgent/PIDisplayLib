@@ -5,17 +5,17 @@
 #include "fonts.h"
 
 // Config
-#define DISPLAY_ST7789_BAUDRATE (10 * 1024 * 1024)
-#define DISPLAY_ST7789_WIDTH 240
-#define DISPLAY_ST7789_HEIGHT 280
-#define DISPLAY_ST7789_X_SHIFT 0 
-#define DISPLAY_ST7789_Y_SHIFT 20
-#define DISPLAY_ST7789_BITS_PER_PIXEL 16
+#define DISPLAY_GC9A01A_BAUDRATE (10 * 1024 * 1024)
+#define DISPLAY_GC9A01A_WIDTH 240
+#define DISPLAY_GC9A01A_HEIGHT 280
+#define DISPLAY_GC9A01A_X_SHIFT 0 
+#define DISPLAY_GC9A01A_Y_SHIFT 20
+#define DISPLAY_GC9A01A_BITS_PER_PIXEL 16
 
-class displayST7789 : displayDriver
+class displayGC9A01A : displayDriver
 {
 public:
-    displayST7789();
+    displayGC9A01A();
 
     void drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character);
     void drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message);

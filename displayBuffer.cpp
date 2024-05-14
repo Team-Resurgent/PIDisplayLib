@@ -11,6 +11,7 @@ displayBuffer::displayBuffer(uint16_t width, uint16_t height, uint16_t xShift, u
     mBitsPerPixel = bitsPerPixel;
     mBufferSize = (mWidth * mHeight * mBitsPerPixel) >> 3;
     mBuffer = static_cast<uint8_t*>(malloc(mBufferSize));
+    mRotation = 0;
     memset(mBuffer, 0, mBufferSize);
 }
 
