@@ -86,6 +86,8 @@ displayST7789::displayST7789()
     initDisplayBuffer(
         DISPLAY_ST7789_WIDTH, 
         DISPLAY_ST7789_HEIGHT, 
+        DISPLAY_ST7789_X_SHIFT,
+        DISPLAY_ST7789_Y_SHIFT,
         DISPLAY_ST7789_BITS_PER_PIXEL
     );
 
@@ -133,8 +135,7 @@ displayST7789::displayST7789()
   	writeSpiCommand(ST7789_PARTIAL_MODE_OFF);
   	writeSpiCommand(ST7789_DISPLAY_ON);
 
-    writeSpiCommand(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
-	writeSpiDataByte((uint8_t)(ST7789_MEMORY_ADDRESS_DATA_CONTROL_MX | ST7789_MEMORY_ADDRESS_DATA_CONTROL_MY | ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB));
+    rotate(0);
 
     drawDisplay();
 }
@@ -186,14 +187,14 @@ void displayST7789::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y,
 
 void displayST7789::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
 {
-    if (x >= DISPLAY_ST7789_WIDTH || y >= DISPLAY_ST7789_HEIGHT)
+    if (x >= mDisplayBuffer->getWidth() || y >= mDisplayBuffer->getHeight())
     {
         return;
     }
 
     uint16_t r5g6b5 = color::convertR8G8B8toR5G6B5(colorR8G8B8);
     uint8_t* buffer = getDisplayBuffer()->getBuffer();
-    uint32_t pixelOffset = (y * (DISPLAY_ST7789_WIDTH << 1)) + (x << 1);
+    uint32_t pixelOffset = (y * (mDisplayBuffer->getWidth() << 1)) + (x << 1);
     buffer[pixelOffset] = static_cast<uint8_t>((r5g6b5 & 0xff00) >> 8);
     buffer[pixelOffset + 1] = static_cast<uint8_t>(r5g6b5 & 0xff);
 }
@@ -202,11 +203,11 @@ void displayST7789::fill(uint32_t colorR8G8B8)
 {
     uint16_t r5g6b5 = color::convertR8G8B8toR5G6B5(colorR8G8B8);
 
-    uint32_t rowStride = DISPLAY_ST7789_WIDTH << 1;
+    uint32_t rowStride = mDisplayBuffer->getWidth() << 1;
     uint8_t* rowData = (uint8_t*)malloc(rowStride);
 
     uint32_t offset = 0;
-    for (uint32_t i = 0; i < DISPLAY_ST7789_WIDTH; i++)
+    for (uint32_t i = 0; i < mDisplayBuffer->getWidth(); i++)
     {
         rowData[offset] = static_cast<uint8_t>(r5g6b5 >> 8);
         rowData[offset + 1] = static_cast<uint8_t>(r5g6b5 & 0xff);
@@ -214,7 +215,7 @@ void displayST7789::fill(uint32_t colorR8G8B8)
     }
 
     uint8_t* buffer = getDisplayBuffer()->getBuffer();
-    for (uint32_t i = 0; i < DISPLAY_ST7789_HEIGHT; i++) 
+    for (uint32_t i = 0; i < mDisplayBuffer->getHeight(); i++) 
     {
         memcpy(buffer, rowData, rowStride);
         buffer += rowStride;
@@ -223,10 +224,10 @@ void displayST7789::fill(uint32_t colorR8G8B8)
 
 void displayST7789::drawDisplay()
 {
-	uint16_t xStart = 0 + DISPLAY_ST7789_X_SHIFT;
-    uint16_t xEnd = DISPLAY_ST7789_WIDTH + DISPLAY_ST7789_X_SHIFT - 1;
-	uint16_t yStart = 0 + DISPLAY_ST7789_Y_SHIFT;
-    uint16_t yEnd = DISPLAY_ST7789_HEIGHT + DISPLAY_ST7789_Y_SHIFT - 1;
+	uint16_t xStart = 0 + mDisplayBuffer->getXShift();
+    uint16_t xEnd = mDisplayBuffer->getWidth() + mDisplayBuffer->getXShift() - 1;
+	uint16_t yStart = 0 + mDisplayBuffer->getYShift();
+    uint16_t yEnd = mDisplayBuffer->getHeight() + mDisplayBuffer->getYShift() - 1;
 
 	writeSpiCommand(ST7789_COLUMN_ADDRESS_SET);
     uint8_t columnData[] = {(uint8_t)(xStart >> 8), (uint8_t)(xStart & 0xFF), (uint8_t)(xEnd >> 8), (uint8_t)(xEnd & 0xFF)};
@@ -259,6 +260,8 @@ void displayST7789::invert(bool value)
 
 void displayST7789::rotate(uint16_t degrees)
 {
+    mDisplayBuffer->setRotation(degrees);
+
     if (degrees == 0)
     {
         writeSpiCommand(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	

@@ -2,10 +2,12 @@
 #include <cstdlib>
 #include <cstring>
 
-displayBuffer::displayBuffer(uint16_t width, uint16_t height, uint8_t bitsPerPixel)
+displayBuffer::displayBuffer(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel)
 {
     mWidth = width;
     mHeight = height;
+    mXShift = xShift;
+    mYShift = yShift;
     mBitsPerPixel = bitsPerPixel;
     mBufferSize = (mWidth * mHeight * mBitsPerPixel) >> 3;
     mBuffer = static_cast<uint8_t*>(malloc(mBufferSize));
@@ -19,12 +21,22 @@ displayBuffer::~displayBuffer()
 
 uint16_t displayBuffer::getWidth()
 {
-    return mWidth;
+    return (mRotation == 90 || mRotation == 270) ? mHeight : mWidth;
 }
 
 uint16_t displayBuffer::getHeight()
 {
-    return mHeight;
+    return (mRotation == 90 || mRotation == 270) ? mWidth : mHeight;
+}
+
+uint16_t displayBuffer::getXShift()
+{
+    return (mRotation == 90 || mRotation == 270) ? mYShift : mXShift;
+}
+
+uint16_t displayBuffer::getYShift()
+{
+    return (mRotation == 90 || mRotation == 270) ? mXShift : mYShift;
 }
 
 uint8_t displayBuffer::getBitsPerPixel()
@@ -40,4 +52,14 @@ uint32_t displayBuffer::getBufferSize()
 uint8_t* displayBuffer::getBuffer()
 {
     return mBuffer;
+}
+
+uint16_t displayBuffer::getRotation()
+{
+    return mRotation;
+}
+
+void displayBuffer::setRotation(uint16_t degrees)
+{
+    mRotation = degrees;
 }

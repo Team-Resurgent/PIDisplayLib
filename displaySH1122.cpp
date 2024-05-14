@@ -36,6 +36,8 @@ displaySH1122::displaySH1122()
     initDisplayBuffer(
         DISPLAY_SH1122_WIDTH, 
         DISPLAY_SH1122_HEIGHT, 
+        0,
+        0,
         DISPLAY_SH1122_BITS_PER_PIXEL
     );
 
@@ -113,14 +115,14 @@ void displaySH1122::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y,
 
 void displaySH1122::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
 {
-    if (x >= DISPLAY_SH1122_WIDTH || y >= DISPLAY_SH1122_HEIGHT)
+    if (x >= mDisplayBuffer->getWidth() || y >= mDisplayBuffer->getHeight())
     {
         return;
     }
 
     uint8_t gray4 = color::convertR8G8B8toGray4(colorR8G8B8);
     uint8_t* buffer = getDisplayBuffer()->getBuffer();
-    uint32_t pixelOffset = (y * (DISPLAY_SH1122_WIDTH >> 1)) + (x >> 1);
+    uint32_t pixelOffset = (y * (mDisplayBuffer->getWidth() >> 1)) + (x >> 1);
     uint8_t currentPixel = buffer[pixelOffset];
     if ((x & 1) == 0) 
     {
@@ -166,6 +168,8 @@ void displaySH1122::invert(bool value)
 
 void displaySH1122::rotate(uint16_t degrees)
 {
+    mDisplayBuffer->setRotation(degrees);
+
     if (degrees == 0)
     {
         writeSpiCommand(SH1122_CMD_SET_DISPLAY_START_LINE | 0x00 );
@@ -174,7 +178,7 @@ void displaySH1122::rotate(uint16_t degrees)
     }
     else if (degrees == 180)
     {
-        writeSpiCommand(SH1122_CMD_SET_DISPLAY_START_LINE | (uint8_t)DISPLAY_SH1122_WIDTH);
+        writeSpiCommand(SH1122_CMD_SET_DISPLAY_START_LINE | (uint8_t)mDisplayBuffer->getWidth());
 	    writeSpiCommand(SH1122_CMD_SET_SEGMENT_REMAP | 0x01);
 	    writeSpiCommand(SH1122_CMD_SET_SCAN_DIRECTION | 0x08);
     }

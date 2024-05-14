@@ -15,11 +15,13 @@ displayDriver::~displayDriver()
     delete(mDisplayBuffer);
 }
 
-void displayDriver::initDisplayBuffer(uint16_t width, uint16_t height, uint8_t bitsPerPixel)
+void displayDriver::initDisplayBuffer(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel)
 {
     mDisplayBuffer = new displayBuffer(
         width, 
         height, 
+		xShift,
+		yShift,
         bitsPerPixel
     );
 }

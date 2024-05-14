@@ -11,7 +11,7 @@ public:
 
     ~displayDriver();
 
-    void initDisplayBuffer(uint16_t width, uint16_t height, uint8_t bitsPerPixel);
+    void initDisplayBuffer(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel);
     displayBuffer* getDisplayBuffer();
 
     void initSpi(uint32_t baudRate, bool hasBacklight);
