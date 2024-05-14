@@ -243,9 +243,9 @@ void displayST7789::drawDisplay()
 
 void displayST7789::brightness(uint8_t value)
 {
-    // TODO test
-    writeSpiCommand(ST7789_WRITE_DISPLAY_BRIGHTNESS);
-    writeSpiDataByte(value);
+    // Does not seem to work
+    // writeSpiCommand(ST7789_WRITE_DISPLAY_BRIGHTNESS);
+    // writeSpiDataByte(value);
 }
 
 void displayST7789::contrast(uint8_t value)

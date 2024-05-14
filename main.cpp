@@ -37,7 +37,7 @@ int main()
 	displayDriver* display = (displayDriver*)new displayST7789();
 	//displayDriver* display = (displayDriver*)new displaySH1122();
 	display->contrast(0x80);
-	display->brightness(0x20);
+	display->brightness(0xff);
 	display->invert(false);
 	display->rotate(270);
 
