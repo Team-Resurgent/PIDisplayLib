@@ -74,15 +74,6 @@ void displayDriver::writeSpiCommandByte(uint8_t cmd)
 	writeSpiCommand(&cmd, 1);
 }
 
-// void displayDriver::writeSpiDualCommand(uint8_t cmd1, uint8_t cmd2)
-// {
-//     uint8_t cmds[2];
-//     cmds[0] = cmd1;
-//     cmds[1] = cmd2;
-// 	gpio_put(SPI_DISPLAY_DC, 0);
-//     spi_write_blocking(spi_default, &cmds[0], 2);
-// }
-
 void displayDriver::writeSpiData(uint8_t *buff, uint32_t buff_size)
 {
 	gpio_put(SPI_DISPLAY_DC, 1);
