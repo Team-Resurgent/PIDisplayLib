@@ -87,6 +87,9 @@ displayGC9A01A::displayGC9A01A()
 	// uint8_t porchData[] = { 0x0c, 0x0c, 0x00, 0x33, 0x33 };
 	// writeSpiData(porchData, sizeof(porchData));
 
+//https://github.com/adafruit/Adafruit_GC9A01A/blob/main/Adafruit_GC9A01A.cpp
+
+    writeSpiCommandByte(GC9A01A_INNER_REGISTER_ENABLE1);
 
 //     static const uint8_t PROGMEM initcmd[] = {
 //   GC9A01A_INREGEN2, 0,

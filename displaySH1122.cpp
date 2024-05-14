@@ -43,27 +43,47 @@ displaySH1122::displaySH1122()
 
     initSpi(DISPLAY_SH1122_BAUDRATE, false);
 
-    writeSpiCommand(SH1122_CMD_SET_DISPLAY_OFF);
-    writeSpiCommand(SH1122_CMD_SET_ENTIRE_DISPLAY_OFF);
+    writeSpiCommandByte(SH1122_CMD_SET_DISPLAY_OFF);
+    writeSpiCommandByte(SH1122_CMD_SET_ENTIRE_DISPLAY_OFF);
+    writeSpiCommandByte(SH1122_CMD_SET_DISPLAY_START_LINE | 0);
 
-    writeSpiCommand(SH1122_CMD_SET_DISPLAY_START_LINE | 0);
-    writeSpiDualCommand(SH1122_CMD_SET_CONTRAST_CURRENT, 0x80);
-    writeSpiCommand(SH1122_CMD_SET_SEGMENT_REMAP | 0x00);
-    writeSpiCommand(SH1122_CMD_SET_NORMAL_DISPLAY);
-    writeSpiDualCommand(SH1122_CMD_SET_MULTIPLEX_RATIO, DISPLAY_SH1122_HEIGHT - 1);
-    writeSpiDualCommand(SH1122_CMD_SET_DCDC_SETTING, 0x81);
-    writeSpiCommand(SH1122_CMD_SET_SCAN_DIRECTION | 0x00);
-    writeSpiDualCommand(SH1122_CMD_SET_DISPLAY_OFFSET, 0x00);
-    writeSpiDualCommand(SH1122_CMD_SET_CLOCK_DIVIDER, 0x50);
-    writeSpiDualCommand(SS1122_CMD_SET_DISCHARGE_PRECHARGE_PERIOD, 0x22);
-    writeSpiDualCommand(SH1122_CMD_SET_VCOM_DESELECT_LEVEL, 0x35);
-    writeSpiDualCommand(SH1122_CMD_SET_VSEGM_LEVEL, 0x35);
-    writeSpiCommand(SH1122_CMD_SET_DISCHARGE_VSL_LEVEL | 0x00);
+    uint8_t contrastData[] = {SH1122_CMD_SET_CONTRAST_CURRENT, 0x80};
+    writeSpiCommand(contrastData, sizeof(contrastData));
 
-    writeSpiDualCommand(SH1122_CMD_SET_ROW_ADDR, 0x00);
-    writeSpiCommand(SH1122_CMD_SET_LOW_COLUMN_ADDR);
-    writeSpiCommand(SH1122_CMD_SET_HIGH_COLUMN_ADDR);
-    writeSpiCommand(SH1122_CMD_SET_DISPLAY_ON);
+    writeSpiCommandByte(SH1122_CMD_SET_SEGMENT_REMAP | 0x00);
+    writeSpiCommandByte(SH1122_CMD_SET_NORMAL_DISPLAY);
+
+    uint8_t multiplexData[] = {SH1122_CMD_SET_MULTIPLEX_RATIO, DISPLAY_SH1122_HEIGHT - 1};
+    writeSpiCommand(multiplexData, sizeof(multiplexData));
+
+    uint8_t dcdcData[] = {SH1122_CMD_SET_DCDC_SETTING, 0x81};
+    writeSpiCommand(dcdcData, sizeof(dcdcData));
+
+    writeSpiCommandByte(SH1122_CMD_SET_SCAN_DIRECTION | 0x00);
+
+    uint8_t displayOffetData[] = {SH1122_CMD_SET_DISPLAY_OFFSET, 0x00};
+    writeSpiCommand(displayOffetData, sizeof(displayOffetData));
+
+    uint8_t clockDividerData[] = {SH1122_CMD_SET_CLOCK_DIVIDER, 0x50};
+    writeSpiCommand(clockDividerData, sizeof(clockDividerData));
+
+    uint8_t dischargePeriodData[] = {SS1122_CMD_SET_DISCHARGE_PRECHARGE_PERIOD, 0x22};
+    writeSpiCommand(dischargePeriodData, sizeof(dischargePeriodData));
+
+    uint8_t vcomDeselectData[] = {SH1122_CMD_SET_VCOM_DESELECT_LEVEL, 0x35};
+    writeSpiCommand(vcomDeselectData, sizeof(vcomDeselectData));
+
+    uint8_t vsgemData[] = {SH1122_CMD_SET_VSEGM_LEVEL, 0x35};
+    writeSpiCommand(vsgemData, sizeof(vsgemData));
+
+    writeSpiCommandByte(SH1122_CMD_SET_DISCHARGE_VSL_LEVEL | 0x00);
+
+    uint8_t rowAddrData[] = {SH1122_CMD_SET_ROW_ADDR, 0x00};
+    writeSpiCommand(rowAddrData, sizeof(rowAddrData));
+
+    writeSpiCommandByte(SH1122_CMD_SET_LOW_COLUMN_ADDR);
+    writeSpiCommandByte(SH1122_CMD_SET_HIGH_COLUMN_ADDR);
+    writeSpiCommandByte(SH1122_CMD_SET_DISPLAY_ON);
 
     drawDisplay();
 }
@@ -145,9 +165,11 @@ void displaySH1122::fill(uint32_t colorR8G8B8)
 
 void displaySH1122::drawDisplay()
 {
-    writeSpiDualCommand(SH1122_CMD_SET_ROW_ADDR, 0x00);
-    writeSpiCommand(SH1122_CMD_SET_LOW_COLUMN_ADDR);
-    writeSpiCommand(SH1122_CMD_SET_HIGH_COLUMN_ADDR);
+    uint8_t rowAddrData[] = {SH1122_CMD_SET_ROW_ADDR, 0x00};
+    writeSpiCommand(rowAddrData, sizeof(rowAddrData));
+
+    writeSpiCommandByte(SH1122_CMD_SET_LOW_COLUMN_ADDR);
+    writeSpiCommandByte(SH1122_CMD_SET_HIGH_COLUMN_ADDR);
     writeSpiData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
 }
 
@@ -158,12 +180,13 @@ void displaySH1122::brightness(uint8_t value)
 
 void displaySH1122::contrast(uint8_t value)
 {
-    writeSpiDualCommand(SH1122_CMD_SET_CONTRAST_CURRENT, value);
+    uint8_t contrastData[] = {SH1122_CMD_SET_CONTRAST_CURRENT, value};
+    writeSpiCommand(contrastData, sizeof(contrastData));
 }
 
 void displaySH1122::invert(bool value)
 {
-    writeSpiCommand(value ? SH1122_CMD_SET_REVERSE_DISPLAY : SH1122_CMD_SET_NORMAL_DISPLAY);
+    writeSpiCommandByte(value ? SH1122_CMD_SET_REVERSE_DISPLAY : SH1122_CMD_SET_NORMAL_DISPLAY);
 }
 
 void displaySH1122::rotate(uint16_t degrees)
@@ -172,14 +195,14 @@ void displaySH1122::rotate(uint16_t degrees)
 
     if (degrees == 0)
     {
-        writeSpiCommand(SH1122_CMD_SET_DISPLAY_START_LINE | 0x00 );
-	    writeSpiCommand(SH1122_CMD_SET_SEGMENT_REMAP | 0x00);
-	    writeSpiCommand(SH1122_CMD_SET_SCAN_DIRECTION | 0x00);
+        writeSpiCommandByte(SH1122_CMD_SET_DISPLAY_START_LINE | 0x00);
+	    writeSpiCommandByte(SH1122_CMD_SET_SEGMENT_REMAP | 0x00);
+	    writeSpiCommandByte(SH1122_CMD_SET_SCAN_DIRECTION | 0x00);
     }
     else if (degrees == 180)
     {
-        writeSpiCommand(SH1122_CMD_SET_DISPLAY_START_LINE | (uint8_t)mDisplayBuffer->getWidth());
-	    writeSpiCommand(SH1122_CMD_SET_SEGMENT_REMAP | 0x01);
-	    writeSpiCommand(SH1122_CMD_SET_SCAN_DIRECTION | 0x08);
+        writeSpiCommandByte(SH1122_CMD_SET_DISPLAY_START_LINE | (uint8_t)mDisplayBuffer->getWidth());
+	    writeSpiCommandByte(SH1122_CMD_SET_SEGMENT_REMAP | 0x01);
+	    writeSpiCommandByte(SH1122_CMD_SET_SCAN_DIRECTION | 0x08);
     }
 }

@@ -15,8 +15,8 @@ public:
     displayBuffer* getDisplayBuffer();
 
     void initSpi(uint32_t baudRate, bool hasBacklight);
-    void writeSpiCommand(uint8_t cmd);
-    void writeSpiDualCommand(uint8_t cmd1, uint8_t cmd2);
+    void writeSpiCommand(uint8_t *buff, uint32_t buff_size);
+    void writeSpiCommandByte(uint8_t cmd);
     void writeSpiData(uint8_t *buff, uint32_t buff_size);
     void writeSpiDataByte(uint8_t data);
 
