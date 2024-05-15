@@ -130,14 +130,12 @@ void displaySH1106::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
         return;
     }
 
-    // buffer[x + (y/8)*128] |=  (1 << (y&7));
-
     uint8_t gray1 = color::convertR8G8B8toGray1(colorR8G8B8);
     uint8_t* buffer = getDisplayBuffer()->getBuffer();
     uint32_t pixelOffset = x + (y >> 3) * mDisplayBuffer->getWidth();
     uint8_t currentPixel = buffer[pixelOffset];
     uint8_t pixelBit = y & 0x7;
-    currentPixel &= ~(0x1 << pixelBit);
+    currentPixel &= ~(1 << pixelBit);
     currentPixel |= gray1 << pixelBit;
     buffer[pixelOffset] = currentPixel;
 }
