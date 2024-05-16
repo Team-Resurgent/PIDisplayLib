@@ -31,8 +31,10 @@ displayBuffer* displayDriver::getDisplayBuffer()
     return mDisplayBuffer;
 }
 
-void displayDriver::initSpi(uint32_t baudRate, bool hasBacklight)
+void displayDriver::initSpi(spi_inst_t* spi, uint32_t baudRate, bool hasBacklight)
 {
+	mSpi = spi;
+
 	if (hasBacklight)
 	{
     	gpio_init(SPI_DISPLAY_BACKLIGHT);
@@ -48,14 +50,14 @@ void displayDriver::initSpi(uint32_t baudRate, bool hasBacklight)
     gpio_put(SPI_DISPLAY_DC, 0);
     gpio_set_dir(SPI_DISPLAY_DC, GPIO_OUT);
 
-    spi_init(spi_default, baudRate);
+    spi_init(mSpi, baudRate);
     gpio_set_function(SPI_DISPLAY_RX, GPIO_FUNC_SPI);
     gpio_set_function(SPI_DISPLAY_SCK, GPIO_FUNC_SPI);
     gpio_set_function(SPI_DISPLAY_TX, GPIO_FUNC_SPI);
     gpio_set_function(SPI_DISPLAY_CSN, GPIO_FUNC_SPI);
     bi_decl(bi_4pins_with_func((uint32_t)SPI_DISPLAY_RX, (uint32_t)SPI_DISPLAY_TX, (uint32_t)SPI_DISPLAY_SCK, (uint32_t)SPI_DISPLAY_CSN, GPIO_FUNC_SPI));
 
-    spi_set_format(spi_default, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
+    spi_set_format(mSpi, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
 
     sleep_ms(10);
 	gpio_put(SPI_DISPLAY_RST, 0);
@@ -66,7 +68,7 @@ void displayDriver::initSpi(uint32_t baudRate, bool hasBacklight)
 void displayDriver::writeSpiCommand(uint8_t *buff, uint32_t buff_size)
 {
 	gpio_put(SPI_DISPLAY_DC, 0);
-    spi_write_blocking(spi_default, buff, buff_size);
+    spi_write_blocking(mSpi, buff, buff_size);
 }
 
 void displayDriver::writeSpiCommandByte(uint8_t cmd)
@@ -77,7 +79,7 @@ void displayDriver::writeSpiCommandByte(uint8_t cmd)
 void displayDriver::writeSpiData(uint8_t *buff, uint32_t buff_size)
 {
 	gpio_put(SPI_DISPLAY_DC, 1);
-    spi_write_blocking(spi_default, buff, buff_size);
+    spi_write_blocking(mSpi, buff, buff_size);
 }
 
 void displayDriver::writeSpiDataByte(uint8_t data)

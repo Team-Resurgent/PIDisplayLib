@@ -91,7 +91,7 @@ displayST7789::displayST7789()
         DISPLAY_ST7789_BITS_PER_PIXEL
     );
 
-    initSpi(DISPLAY_ST7789_BAUDRATE, true);
+    initSpi(DISPLAY_ST7789_SPI, DISPLAY_ST7789_BAUDRATE, true);
 
     writeSpiCommandByte(ST7789_SOFTWARE_RESET);
     sleep_ms(100);

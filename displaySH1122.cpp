@@ -41,7 +41,7 @@ displaySH1122::displaySH1122()
         DISPLAY_SH1122_BITS_PER_PIXEL
     );
 
-    initSpi(DISPLAY_SH1122_BAUDRATE, false);
+    initSpi(DISPLAY_SH1122_SPI, DISPLAY_SH1122_BAUDRATE, false);
 
     writeSpiCommandByte(SH1122_CMD_SET_DISPLAY_OFF);
     writeSpiCommandByte(SH1122_CMD_SET_ENTIRE_DISPLAY_OFF);

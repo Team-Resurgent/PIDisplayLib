@@ -75,7 +75,7 @@ displayGC9A01A::displayGC9A01A()
         DISPLAY_GC9A01A_BITS_PER_PIXEL
     );
 
-    initSpi(DISPLAY_GC9A01A_BAUDRATE, true);
+    initSpi(DISPLAY_GC9A01A_SPI, DISPLAY_GC9A01A_BAUDRATE, true);
 
     writeSpiCommandByte(GC9A01A_SOFTWARE_RESET);
     sleep_ms(100);

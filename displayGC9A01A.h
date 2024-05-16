@@ -3,8 +3,11 @@
 #include "displayDriver.h"
 #include "displayBuffer.h"
 #include "fonts.h"
+#include "hardware/spi.h"
+#include "hardware/structs/spi.h"
 
 // Config
+#define DISPLAY_GC9A01A_SPI spi0
 #define DISPLAY_GC9A01A_BAUDRATE (10 * 1024 * 1024)
 #define DISPLAY_GC9A01A_WIDTH 240
 #define DISPLAY_GC9A01A_HEIGHT 240

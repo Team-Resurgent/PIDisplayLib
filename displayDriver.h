@@ -3,6 +3,8 @@
 #include "displayBuffer.h"
 #include "fonts.h"
 #include "pico/stdlib.h"
+#include "hardware/spi.h"
+#include "hardware/structs/spi.h"
 
 class displayDriver
 {
@@ -14,7 +16,7 @@ public:
     void initDisplayBuffer(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel);
     displayBuffer* getDisplayBuffer();
 
-    void initSpi(uint32_t baudRate, bool hasBacklight);
+    void initSpi(spi_inst_t* spi, uint32_t baudRate, bool hasBacklight);
     void writeSpiCommand(uint8_t *buff, uint32_t buff_size);
     void writeSpiCommandByte(uint8_t cmd);
     void writeSpiData(uint8_t *buff, uint32_t buff_size);
@@ -45,4 +47,5 @@ public:
 
 public:
     displayBuffer* mDisplayBuffer;
+    spi_inst_t* mSpi;
 };

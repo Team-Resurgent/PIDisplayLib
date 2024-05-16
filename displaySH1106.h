@@ -3,8 +3,11 @@
 #include "displayDriver.h"
 #include "displayBuffer.h"
 #include "fonts.h"
+#include "hardware/spi.h"
+#include "hardware/structs/spi.h"
 
 // Config
+#define DISPLAY_SH1106_SPI spi0
 #define DISPLAY_SH1106_BAUDRATE (10 * 1024 * 1024)
 #define DISPLAY_SH1106_WIDTH 128
 #define DISPLAY_SH1106_HEIGHT 64
