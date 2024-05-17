@@ -6,7 +6,8 @@
 class spiTest
 {
 public:
-    static void initSpi(spi_inst_t* spi, uint32_t baudRate);
-    static void writeSpi(uint8_t *buff, uint32_t buff_size);
+    static void initSpi(spi_inst_t* spi, uint32_t baudRate, bool slave);
+    static void writeSpi();
     static void readSpi();
+    static void process();
 };

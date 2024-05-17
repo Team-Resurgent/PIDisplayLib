@@ -21,11 +21,9 @@
 
 void core1_entry() 
 {
-	uint8_t message[] = {'H', 'e', 'l', 'l', 'o', '\n'};
     while (true)
 	{
-		//spiTest::writeSpi(message, sizeof(message));
-		//spiTest::readSpi();
+		spiTest::process();
 		sleep_ms(5000);
 	}
 }
@@ -37,7 +35,8 @@ int main()
 
 	printf("Initializing Display\n");
 
-	//spiTest::initSpi(spi1, 1 * 1024 * 1024);
+	const bool slave = false;
+	spiTest::initSpi(spi1, 1 * 1024 * 1024, slave);
 
 	//displayDriver* display = (displayDriver*)new displayGC9A01A();
 	//displayDriver* display = (displayDriver*)new displayST7789();

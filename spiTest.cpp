@@ -15,13 +15,16 @@
 namespace
 {
     spi_inst_t* mSpi;
+    bool mSlave;
 }
 
-void spiTest::initSpi(spi_inst_t* spi, uint32_t baudRate)
+void spiTest::initSpi(spi_inst_t* spi, uint32_t baudRate, bool slave)
 {
     mSpi = spi;
+    mSlave = slave;
 
     spi_init(mSpi, baudRate);
+    spi_set_slave(mSpi, slave);
     gpio_set_function(SPI_TEST_RX, GPIO_FUNC_SPI);
     gpio_set_function(SPI_TEST_SCK, GPIO_FUNC_SPI);
     gpio_set_function(SPI_TEST_TX, GPIO_FUNC_SPI);
@@ -31,17 +34,33 @@ void spiTest::initSpi(spi_inst_t* spi, uint32_t baudRate)
     spi_set_format(mSpi, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
 }
 
-void spiTest::writeSpi(uint8_t *buff, uint32_t buff_size)
+void spiTest::writeSpi()
 {
-    spi_write_blocking(mSpi, buff, buff_size);
+    printf("sending message\n");
+    uint8_t message[] = {'H', 'e', 'l', 'l', 'o', '\n'};
+    spi_write_blocking(mSpi, message, sizeof(message));
 }
 
 void spiTest::readSpi()
 {
+    printf("recieving message\n");
     uint8_t character;
     while (spi_is_readable(mSpi)) 
     {
-        spi_read_blocking(mSpi,  0, &character, 1);
-        printf("spi received %02X - %c\n", character, character);
+        uint8_t buffer[1];
+        spi_read_blocking(mSpi,  0, buffer, 1);
+        printf("spi received %i\n", buffer[0]);
+    }
+}
+
+void spiTest::process()
+{
+    if (mSlave)
+    {
+        readSpi();
+    }
+    else
+    {
+        writeSpi();
     }
 }
