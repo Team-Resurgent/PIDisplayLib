@@ -34,7 +34,7 @@ int main()
     stdio_init_all();
 	multicore_launch_core1(core1_entry);
 
-	printf("Initializing Display\n");
+	printf("Initializing Device\n");
 
 	deviceLegacy* device = new deviceLegacy();
 	device->initSpi(spi1, 1 * 1024 * 1024);
@@ -57,13 +57,12 @@ int main()
 			{
 				for (int x = 0; x < device->getCols(); x++)
 				{
-					display->drawChar(0xffffff, fonts::Font_12x16(), x << 3, y << 3, device->getDisplayChar(y, x));
+					display->drawChar(0xffffff, fonts::Font_12x16(), (x * 12) + 8, y << 4, device->getDisplayChar(y, x));
 				}
 			}
 			display->drawDisplay();
 		}
-		
+
 		sleep_ms(10);
-		counter++;
 	}
 }
