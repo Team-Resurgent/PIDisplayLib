@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "fonts.h"
+#include "deviceLegacy.h"
 #include "displayDriver.h"
 #include "displayGC9A01A.h"
 #include "displaySH1106.h"
@@ -35,28 +36,34 @@ int main()
 
 	printf("Initializing Display\n");
 
-	const bool slave = false;
-	spiTest::initSpi(spi1, 1 * 1024 * 1024, slave);
+	deviceLegacy* device = new deviceLegacy();
+	device->initSpi(spi1, 1 * 1024 * 1024);
 
-	//displayDriver* display = (displayDriver*)new displayGC9A01A();
-	//displayDriver* display = (displayDriver*)new displayST7789();
-	//displayDriver* display = (displayDriver*)new displaySH1122();
-	//displayDriver* display = (displayDriver*)new displaySH1106();
-	//display->contrast(0x80);
-	//display->brightness(0xff);
-	//display->invert(false);
-	//display->rotate(270);
+	displayDriver* display = (displayDriver*)new displaySH1122();
+	display->fill(0x000000);
+	display->drawDisplay();
 
+	uint32_t counter = 0;
 	while (true)
 	{
-		// display->fill(0x000000);
-		// display->drawString(0xffffff, fonts::Font_12x16(), 8, 0, "PrometheOS: V1.3.0");
-		// display->drawString(0xffffff, fonts::Font_12x16(), 8, 16, "Free Mem: 112MB");
-		// display->drawString(0xffffff, fonts::Font_12x16(), 8, 32, "IP: 192.168.0.100");
-		// display->drawString(0xffffff, fonts::Font_12x16(), 8, 48, "FAN: 40% CPU: 35c");
-		// display->drawString(0xffffff, fonts::Font_8x8(), 2, 42, "Encoder: Focus");
-		// display->drawString(0xffffff, fonts::Font_8x8(), 2, 52, "Video Mode: 480p");
-		// display->drawDisplay();
-		sleep_ms(1000);
+		device->poll();
+		counter++;
+
+		if (counter == 100)
+		{
+			counter = 0;
+			display->fill(0x000000);
+			for (int y = 0; y < device->getRows(); y++)
+			{
+				for (int x = 0; x < device->getCols(); x++)
+				{
+					display->drawChar(0xffffff, fonts::Font_12x16(), x << 3, y << 3, device->getDisplayChar(y, x));
+				}
+			}
+			display->drawDisplay();
+		}
+		
+		sleep_ms(10);
+		counter++;
 	}
 }
