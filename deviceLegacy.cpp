@@ -92,10 +92,10 @@ void deviceLegacy::reset()
     mScrolling = false;
     for (int i = 0; i < LEGACY_ROWS * LEGACY_COLS; i++)
     {
-        displayBuffer[i] = ' ';
+        mDisplayBuffer[i] = ' ';
     }
     const char* message = "Please Wait...";
-    memcpy(displayBuffer, message, strlen(message));
+    memcpy(mDisplayBuffer, message, strlen(message));
 }
 
 void deviceLegacy::poll()
@@ -110,7 +110,8 @@ void deviceLegacy::poll()
 
      if (mBufferRxPos != mBufferTxPos) 
      {
-        switch (peekCommand(0)) 
+        int16_t peekedCommand = peekCommand(0);
+        switch (peekedCommand) 
         {
             case -1:
                 break;  
@@ -264,7 +265,8 @@ void deviceLegacy::poll()
                 mScrolling = true;
                 completeCommand();
                 break;
-            case  32 ... 255:
+            case 32 ... 255:
+                mDisplayBuffer[(mCursorPosRow * LEGACY_COLS) + mCursorPosCol] = peekedCommand;
                 if (mCursorPosCol < LEGACY_COLS) 
                 {
                     mCursorPosCol++;
@@ -314,7 +316,7 @@ uint8_t deviceLegacy::getContrast()
 
 uint8_t deviceLegacy::getDisplayChar(uint8_t row, uint8_t col)
 {
-    return displayBuffer[(row * LEGACY_COLS) + col];
+    return mDisplayBuffer[(row * LEGACY_COLS) + col];
 }
 
 bool deviceLegacy::getShowDisplay()

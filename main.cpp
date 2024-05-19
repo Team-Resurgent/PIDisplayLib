@@ -8,6 +8,7 @@
 #include "deviceLegacy.h"
 #include "displayDriver.h"
 #include "displayGC9A01A.h"
+#include "displayILI9341.h"
 #include "displaySH1106.h"
 #include "displaySH1122.h"
 #include "displayST7789.h"
@@ -36,33 +37,67 @@ int main()
 
 	printf("Initializing Device\n");
 
-	deviceLegacy* device = new deviceLegacy();
-	device->initSpi(spi1, 1 * 1024 * 1024);
+	const int testConfig = 1;
 
-	displayDriver* display = (displayDriver*)new displaySH1122();
-	display->fill(0x000000);
-	display->drawDisplay();
-
-	uint32_t counter = 0;
-	while (true)
+	if (testConfig == 0)
 	{
-		device->poll();
-		counter++;
-
-		if (counter == 100)
+		spiTest::initSpi(spi1, 1 * 1024 * 1024, false);
+		while (true)
 		{
-			counter = 0;
-			display->fill(0x000000);
-			for (int y = 0; y < device->getRows(); y++)
-			{
-				for (int x = 0; x < device->getCols(); x++)
-				{
-					display->drawChar(0xffffff, fonts::Font_12x16(), (x * 12) + 8, y << 4, device->getDisplayChar(y, x));
-				}
-			}
-			display->drawDisplay();
+			spiTest::writeSpi();
+			sleep_ms(1000);
 		}
+	}
 
-		sleep_ms(10);
+	if (testConfig == 1)
+	{
+		displayDriver* display = (displayDriver*)new displayILI9341();
+		display->fill(0xff0000);
+		display->rotate(270);
+		display->brightness(20);
+		while (true)
+		{
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 8, "PrometheOS: V1.3.0");
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 24, "Free Mem: 112MB");
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 40, "IP: 192.168.0.100");
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 56, "FAN: 40% CPU: 35c");
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 72, "Encoder: Focus");
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 88, "Video Mode: 480p");
+			display->drawDisplay();
+			sleep_ms(1000);
+		}
+	}
+
+	if (testConfig == 2)
+	{
+		deviceLegacy* device = new deviceLegacy();
+		device->initSpi(spi1, 10 * 1024 * 1024);
+
+		displayDriver* display = (displayDriver*)new displaySH1122();
+		display->fill(0x000000);
+		display->drawDisplay();
+
+		uint32_t counter = 0;
+		while (true)
+		{
+			device->poll();
+			counter++;
+
+			if (counter == 1000)
+			{
+				counter = 0;
+				display->fill(0x000000);
+				for (int y = 0; y < device->getRows(); y++)
+				{
+					for (int x = 0; x < device->getCols(); x++)
+					{
+						display->drawChar(0xffffff, fonts::Font_12x16(), (x * 12) + 8, y << 4, device->getDisplayChar(y, x));
+					}
+				}
+				display->drawDisplay();
+			}
+
+			sleep_ms(1);
+		}
 	}
 }

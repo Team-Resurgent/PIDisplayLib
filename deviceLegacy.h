@@ -42,5 +42,5 @@ private:
     bool mWrapping;
     bool mScrolling;
 
-    uint8_t displayBuffer[LEGACY_ROWS * LEGACY_COLS];
+    uint8_t mDisplayBuffer[LEGACY_ROWS * LEGACY_COLS];
 };
