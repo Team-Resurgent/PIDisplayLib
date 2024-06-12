@@ -91,49 +91,49 @@ displayST7789::displayST7789()
         DISPLAY_ST7789_BITS_PER_PIXEL
     );
 
-    initSpi(DISPLAY_ST7789_SPI, DISPLAY_ST7789_BAUDRATE, true);
+    initSpi(DISPLAY_ST7789_SPI, DISPLAY_ST7789_BAUDRATE);
 
-    writeSpiCommandByte(ST7789_SOFTWARE_RESET);
+    writeCommandByte(ST7789_SOFTWARE_RESET);
     sleep_ms(100);
 
-    writeSpiCommandByte(ST7789_INTERFACE_PIXEL_FORMAT);	
-    writeSpiDataByte(ST7789_INTERFACE_PIXEL_FORMAT_16BIT);
+    writeCommandByte(ST7789_INTERFACE_PIXEL_FORMAT);	
+    writeDataByte(ST7789_INTERFACE_PIXEL_FORMAT_16BIT);
 
-  	writeSpiCommandByte(ST7789_PORCH_CONTROL);	
+  	writeCommandByte(ST7789_PORCH_CONTROL);	
 	uint8_t porchData[] = { 0x0c, 0x0c, 0x00, 0x33, 0x33 };
-	writeSpiData(porchData, sizeof(porchData));
+	writeData(porchData, sizeof(porchData));
 
-    writeSpiCommandByte(ST7789_GATE_CONTROL1);
-    writeSpiDataByte(0x35);
-    writeSpiCommandByte(ST7789_VCOM_SETTING);
-    writeSpiDataByte(0x20);
-    writeSpiCommandByte(ST7789_LCM_CONTROL);
-    writeSpiDataByte(0x2c);
-    writeSpiCommandByte(ST7789_VDV_VRH_COMMAND_ENABLE);	
-    writeSpiDataByte(0x01);
-    writeSpiCommandByte(ST7789_VRH_SET);	
-    writeSpiDataByte(0x0b);		
-    writeSpiCommandByte(ST7789_VDH_SET);	
-    writeSpiDataByte(0x20);		
-    writeSpiCommandByte(ST7789_FRAME_RATE_CONTROL2);		
-    writeSpiDataByte(0x0F);		
-    writeSpiCommandByte(ST7789_POWER_CONTROL1);	
+    writeCommandByte(ST7789_GATE_CONTROL1);
+    writeDataByte(0x35);
+    writeCommandByte(ST7789_VCOM_SETTING);
+    writeDataByte(0x20);
+    writeCommandByte(ST7789_LCM_CONTROL);
+    writeDataByte(0x2c);
+    writeCommandByte(ST7789_VDV_VRH_COMMAND_ENABLE);	
+    writeDataByte(0x01);
+    writeCommandByte(ST7789_VRH_SET);	
+    writeDataByte(0x0b);		
+    writeCommandByte(ST7789_VDH_SET);	
+    writeDataByte(0x20);		
+    writeCommandByte(ST7789_FRAME_RATE_CONTROL2);		
+    writeDataByte(0x0F);		
+    writeCommandByte(ST7789_POWER_CONTROL1);	
 
 	uint8_t powerData[] = { 0xa4, 0xa1 };
-	writeSpiData(powerData, sizeof(powerData));
+	writeData(powerData, sizeof(powerData));
 
-	writeSpiCommandByte(ST7789_POSITIVE_VOLTAGE_GAMMA_CONTROL);
+	writeCommandByte(ST7789_POSITIVE_VOLTAGE_GAMMA_CONTROL);
     uint8_t positiveGammaData[] = {0xD0, 0x04, 0x0D, 0x11, 0x13, 0x2B, 0x3F, 0x54, 0x4C, 0x18, 0x0D, 0x0B, 0x1F, 0x23};
-    writeSpiData(positiveGammaData, sizeof(positiveGammaData));
+    writeData(positiveGammaData, sizeof(positiveGammaData));
 
-    writeSpiCommandByte(ST7789_NEGATIVE_VOLTAGE_GAMMA_CONTROL);
+    writeCommandByte(ST7789_NEGATIVE_VOLTAGE_GAMMA_CONTROL);
     uint8_t negativeGammaData[] = {0xD0, 0x04, 0x0C, 0x11, 0x13, 0x2C, 0x3F, 0x44, 0x51, 0x2F, 0x1F, 0x1F, 0x20, 0x23};
-    writeSpiData(negativeGammaData, sizeof(negativeGammaData));
+    writeData(negativeGammaData, sizeof(negativeGammaData));
 
-    writeSpiCommandByte(ST7789_DISPLAY_INVERSION_ON);
-	writeSpiCommandByte(ST7789_SLEEP_OUT);
-  	writeSpiCommandByte(ST7789_PARTIAL_MODE_OFF);
-  	writeSpiCommandByte(ST7789_DISPLAY_ON);
+    writeCommandByte(ST7789_DISPLAY_INVERSION_ON);
+	writeCommandByte(ST7789_SLEEP_OUT);
+  	writeCommandByte(ST7789_PARTIAL_MODE_OFF);
+  	writeCommandByte(ST7789_DISPLAY_ON);
 
     rotate(0);
 
@@ -229,23 +229,23 @@ void displayST7789::drawDisplay()
 	uint16_t yStart = 0 + mDisplayBuffer->getYShift();
     uint16_t yEnd = mDisplayBuffer->getHeight() + mDisplayBuffer->getYShift() - 1;
 
-	writeSpiCommandByte(ST7789_COLUMN_ADDRESS_SET);
+	writeCommandByte(ST7789_COLUMN_ADDRESS_SET);
     uint8_t columnData[] = {(uint8_t)(xStart >> 8), (uint8_t)(xStart & 0xFF), (uint8_t)(xEnd >> 8), (uint8_t)(xEnd & 0xFF)};
-    writeSpiData(columnData, sizeof(columnData));
+    writeData(columnData, sizeof(columnData));
 
-	writeSpiCommandByte(ST7789_ROW_ADDRESS_SET);
+	writeCommandByte(ST7789_ROW_ADDRESS_SET);
     uint8_t rowData[] = {(uint8_t)(yStart >> 8), (uint8_t)(yStart & 0xFF), (uint8_t)(yEnd >> 8), (uint8_t)(yEnd & 0xFF)};
-    writeSpiData(rowData, sizeof(rowData));
+    writeData(rowData, sizeof(rowData));
 
-	writeSpiCommandByte(ST7789_MEMORY_WRITE);
-    writeSpiData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
+	writeCommandByte(ST7789_MEMORY_WRITE);
+    writeData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
 }
 
 void displayST7789::brightness(uint8_t value)
 {
     // Does not seem to work
-    // writeSpiCommand(ST7789_WRITE_DISPLAY_BRIGHTNESS);
-    // writeSpiDataByte(value);
+    // writeCommand(ST7789_WRITE_DISPLAY_BRIGHTNESS);
+    // writeDataByte(value);
 }
 
 void displayST7789::contrast(uint8_t value)
@@ -255,7 +255,7 @@ void displayST7789::contrast(uint8_t value)
 
 void displayST7789::invert(bool value)
 {
-    writeSpiCommandByte(value ? ST7789_DISPLAY_INVERSION_OFF : ST7789_DISPLAY_INVERSION_ON);
+    writeCommandByte(value ? ST7789_DISPLAY_INVERSION_OFF : ST7789_DISPLAY_INVERSION_ON);
 }
 
 void displayST7789::rotate(uint16_t degrees)
@@ -264,13 +264,13 @@ void displayST7789::rotate(uint16_t degrees)
 
     if (degrees == 0)
     {
-        writeSpiCommandByte(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeSpiDataByte(ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB);
+        writeCommandByte(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte(ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB);
     }
     else if (degrees == 90)
     {
-        writeSpiCommandByte(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeSpiDataByte((uint8_t)(
+        writeCommandByte(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte((uint8_t)(
             ST7789_MEMORY_ADDRESS_DATA_CONTROL_MV | 
             ST7789_MEMORY_ADDRESS_DATA_CONTROL_MX | 
             ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB)
@@ -278,8 +278,8 @@ void displayST7789::rotate(uint16_t degrees)
     }
     else if (degrees == 180)
     {
-        writeSpiCommandByte(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
-	    writeSpiDataByte((uint8_t)(
+        writeCommandByte(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
+	    writeDataByte((uint8_t)(
             ST7789_MEMORY_ADDRESS_DATA_CONTROL_MX | 
             ST7789_MEMORY_ADDRESS_DATA_CONTROL_MY | 
             ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB)
@@ -287,8 +287,8 @@ void displayST7789::rotate(uint16_t degrees)
     }
     else if (degrees == 270)
     {
-        writeSpiCommandByte(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeSpiDataByte((uint8_t)(
+        writeCommandByte(ST7789_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte((uint8_t)(
             ST7789_MEMORY_ADDRESS_DATA_CONTROL_MV | 
             ST7789_MEMORY_ADDRESS_DATA_CONTROL_MY | 
             ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB));

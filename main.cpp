@@ -6,12 +6,14 @@
 
 #include "fonts.h"
 #include "deviceLegacy.h"
+#include "deviceTouch.h"
 #include "displayDriver.h"
 #include "displayGC9A01A.h"
 #include "displayILI9341.h"
 #include "displaySH1106.h"
 #include "displaySH1122.h"
 #include "displayST7789.h"
+#include "displaySSD1306.h"
 #include "spiTest.h"
 #include "color.h"
 #include <math.h>
@@ -25,7 +27,7 @@ void core1_entry()
 {
     while (true)
 	{
-		spiTest::process();
+		//spiTest::process();
 		sleep_ms(5000);
 	}
 }
@@ -35,9 +37,11 @@ int main()
     stdio_init_all();
 	multicore_launch_core1(core1_entry);
 
+	sleep_ms(2000);
+
 	printf("Initializing Device\n");
 
-	const int testConfig = 1;
+	const int testConfig = 3;
 
 	if (testConfig == 0)
 	{
@@ -51,6 +55,9 @@ int main()
 
 	if (testConfig == 1)
 	{
+		deviceTouch* touch = new deviceTouch();
+		touch->initSpi(spi1, 3 * 1000 * 1000);
+
 		displayDriver* display = (displayDriver*)new displayILI9341();
 		display->fill(0xff0000);
 		display->rotate(270);
@@ -64,7 +71,11 @@ int main()
 			display->drawString(0xffffff, fonts::Font_12x16(), 8, 72, "Encoder: Focus");
 			display->drawString(0xffffff, fonts::Font_12x16(), 8, 88, "Video Mode: 480p");
 			display->drawDisplay();
-			sleep_ms(1000);
+
+			uint16_t x = 0xffff;
+			uint16_t y = 0xffff;
+			touch->readTouchPos(x, y);
+			sleep_ms(10);
 		}
 	}
 
@@ -100,4 +111,19 @@ int main()
 			sleep_ms(1);
 		}
 	}
+
+	if (testConfig == 3)
+	{
+		displayDriver* display = (displayDriver*)new displaySSD1306();
+		printf("i2c Addres %i\n", display->scanI2c());
+		display->fill(0x000000);
+		display->rotate(180);
+		//display->invert(true);
+		while (true)
+		{
+			display->drawString(0xffffff, fonts::Font_8x8(), 8, 8, "StellarOS");
+			display->drawDisplay();
+		}
+	}
+
 }

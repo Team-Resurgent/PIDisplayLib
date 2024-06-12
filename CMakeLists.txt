@@ -42,7 +42,8 @@ add_executable(PIDisplayLib
   fonts.cpp 
   color.cpp 
   spiTest.cpp 
-  deviceLegacy.cpp 
+  deviceLegacy.cpp
+  deviceTouch.cpp 
   displayBuffer.cpp 
   displayDriver.cpp 
   displayGC9A01A.cpp 
@@ -50,6 +51,7 @@ add_executable(PIDisplayLib
   displaySH1106.cpp 
   displaySH1122.cpp 
   displayST7789.cpp
+  displaySSD1306.cpp
 )
 
 # pull in common dependencies

@@ -4,6 +4,7 @@
 #include "fonts.h"
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
+#include "hardware/i2c.h"
 #include "hardware/structs/spi.h"
 
 class displayDriver
@@ -16,11 +17,13 @@ public:
     void initDisplayBuffer(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel);
     displayBuffer* getDisplayBuffer();
 
-    void initSpi(spi_inst_t* spi, uint32_t baudRate, bool hasBacklight);
-    void writeSpiCommand(uint8_t *buff, uint32_t buff_size);
-    void writeSpiCommandByte(uint8_t cmd);
-    void writeSpiData(uint8_t *buff, uint32_t buff_size);
-    void writeSpiDataByte(uint8_t data);
+    void initSpi(spi_inst_t* spi, uint32_t baudRate);
+    void initI2c(i2c_inst_t* i2c, uint32_t address,  uint32_t baudRate);
+    int32_t scanI2c();
+    void writeCommand(uint8_t *buff, uint32_t buff_size);
+    void writeCommandByte(uint8_t cmd);
+    void writeData(uint8_t *buff, uint32_t buff_size);
+    void writeDataByte(uint8_t data);
 
     void drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character);
     void drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message);
@@ -47,5 +50,8 @@ public:
 
 public:
     displayBuffer* mDisplayBuffer;
+    bool mIsSpi;
     spi_inst_t* mSpi;
+    i2c_inst_t* mI2c;
+    uint32_t mI2cAddress;
 };

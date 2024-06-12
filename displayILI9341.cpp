@@ -82,57 +82,57 @@ displayILI9341::displayILI9341()
         DISPLAY_ILI9341_BITS_PER_PIXEL
     );
 
-    initSpi(DISPLAY_ILI9341_SPI, DISPLAY_ILI9341_BAUDRATE, true);
+    initSpi(DISPLAY_ILI9341_SPI, DISPLAY_ILI9341_BAUDRATE);
 
-    writeSpiCommandByte(ILI9341_SOFTWARE_RESET);
+    writeCommandByte(ILI9341_SOFTWARE_RESET);
     sleep_ms(100);
 
-    writeSpiCommandByte(0xea);
+    writeCommandByte(0xea);
     uint8_t unknown6[] = {0x00, 0x00};
-    writeSpiData(unknown6, sizeof(unknown6));   
+    writeData(unknown6, sizeof(unknown6));   
     
-    writeSpiCommandByte(ILI9341_POWER_CONTROL1);
-    writeSpiDataByte(0x23);   
+    writeCommandByte(ILI9341_POWER_CONTROL1);
+    writeDataByte(0x23);   
 
-    writeSpiCommandByte(ILI9341_POWER_CONTROL2);
-    writeSpiDataByte(0x10);  
+    writeCommandByte(ILI9341_POWER_CONTROL2);
+    writeDataByte(0x10);  
 
-    writeSpiCommandByte(ILI9341_VCOM_CONTROL1);
+    writeCommandByte(ILI9341_VCOM_CONTROL1);
     uint8_t vcomControl1[] = {0x3e, 0x28};
-    writeSpiData(vcomControl1, sizeof(vcomControl1)); 
+    writeData(vcomControl1, sizeof(vcomControl1)); 
 
-    writeSpiCommandByte(ILI9341_VCOM_CONTROL2);
-    writeSpiDataByte(0x86);  
+    writeCommandByte(ILI9341_VCOM_CONTROL2);
+    writeDataByte(0x86);  
 
-    writeSpiCommandByte(ILI9341_VERTICAL_SCROLLING_START_ADDRESS);
-    writeSpiDataByte(0x00);  
+    writeCommandByte(ILI9341_VERTICAL_SCROLLING_START_ADDRESS);
+    writeDataByte(0x00);  
 
-    writeSpiCommandByte(ILI9341_INTERFACE_PIXEL_FORMAT);
-    writeSpiDataByte(ILI9341_INTERFACE_PIXEL_FORMAT_16BIT);  
+    writeCommandByte(ILI9341_INTERFACE_PIXEL_FORMAT);
+    writeDataByte(ILI9341_INTERFACE_PIXEL_FORMAT_16BIT);  
 
-    writeSpiCommandByte(ILI9341_FRAME_CONTROL_NORMAL);
+    writeCommandByte(ILI9341_FRAME_CONTROL_NORMAL);
     uint8_t frameRateControl[] = {0x00, 0x18};
-	writeSpiData(frameRateControl, sizeof(frameRateControl));
+	writeData(frameRateControl, sizeof(frameRateControl));
 
-    writeSpiCommandByte(ILI9341_DISPLAY_FUNCTION_CONTROL);
+    writeCommandByte(ILI9341_DISPLAY_FUNCTION_CONTROL);
     uint8_t displayFunction[] = {0x08, 0x82, 0x27};
-	writeSpiData(displayFunction, sizeof(displayFunction));
+	writeData(displayFunction, sizeof(displayFunction));
 
-    writeSpiCommandByte(ILI9341_GAMMA_SET);
-    writeSpiDataByte(0x01);  
+    writeCommandByte(ILI9341_GAMMA_SET);
+    writeDataByte(0x01);  
 
-    writeSpiCommandByte(ILI9341_POSITIVE_VOLTAGE_GAMMA_CONTROL);
+    writeCommandByte(ILI9341_POSITIVE_VOLTAGE_GAMMA_CONTROL);
     uint8_t positiveGamma[] = {0x0F, 0x31, 0x2B, 0x0C, 0x0E, 0x08, 0x4E, 0xF1, 0x37, 0x07, 0x10, 0x03, 0x0E, 0x09, 0x00};
-    writeSpiData(positiveGamma, sizeof(positiveGamma));
+    writeData(positiveGamma, sizeof(positiveGamma));
 
-    writeSpiCommandByte(ILI9341_NEGATIVE_VOLTAGE_GAMMA_CONTROL);
+    writeCommandByte(ILI9341_NEGATIVE_VOLTAGE_GAMMA_CONTROL);
     uint8_t negativeGamma[] = {0x00, 0x0E, 0x14, 0x03, 0x11, 0x07, 0x31, 0xC1, 0x48, 0x08, 0x0F, 0x0C, 0x31, 0x36, 0x0F};
-    writeSpiData(negativeGamma, sizeof(negativeGamma));
+    writeData(negativeGamma, sizeof(negativeGamma));
 
-    writeSpiCommandByte(ILI9341_DISPLAY_INVERSION_OFF);
-	writeSpiCommandByte(ILI9341_SLEEP_OUT);
-  	writeSpiCommandByte(ILI9341_PARTIAL_MODE_OFF);
-  	writeSpiCommandByte(ILI9341_DISPLAY_ON);
+    writeCommandByte(ILI9341_DISPLAY_INVERSION_OFF);
+	writeCommandByte(ILI9341_SLEEP_OUT);
+  	writeCommandByte(ILI9341_PARTIAL_MODE_OFF);
+  	writeCommandByte(ILI9341_DISPLAY_ON);
 
     rotate(0);
 
@@ -228,23 +228,23 @@ void displayILI9341::drawDisplay()
 	uint16_t yStart = 0 + mDisplayBuffer->getYShift();
     uint16_t yEnd = mDisplayBuffer->getHeight() + mDisplayBuffer->getYShift() - 1;
 
-	writeSpiCommandByte(ILI9341_COLUMN_ADDRESS_SET);
+	writeCommandByte(ILI9341_COLUMN_ADDRESS_SET);
     uint8_t columnData[] = {(uint8_t)(xStart >> 8), (uint8_t)(xStart & 0xFF), (uint8_t)(xEnd >> 8), (uint8_t)(xEnd & 0xFF)};
-    writeSpiData(columnData, sizeof(columnData));
+    writeData(columnData, sizeof(columnData));
 
-	writeSpiCommandByte(ILI9341_PAGE_ADDRESS_SET);
+	writeCommandByte(ILI9341_PAGE_ADDRESS_SET);
     uint8_t rowData[] = {(uint8_t)(yStart >> 8), (uint8_t)(yStart & 0xFF), (uint8_t)(yEnd >> 8), (uint8_t)(yEnd & 0xFF)};
-    writeSpiData(rowData, sizeof(rowData));
+    writeData(rowData, sizeof(rowData));
 
-	writeSpiCommandByte(ILI9341_MEMORY_WRITE);
-    writeSpiData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
+	writeCommandByte(ILI9341_MEMORY_WRITE);
+    writeData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
 }
 
 void displayILI9341::brightness(uint8_t value)
 {
     // Does not seem to work
-    // writeSpiCommandByte(ILI9341_WRITE_DISPLAY_BRIGHTNESS);
-    // writeSpiDataByte(value);
+    // writeCommandByte(ILI9341_WRITE_DISPLAY_BRIGHTNESS);
+    // writeDataByte(value);
 }
 
 void displayILI9341::contrast(uint8_t value)
@@ -254,7 +254,7 @@ void displayILI9341::contrast(uint8_t value)
 
 void displayILI9341::invert(bool value)
 {
-    writeSpiCommandByte(value ? ILI9341_DISPLAY_INVERSION_OFF : ILI9341_DISPLAY_INVERSION_ON);
+    writeCommandByte(value ? ILI9341_DISPLAY_INVERSION_OFF : ILI9341_DISPLAY_INVERSION_ON);
 }
 
 void displayILI9341::rotate(uint16_t degrees)
@@ -263,14 +263,14 @@ void displayILI9341::rotate(uint16_t degrees)
 
     if (degrees == 0)
     {
-        writeSpiCommandByte(ILI9341_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeSpiDataByte(ILI9341_MEMORY_ADDRESS_DATA_CONTROL_MY |  
+        writeCommandByte(ILI9341_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte(ILI9341_MEMORY_ADDRESS_DATA_CONTROL_MY |  
             ILI9341_MEMORY_ADDRESS_DATA_CONTROL_RGB);
     }
     else if (degrees == 90)
     {
-        writeSpiCommandByte(ILI9341_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeSpiDataByte((uint8_t)(
+        writeCommandByte(ILI9341_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte((uint8_t)(
             ILI9341_MEMORY_ADDRESS_DATA_CONTROL_MY | 
             ILI9341_MEMORY_ADDRESS_DATA_CONTROL_MV | 
             ILI9341_MEMORY_ADDRESS_DATA_CONTROL_MX | 
@@ -279,16 +279,16 @@ void displayILI9341::rotate(uint16_t degrees)
     }
     else if (degrees == 180)
     {
-        writeSpiCommandByte(ILI9341_MEMORY_ADDRESS_DATA_CONTROL);	
-	    writeSpiDataByte((uint8_t)(
+        writeCommandByte(ILI9341_MEMORY_ADDRESS_DATA_CONTROL);	
+	    writeDataByte((uint8_t)(
             ILI9341_MEMORY_ADDRESS_DATA_CONTROL_MX | 
             ILI9341_MEMORY_ADDRESS_DATA_CONTROL_RGB)
         );
     }
     else if (degrees == 270)
     {
-        writeSpiCommandByte(ILI9341_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeSpiDataByte((uint8_t)(
+        writeCommandByte(ILI9341_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte((uint8_t)(
             ILI9341_MEMORY_ADDRESS_DATA_CONTROL_MV | 
             ILI9341_MEMORY_ADDRESS_DATA_CONTROL_RGB));
     }

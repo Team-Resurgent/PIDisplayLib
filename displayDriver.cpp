@@ -9,6 +9,11 @@
 
 #include <cstdio>
 #include <stdlib.h>
+#include <string.h>
+
+#define I2C_TIMEOUT_US 100
+#define I2C_COMMAND_MODE 0x80
+#define I2C_DATA_MODE 0x40
 
 displayDriver::~displayDriver()
 {
@@ -31,11 +36,12 @@ displayBuffer* displayDriver::getDisplayBuffer()
     return mDisplayBuffer;
 }
 
-void displayDriver::initSpi(spi_inst_t* spi, uint32_t baudRate, bool hasBacklight)
+void displayDriver::initSpi(spi_inst_t* spi, uint32_t baudRate)
 {
+	mIsSpi = true;
 	mSpi = spi;
 
-	if (hasBacklight)
+	if (SPI_DISPLAY_BACKLIGHT >= 0)
 	{
     	gpio_init(SPI_DISPLAY_BACKLIGHT);
     	gpio_put(SPI_DISPLAY_BACKLIGHT, 1);
@@ -51,11 +57,12 @@ void displayDriver::initSpi(spi_inst_t* spi, uint32_t baudRate, bool hasBackligh
     gpio_set_dir(SPI_DISPLAY_DC, GPIO_OUT);
 
     spi_init(mSpi, baudRate);
+	spi_set_slave(mSpi, false);
     gpio_set_function(SPI_DISPLAY_RX, GPIO_FUNC_SPI);
     gpio_set_function(SPI_DISPLAY_SCK, GPIO_FUNC_SPI);
     gpio_set_function(SPI_DISPLAY_TX, GPIO_FUNC_SPI);
     gpio_set_function(SPI_DISPLAY_CSN, GPIO_FUNC_SPI);
-    bi_decl(bi_4pins_with_func((uint32_t)SPI_DISPLAY_RX, (uint32_t)SPI_DISPLAY_TX, (uint32_t)SPI_DISPLAY_SCK, (uint32_t)SPI_DISPLAY_CSN, GPIO_FUNC_SPI));
+    bi_decl(bi_3pins_with_func((uint32_t)SPI_DISPLAY_RX, (uint32_t)SPI_DISPLAY_TX, (uint32_t)SPI_DISPLAY_SCK, GPIO_FUNC_SPI));
 
     spi_set_format(mSpi, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
 
@@ -65,26 +72,78 @@ void displayDriver::initSpi(spi_inst_t* spi, uint32_t baudRate, bool hasBackligh
 	gpio_put(SPI_DISPLAY_RST, 1);
 }
 
-void displayDriver::writeSpiCommand(uint8_t *buff, uint32_t buff_size)
+void displayDriver::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate)
 {
-	gpio_put(SPI_DISPLAY_DC, 0);
-    spi_write_blocking(mSpi, buff, buff_size);
+	mIsSpi = false;
+	mI2c = i2c;
+	mI2cAddress = address;
+
+	if (I2C_DISPLAY_BACKLIGHT >= 0)
+	{
+    	gpio_init(I2C_DISPLAY_BACKLIGHT);
+    	gpio_put(I2C_DISPLAY_BACKLIGHT, 1);
+    	gpio_set_dir(I2C_DISPLAY_BACKLIGHT, GPIO_OUT);
+	}
+
+	i2c_init(mI2c, baudRate);
+    gpio_set_function(I2C_DISPLAY_SDA, GPIO_FUNC_I2C);
+    gpio_set_function(I2C_DISPLAY_SCL, GPIO_FUNC_I2C);
+    gpio_pull_up(I2C_DISPLAY_SDA);
+    gpio_pull_up(I2C_DISPLAY_SCL);
+    bi_decl(bi_2pins_with_func(I2C_DISPLAY_SDA, I2C_DISPLAY_SCL, GPIO_FUNC_I2C));
 }
 
-void displayDriver::writeSpiCommandByte(uint8_t cmd)
+int32_t displayDriver::scanI2c()
 {
-	writeSpiCommand(&cmd, 1);
+   	uint8_t testvalue = 0;
+	for (int32_t address = 0; address < 256; address++)
+	{
+		if (i2c_write_timeout_us(mI2c, address, &testvalue, 1, false, I2C_TIMEOUT_US) == 1)
+		{
+			return address;
+		}
+	}
+	return -1;
 }
 
-void displayDriver::writeSpiData(uint8_t *buff, uint32_t buff_size)
+void displayDriver::writeCommand(uint8_t *buff, uint32_t buff_size)
 {
-	gpio_put(SPI_DISPLAY_DC, 1);
-    spi_write_blocking(mSpi, buff, buff_size);
+	if (mIsSpi)
+	{
+		gpio_put(SPI_DISPLAY_DC, 0);
+    	spi_write_blocking(mSpi, buff, buff_size);
+		return;
+	}
+
+	uint8_t* tempBuffer = (uint8_t*)malloc(buff_size + 1);
+	tempBuffer[0] = I2C_COMMAND_MODE;
+	memcpy(tempBuffer + 1, buff, buff_size);
+	i2c_write_blocking(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false);
 }
 
-void displayDriver::writeSpiDataByte(uint8_t data)
+void displayDriver::writeCommandByte(uint8_t cmd)
 {
-    writeSpiData(&data, 1);
+	writeCommand(&cmd, 1);
+}
+
+void displayDriver::writeData(uint8_t *buff, uint32_t buff_size)
+{
+	if (mIsSpi)
+	{
+		gpio_put(SPI_DISPLAY_DC, 1);
+    	spi_write_blocking(mSpi, buff, buff_size);
+		return;
+	}
+
+	uint8_t* tempBuffer = (uint8_t*)malloc(buff_size + 1);
+	tempBuffer[0] = I2C_DATA_MODE;
+	memcpy(tempBuffer + 1, buff, buff_size);
+	i2c_write_blocking(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false);
+}
+
+void displayDriver::writeDataByte(uint8_t data)
+{
+    writeData(&data, 1);
 }
 
 void displayDriver::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)

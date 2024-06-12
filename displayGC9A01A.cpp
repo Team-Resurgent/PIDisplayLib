@@ -75,278 +75,278 @@ displayGC9A01A::displayGC9A01A()
         DISPLAY_GC9A01A_BITS_PER_PIXEL
     );
 
-    initSpi(DISPLAY_GC9A01A_SPI, DISPLAY_GC9A01A_BAUDRATE, true);
+    initSpi(DISPLAY_GC9A01A_SPI, DISPLAY_GC9A01A_BAUDRATE);
 
-    writeSpiCommandByte(GC9A01A_SOFTWARE_RESET);
+    writeCommandByte(GC9A01A_SOFTWARE_RESET);
     sleep_ms(100);
 
-    // writeSpiCommand(GC9A01A_INTERFACE_PIXEL_FORMAT);	
-    // writeSpiDataByte(GC9A01A_INTERFACE_PIXEL_FORMAT_16BIT);
+    // writeCommand(GC9A01A_INTERFACE_PIXEL_FORMAT);	
+    // writeDataByte(GC9A01A_INTERFACE_PIXEL_FORMAT_16BIT);
 
-  	// writeSpiCommand(GC9A01A_PORCH_CONTROL);	
+  	// writeCommand(GC9A01A_PORCH_CONTROL);	
 	// uint8_t porchData[] = { 0x0c, 0x0c, 0x00, 0x33, 0x33 };
-	// writeSpiData(porchData, sizeof(porchData));
+	// writeData(porchData, sizeof(porchData));
 
 //https://github.com/Exboom/GC9A01/blob/master/Core/Src/GC9A01.c
 
 //https://github.com/adafruit/Adafruit_GC9A01A/blob/main/Adafruit_GC9A01A.cpp
 
     // Unknown
-    writeSpiCommandByte(0xEB);
-    writeSpiDataByte(0x14);
+    writeCommandByte(0xEB);
+    writeDataByte(0x14);
     
-    writeSpiCommandByte(GC9A01A_INNER_REGISTER_ENABLE1);
-    writeSpiCommandByte(GC9A01A_INNER_REGISTER_ENABLE2);
-    
-    // Unknown
-    writeSpiCommandByte(0xEB);
-    writeSpiDataByte(0x14);
+    writeCommandByte(GC9A01A_INNER_REGISTER_ENABLE1);
+    writeCommandByte(GC9A01A_INNER_REGISTER_ENABLE2);
     
     // Unknown
-    writeSpiCommandByte(0x84);
-    writeSpiDataByte(0x40);
+    writeCommandByte(0xEB);
+    writeDataByte(0x14);
     
     // Unknown
-    writeSpiCommandByte(0x85);
-    writeSpiDataByte(0xFF);
+    writeCommandByte(0x84);
+    writeDataByte(0x40);
     
     // Unknown
-    writeSpiCommandByte(0x86);
-    writeSpiDataByte(0xFF);
+    writeCommandByte(0x85);
+    writeDataByte(0xFF);
     
     // Unknown
-    writeSpiCommandByte(0x87);
-    writeSpiDataByte(0xFF);
+    writeCommandByte(0x86);
+    writeDataByte(0xFF);
     
     // Unknown
-    writeSpiCommandByte(0x88);
-    writeSpiDataByte(0x0A);
+    writeCommandByte(0x87);
+    writeDataByte(0xFF);
     
     // Unknown
-    writeSpiCommandByte(0x89);
-    writeSpiDataByte(0x21);
+    writeCommandByte(0x88);
+    writeDataByte(0x0A);
     
     // Unknown
-    writeSpiCommandByte(0x8A);
-    writeSpiDataByte(0x00);
+    writeCommandByte(0x89);
+    writeDataByte(0x21);
     
     // Unknown
-    writeSpiCommandByte(0x8B);
-    writeSpiDataByte(0x80);
+    writeCommandByte(0x8A);
+    writeDataByte(0x00);
     
     // Unknown
-    writeSpiCommandByte(0x8C);
-    writeSpiDataByte(0x01);
+    writeCommandByte(0x8B);
+    writeDataByte(0x80);
     
     // Unknown
-    writeSpiCommandByte(0x8D);
-    writeSpiDataByte(0x01);
+    writeCommandByte(0x8C);
+    writeDataByte(0x01);
     
     // Unknown
-    writeSpiCommandByte(0x8E);
-    writeSpiDataByte(0xFF);
+    writeCommandByte(0x8D);
+    writeDataByte(0x01);
     
     // Unknown
-    writeSpiCommandByte(0x8F);
-    writeSpiDataByte(0xFF);
-    
-    writeSpiCommandByte(GC9A01A_DISPLAY_FUNCTION_CONTROL);
-    writeSpiDataByte(0x00);
-    writeSpiDataByte(0x00);
-    
-    writeSpiCommandByte(GC9A01A_INTERFACE_PIXEL_FORMAT); 
-    writeSpiDataByte(GC9A01A_INTERFACE_PIXEL_FORMAT_16BIT);
+    writeCommandByte(0x8E);
+    writeDataByte(0xFF);
     
     // Unknown
-    writeSpiCommandByte(0x90);
-    writeSpiDataByte(0x08);
-    writeSpiDataByte(0x08);
-    writeSpiDataByte(0x08);
-    writeSpiDataByte(0x08);
+    writeCommandByte(0x8F);
+    writeDataByte(0xFF);
+    
+    writeCommandByte(GC9A01A_DISPLAY_FUNCTION_CONTROL);
+    writeDataByte(0x00);
+    writeDataByte(0x00);
+    
+    writeCommandByte(GC9A01A_INTERFACE_PIXEL_FORMAT); 
+    writeDataByte(GC9A01A_INTERFACE_PIXEL_FORMAT_16BIT);
     
     // Unknown
-    writeSpiCommandByte(0xBD);
-    writeSpiDataByte(0x06);
+    writeCommandByte(0x90);
+    writeDataByte(0x08);
+    writeDataByte(0x08);
+    writeDataByte(0x08);
+    writeDataByte(0x08);
     
     // Unknown
-    writeSpiCommandByte(0xBC);
-    writeSpiDataByte(0x00);
+    writeCommandByte(0xBD);
+    writeDataByte(0x06);
     
     // Unknown
-    writeSpiCommandByte(0xFF);
-    writeSpiDataByte(0x60);
-    writeSpiDataByte(0x01);
-    writeSpiDataByte(0x04);
+    writeCommandByte(0xBC);
+    writeDataByte(0x00);
     
-    writeSpiCommandByte(GC9A01A_VREG1A_VOLTAGE_CONTROL);
-    writeSpiDataByte(0x13);
+    // Unknown
+    writeCommandByte(0xFF);
+    writeDataByte(0x60);
+    writeDataByte(0x01);
+    writeDataByte(0x04);
+    
+    writeCommandByte(GC9A01A_VREG1A_VOLTAGE_CONTROL);
+    writeDataByte(0x13);
 
-    writeSpiCommandByte(GC9A01A_VREG1B_VOLTAGE_CONTROL);
-    writeSpiDataByte(0x13);
+    writeCommandByte(GC9A01A_VREG1B_VOLTAGE_CONTROL);
+    writeDataByte(0x13);
     
-    writeSpiCommandByte(GC9A02A_VREG1A_VOLTAGE_CONTROL);
-    writeSpiDataByte(0x22);
-    
-    // Unknown
-    writeSpiCommandByte(0xBE);
-    writeSpiDataByte(0x11);
+    writeCommandByte(GC9A02A_VREG1A_VOLTAGE_CONTROL);
+    writeDataByte(0x22);
     
     // Unknown
-    writeSpiCommandByte(0xE1);
-    writeSpiDataByte(0x10);
-    writeSpiDataByte(0x0E);
+    writeCommandByte(0xBE);
+    writeDataByte(0x11);
     
     // Unknown
-    writeSpiCommandByte(0xDF);
-    writeSpiDataByte(0x21);
-    writeSpiDataByte(0x0c);
-    writeSpiDataByte(0x02);
-    
-    writeSpiCommandByte(GC9A01A_SET_GAMMA1);
-    writeSpiDataByte(0x45);
-    writeSpiDataByte(0x09);
-    writeSpiDataByte(0x08);
-    writeSpiDataByte(0x08);
-    writeSpiDataByte(0x26);
-    writeSpiDataByte(0x2A);
-    
-    writeSpiCommandByte(GC9A01A_SET_GAMMA2);
-    writeSpiDataByte(0x43);
-    writeSpiDataByte(0x70);
-    writeSpiDataByte(0x72);
-    writeSpiDataByte(0x36);
-    writeSpiDataByte(0x37);
-    writeSpiDataByte(0x6F);
-    
-    writeSpiCommandByte(GC9A01A_SET_GAMMA3);
-    writeSpiDataByte(0x45);
-    writeSpiDataByte(0x09);
-    writeSpiDataByte(0x08);
-    writeSpiDataByte(0x08);
-    writeSpiDataByte(0x26);
-    writeSpiDataByte(0x2A);
-    
-    writeSpiCommandByte(GC9A01A_SET_GAMMA4);
-    writeSpiDataByte(0x43);
-    writeSpiDataByte(0x70);
-    writeSpiDataByte(0x72);
-    writeSpiDataByte(0x36);
-    writeSpiDataByte(0x37);
-    writeSpiDataByte(0x6F);
+    writeCommandByte(0xE1);
+    writeDataByte(0x10);
+    writeDataByte(0x0E);
     
     // Unknown
-    writeSpiCommandByte(0xED);
-    writeSpiDataByte(0x1B);
-    writeSpiDataByte(0x0B);
+    writeCommandByte(0xDF);
+    writeDataByte(0x21);
+    writeDataByte(0x0c);
+    writeDataByte(0x02);
+    
+    writeCommandByte(GC9A01A_SET_GAMMA1);
+    writeDataByte(0x45);
+    writeDataByte(0x09);
+    writeDataByte(0x08);
+    writeDataByte(0x08);
+    writeDataByte(0x26);
+    writeDataByte(0x2A);
+    
+    writeCommandByte(GC9A01A_SET_GAMMA2);
+    writeDataByte(0x43);
+    writeDataByte(0x70);
+    writeDataByte(0x72);
+    writeDataByte(0x36);
+    writeDataByte(0x37);
+    writeDataByte(0x6F);
+    
+    writeCommandByte(GC9A01A_SET_GAMMA3);
+    writeDataByte(0x45);
+    writeDataByte(0x09);
+    writeDataByte(0x08);
+    writeDataByte(0x08);
+    writeDataByte(0x26);
+    writeDataByte(0x2A);
+    
+    writeCommandByte(GC9A01A_SET_GAMMA4);
+    writeDataByte(0x43);
+    writeDataByte(0x70);
+    writeDataByte(0x72);
+    writeDataByte(0x36);
+    writeDataByte(0x37);
+    writeDataByte(0x6F);
     
     // Unknown
-    writeSpiCommandByte(0xAE);
-    writeSpiDataByte(0x77);
+    writeCommandByte(0xED);
+    writeDataByte(0x1B);
+    writeDataByte(0x0B);
     
     // Unknown
-    writeSpiCommandByte(0xCD);
-    writeSpiDataByte(0x63);
+    writeCommandByte(0xAE);
+    writeDataByte(0x77);
     
     // Unknown
-    writeSpiCommandByte(0x70);
-    writeSpiDataByte(0x07);
-    writeSpiDataByte(0x07);
-    writeSpiDataByte(0x04);
-    writeSpiDataByte(0x0E);
-    writeSpiDataByte(0x0F);
-    writeSpiDataByte(0x09);
-    writeSpiDataByte(0x07);
-    writeSpiDataByte(0x08);
-    writeSpiDataByte(0x03);
+    writeCommandByte(0xCD);
+    writeDataByte(0x63);
     
-    writeSpiCommandByte(GC9A01A_FRAME_RATE_CONTROL);
-    writeSpiDataByte(0x34);
+    // Unknown
+    writeCommandByte(0x70);
+    writeDataByte(0x07);
+    writeDataByte(0x07);
+    writeDataByte(0x04);
+    writeDataByte(0x0E);
+    writeDataByte(0x0F);
+    writeDataByte(0x09);
+    writeDataByte(0x07);
+    writeDataByte(0x08);
+    writeDataByte(0x03);
+    
+    writeCommandByte(GC9A01A_FRAME_RATE_CONTROL);
+    writeDataByte(0x34);
 
     // Unknown    
-    writeSpiCommandByte(0x62);
-    writeSpiDataByte(0x18);
-    writeSpiDataByte(0x0D);
-    writeSpiDataByte(0x71);
-    writeSpiDataByte(0xED);
-    writeSpiDataByte(0x70);
-    writeSpiDataByte(0x70);
-    writeSpiDataByte(0x18);
-    writeSpiDataByte(0x0F);
-    writeSpiDataByte(0x71);
-    writeSpiDataByte(0xEF);
-    writeSpiDataByte(0x70);
-    writeSpiDataByte(0x70);
+    writeCommandByte(0x62);
+    writeDataByte(0x18);
+    writeDataByte(0x0D);
+    writeDataByte(0x71);
+    writeDataByte(0xED);
+    writeDataByte(0x70);
+    writeDataByte(0x70);
+    writeDataByte(0x18);
+    writeDataByte(0x0F);
+    writeDataByte(0x71);
+    writeDataByte(0xEF);
+    writeDataByte(0x70);
+    writeDataByte(0x70);
     
     // Unknown
-    writeSpiCommandByte(0x63);
-    writeSpiDataByte(0x18);
-    writeSpiDataByte(0x11);
-    writeSpiDataByte(0x71);
-    writeSpiDataByte(0xF1);
-    writeSpiDataByte(0x70);
-    writeSpiDataByte(0x70);
-    writeSpiDataByte(0x18);
-    writeSpiDataByte(0x13);
-    writeSpiDataByte(0x71);
-    writeSpiDataByte(0xF3);
-    writeSpiDataByte(0x70);
-    writeSpiDataByte(0x70);
+    writeCommandByte(0x63);
+    writeDataByte(0x18);
+    writeDataByte(0x11);
+    writeDataByte(0x71);
+    writeDataByte(0xF1);
+    writeDataByte(0x70);
+    writeDataByte(0x70);
+    writeDataByte(0x18);
+    writeDataByte(0x13);
+    writeDataByte(0x71);
+    writeDataByte(0xF3);
+    writeDataByte(0x70);
+    writeDataByte(0x70);
     
     // Unknown
-    writeSpiCommandByte(0x64);
-    writeSpiDataByte(0x28);
-    writeSpiDataByte(0x29);
-    writeSpiDataByte(0xF1);
-    writeSpiDataByte(0x01);
-    writeSpiDataByte(0xF1);
-    writeSpiDataByte(0x00);
-    writeSpiDataByte(0x07);
+    writeCommandByte(0x64);
+    writeDataByte(0x28);
+    writeDataByte(0x29);
+    writeDataByte(0xF1);
+    writeDataByte(0x01);
+    writeDataByte(0xF1);
+    writeDataByte(0x00);
+    writeDataByte(0x07);
     
     // Unknown
-    writeSpiCommandByte(0x66);
-    writeSpiDataByte(0x3C);
-    writeSpiDataByte(0x00);
-    writeSpiDataByte(0xCD);
-    writeSpiDataByte(0x67);
-    writeSpiDataByte(0x45);
-    writeSpiDataByte(0x45);
-    writeSpiDataByte(0x10);
-    writeSpiDataByte(0x00);
-    writeSpiDataByte(0x00);
-    writeSpiDataByte(0x00);
+    writeCommandByte(0x66);
+    writeDataByte(0x3C);
+    writeDataByte(0x00);
+    writeDataByte(0xCD);
+    writeDataByte(0x67);
+    writeDataByte(0x45);
+    writeDataByte(0x45);
+    writeDataByte(0x10);
+    writeDataByte(0x00);
+    writeDataByte(0x00);
+    writeDataByte(0x00);
     
     // Unknown
-    writeSpiCommandByte(0x67);
-    writeSpiDataByte(0x00);
-    writeSpiDataByte(0x3C);
-    writeSpiDataByte(0x00);
-    writeSpiDataByte(0x00);
-    writeSpiDataByte(0x00);
-    writeSpiDataByte(0x01);
-    writeSpiDataByte(0x54);
-    writeSpiDataByte(0x10);
-    writeSpiDataByte(0x32);
-    writeSpiDataByte(0x98);
+    writeCommandByte(0x67);
+    writeDataByte(0x00);
+    writeDataByte(0x3C);
+    writeDataByte(0x00);
+    writeDataByte(0x00);
+    writeDataByte(0x00);
+    writeDataByte(0x01);
+    writeDataByte(0x54);
+    writeDataByte(0x10);
+    writeDataByte(0x32);
+    writeDataByte(0x98);
     
     // Unknown
-    writeSpiCommandByte(0x74);
-    writeSpiDataByte(0x10);
-    writeSpiDataByte(0x85);
-    writeSpiDataByte(0x80);
-    writeSpiDataByte(0x00);
-    writeSpiDataByte(0x00);
-    writeSpiDataByte(0x4E);
-    writeSpiDataByte(0x00);
+    writeCommandByte(0x74);
+    writeDataByte(0x10);
+    writeDataByte(0x85);
+    writeDataByte(0x80);
+    writeDataByte(0x00);
+    writeDataByte(0x00);
+    writeDataByte(0x4E);
+    writeDataByte(0x00);
     
     // Unknown
-    writeSpiCommandByte(0x98);
-    writeSpiDataByte(0x3e);
-    writeSpiDataByte(0x07);
+    writeCommandByte(0x98);
+    writeDataByte(0x3e);
+    writeDataByte(0x07);
 
-    writeSpiCommandByte(GC9A01A_DISPLAY_INVERSION_ON);
-	writeSpiCommandByte(GC9A01A_SLEEP_OUT);
-  	writeSpiCommandByte(GC9A01A_PARTIAL_MODE_OFF);
-  	writeSpiCommandByte(GC9A01A_DISPLAY_ON);
+    writeCommandByte(GC9A01A_DISPLAY_INVERSION_ON);
+	writeCommandByte(GC9A01A_SLEEP_OUT);
+  	writeCommandByte(GC9A01A_PARTIAL_MODE_OFF);
+  	writeCommandByte(GC9A01A_DISPLAY_ON);
 
     rotate(0);
 
@@ -442,23 +442,23 @@ void displayGC9A01A::drawDisplay()
 	uint16_t yStart = 0 + mDisplayBuffer->getYShift();
     uint16_t yEnd = mDisplayBuffer->getHeight() + mDisplayBuffer->getYShift() - 1;
 
-	writeSpiCommandByte(GC9A01A_COLUMN_ADDRESS_SET);
+	writeCommandByte(GC9A01A_COLUMN_ADDRESS_SET);
     uint8_t columnData[] = {(uint8_t)(xStart >> 8), (uint8_t)(xStart & 0xFF), (uint8_t)(xEnd >> 8), (uint8_t)(xEnd & 0xFF)};
-    writeSpiData(columnData, sizeof(columnData));
+    writeData(columnData, sizeof(columnData));
 
-	writeSpiCommandByte(GC9A01A_ROW_ADDRESS_SET);
+	writeCommandByte(GC9A01A_ROW_ADDRESS_SET);
     uint8_t rowData[] = {(uint8_t)(yStart >> 8), (uint8_t)(yStart & 0xFF), (uint8_t)(yEnd >> 8), (uint8_t)(yEnd & 0xFF)};
-    writeSpiData(rowData, sizeof(rowData));
+    writeData(rowData, sizeof(rowData));
                     
-	writeSpiCommandByte(GC9A01A_MEMORY_WRITE);
-    writeSpiData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
+	writeCommandByte(GC9A01A_MEMORY_WRITE);
+    writeData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
 }
 
 void displayGC9A01A::brightness(uint8_t value)
 {
     // Does not seem to work
-    // writeSpiCommand(GC9A01A_WRITE_DISPLAY_BRIGHTNESS);
-    // writeSpiDataByte(value);
+    // writeCommand(GC9A01A_WRITE_DISPLAY_BRIGHTNESS);
+    // writeDataByte(value);
 }
 
 void displayGC9A01A::contrast(uint8_t value)
@@ -468,7 +468,7 @@ void displayGC9A01A::contrast(uint8_t value)
 
 void displayGC9A01A::invert(bool value)
 {
-    writeSpiCommandByte(value ? GC9A01A_DISPLAY_INVERSION_OFF : GC9A01A_DISPLAY_INVERSION_ON);
+    writeCommandByte(value ? GC9A01A_DISPLAY_INVERSION_OFF : GC9A01A_DISPLAY_INVERSION_ON);
 }
 
 void displayGC9A01A::rotate(uint16_t degrees)
@@ -477,31 +477,31 @@ void displayGC9A01A::rotate(uint16_t degrees)
 
     if (degrees == 0)
     {
-        writeSpiCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeSpiDataByte(
+        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte(
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MX | 
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB);
     }
     else if (degrees == 90)
     {
-        writeSpiCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeSpiDataByte((uint8_t)(
+        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte((uint8_t)(
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MV | 
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB)
         );
     }
     else if (degrees == 180)
     {
-        writeSpiCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
-	    writeSpiDataByte((uint8_t)(
+        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
+	    writeDataByte((uint8_t)(
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MY | 
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB)
         );
     }
     else if (degrees == 270)
     {
-        writeSpiCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeSpiDataByte((uint8_t)(
+        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte((uint8_t)(
             
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MX | 
             GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MV | 

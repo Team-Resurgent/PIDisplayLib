@@ -41,39 +41,39 @@ displaySH1106::displaySH1106()
         DISPLAY_SH1106_BITS_PER_PIXEL
     );
 
-    initSpi(DISPLAY_SH1106_SPI, DISPLAY_SH1106_BAUDRATE, false);
+    initSpi(DISPLAY_SH1106_SPI, DISPLAY_SH1106_BAUDRATE);
 
-    writeSpiCommandByte(SH1106_CMD_SET_DISPLAY_OFF);
-    writeSpiCommandByte(SH1106_CMD_SET_ENTIRE_DISPLAY_OFF);
-    writeSpiCommandByte(SH1106_CMD_SET_DISPLAY_START_LINE | 0);
+    writeCommandByte(SH1106_CMD_SET_DISPLAY_OFF);
+    writeCommandByte(SH1106_CMD_SET_ENTIRE_DISPLAY_OFF);
+    writeCommandByte(SH1106_CMD_SET_DISPLAY_START_LINE | 0);
 
     uint8_t contrastData[] = {SH1106_CMD_SET_CONTRAST_CURRENT, 0x80};
-    writeSpiCommand(contrastData, sizeof(contrastData));
+    writeCommand(contrastData, sizeof(contrastData));
 
-    writeSpiCommandByte(SH1106_CMD_SET_SEGMENT_REMAP | 0x00);
-    writeSpiCommandByte(SH1106_CMD_SET_NORMAL_DISPLAY);
+    writeCommandByte(SH1106_CMD_SET_SEGMENT_REMAP | 0x00);
+    writeCommandByte(SH1106_CMD_SET_NORMAL_DISPLAY);
 
     uint8_t multiplexData[] = {SH1106_CMD_SET_MULTIPLEX_RATIO, DISPLAY_SH1106_HEIGHT - 1};
-    writeSpiCommand(multiplexData, sizeof(multiplexData));
+    writeCommand(multiplexData, sizeof(multiplexData));
 
     uint8_t dcdcData[] = {SH1106_CMD_SET_DCDC_SETTING, 0x81};
-    writeSpiCommand(dcdcData, sizeof(dcdcData));
+    writeCommand(dcdcData, sizeof(dcdcData));
 
-    writeSpiCommandByte(SH1106_CMD_SET_SCAN_DIRECTION | 0x00);
+    writeCommandByte(SH1106_CMD_SET_SCAN_DIRECTION | 0x00);
 
     uint8_t displayOffetData[] = {SH1106_CMD_SET_DISPLAY_OFFSET, 0x00};
-    writeSpiCommand(displayOffetData, sizeof(displayOffetData));
+    writeCommand(displayOffetData, sizeof(displayOffetData));
 
     uint8_t clockDividerData[] = {SH1106_CMD_SET_CLOCK_DIVIDER, 0x50};
-    writeSpiCommand(clockDividerData, sizeof(clockDividerData));
+    writeCommand(clockDividerData, sizeof(clockDividerData));
 
     uint8_t vcomDeselectData[] = {SH1106_CMD_SET_VCOM_DESELECT_LEVEL, 0x35};
-    writeSpiCommand(vcomDeselectData, sizeof(vcomDeselectData));
+    writeCommand(vcomDeselectData, sizeof(vcomDeselectData));
 
-    writeSpiCommandByte(SH1106_CMD_SET_PAGE_ADDR);
-    writeSpiCommandByte(SH1106_CMD_SET_LOW_COLUMN_ADDR);
-    writeSpiCommandByte(SH1106_CMD_SET_HIGH_COLUMN_ADDR);
-    writeSpiCommandByte(SH1106_CMD_SET_DISPLAY_ON);
+    writeCommandByte(SH1106_CMD_SET_PAGE_ADDR);
+    writeCommandByte(SH1106_CMD_SET_LOW_COLUMN_ADDR);
+    writeCommandByte(SH1106_CMD_SET_HIGH_COLUMN_ADDR);
+    writeCommandByte(SH1106_CMD_SET_DISPLAY_ON);
 
     drawDisplay();
 }
@@ -159,10 +159,10 @@ void displaySH1106::drawDisplay()
     uint16_t pages = getDisplayBuffer()->getHeight() >> 3;
     for (uint16_t page = 0; page < pages; page++)
     {
-        writeSpiCommandByte(SH1106_CMD_SET_PAGE_ADDR | page);
-        writeSpiCommandByte(SH1106_CMD_SET_LOW_COLUMN_ADDR | 2);
-        writeSpiCommandByte(SH1106_CMD_SET_HIGH_COLUMN_ADDR);
-        writeSpiData(buffer, pageSize);
+        writeCommandByte(SH1106_CMD_SET_PAGE_ADDR | page);
+        writeCommandByte(SH1106_CMD_SET_LOW_COLUMN_ADDR | 2);
+        writeCommandByte(SH1106_CMD_SET_HIGH_COLUMN_ADDR);
+        writeData(buffer, pageSize);
         buffer += pageSize;
     }
 }
@@ -175,12 +175,12 @@ void displaySH1106::brightness(uint8_t value)
 void displaySH1106::contrast(uint8_t value)
 {
     uint8_t contrastData[] = {SH1106_CMD_SET_CONTRAST_CURRENT, value};
-    writeSpiCommand(contrastData, sizeof(contrastData));
+    writeCommand(contrastData, sizeof(contrastData));
 }
 
 void displaySH1106::invert(bool value)
 {
-    writeSpiCommandByte(value ? SH1106_CMD_SET_REVERSE_DISPLAY : SH1106_CMD_SET_NORMAL_DISPLAY);
+    writeCommandByte(value ? SH1106_CMD_SET_REVERSE_DISPLAY : SH1106_CMD_SET_NORMAL_DISPLAY);
 }
 
 void displaySH1106::rotate(uint16_t degrees)
@@ -189,14 +189,14 @@ void displaySH1106::rotate(uint16_t degrees)
 
     if (degrees == 0)
     {
-        writeSpiCommandByte(SH1106_CMD_SET_DISPLAY_START_LINE | 0x00);
-	    writeSpiCommandByte(SH1106_CMD_SET_SEGMENT_REMAP | 0x00);
-	    writeSpiCommandByte(SH1106_CMD_SET_SCAN_DIRECTION | 0x00);
+        writeCommandByte(SH1106_CMD_SET_DISPLAY_START_LINE | 0x00);
+	    writeCommandByte(SH1106_CMD_SET_SEGMENT_REMAP | 0x00);
+	    writeCommandByte(SH1106_CMD_SET_SCAN_DIRECTION | 0x00);
     }
     else if (degrees == 180)
     {
-        writeSpiCommandByte(SH1106_CMD_SET_DISPLAY_START_LINE | (uint8_t)mDisplayBuffer->getWidth());
-	    writeSpiCommandByte(SH1106_CMD_SET_SEGMENT_REMAP | 0x01);
-	    writeSpiCommandByte(SH1106_CMD_SET_SCAN_DIRECTION | 0x08);
+        writeCommandByte(SH1106_CMD_SET_DISPLAY_START_LINE | (uint8_t)mDisplayBuffer->getWidth());
+	    writeCommandByte(SH1106_CMD_SET_SEGMENT_REMAP | 0x01);
+	    writeCommandByte(SH1106_CMD_SET_SCAN_DIRECTION | 0x08);
     }
 }
