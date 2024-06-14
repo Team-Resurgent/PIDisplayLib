@@ -12,7 +12,3 @@
 #define I2C_DISPLAY_ADDRESS 0x3C
 #define I2C_DISPLAY_SDA 6
 #define I2C_DISPLAY_SCL 7
-
-//https://www.displayfuture.com/Display/datasheet/controller/SH1122.pdf
-
-//https://github.com/mooltipass/minible/blob/master/source_code/main_mcu/src/OLED/sh1122.c

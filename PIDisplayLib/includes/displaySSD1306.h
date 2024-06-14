@@ -4,21 +4,20 @@
 #include "displayBuffer.h"
 #include "fonts.h"
 #include "hardware/spi.h"
+#include "hardware/i2c.h"
 #include "hardware/structs/spi.h"
 
 // Config
-#define DISPLAY_ST7789_SPI spi0
-#define DISPLAY_ST7789_BAUDRATE (10 * 1024 * 1024)
-#define DISPLAY_ST7789_WIDTH 240
-#define DISPLAY_ST7789_HEIGHT 280
-#define DISPLAY_ST7789_X_SHIFT 0 
-#define DISPLAY_ST7789_Y_SHIFT 20
-#define DISPLAY_ST7789_BITS_PER_PIXEL 16
+#define DISPLAY_SSD1306_I2C i2c1
+#define DISPLAY_SSD1306_BAUDRATE (1 * 1024 * 1024)
+#define DISPLAY_SSD1306_WIDTH 128
+#define DISPLAY_SSD1306_HEIGHT 64
+#define DISPLAY_SSD1306_BITS_PER_PIXEL 1
 
-class displayST7789 : displayDriver
+class displaySSD1306 : displayDriver
 {
 public:
-    displayST7789();
+    displaySSD1306();
 
     void drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character);
     void drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message);

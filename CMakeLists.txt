@@ -31,35 +31,32 @@ if (PICO_SDK_VERSION_STRING VERSION_LESS "1.4.0")
   message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.4.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
-project(PIDisplayLib C CXX ASM)
+project(PIDisplayLibExample C CXX ASM)
 
-# Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# Add executable. Default name is the project name, version 0.1
-add_executable(PIDisplayLib 
+add_executable(PIDisplayLibExample 
   main.cpp 
-  fonts.cpp 
-  color.cpp 
-  spiTest.cpp 
-  deviceLegacy.cpp
-  deviceTouch.cpp 
-  displayBuffer.cpp 
-  displayDriver.cpp 
-  displayGC9A01A.cpp 
-  displayILI9341.cpp 
-  displaySH1106.cpp 
-  displaySH1122.cpp 
-  displayST7789.cpp
-  displaySSD1306.cpp
 )
 
-# pull in common dependencies
-target_link_libraries(PIDisplayLib pico_stdlib pico_multicore hardware_spi hardware_i2c)
+target_include_directories(
+  PIDisplayLibExample PUBLIC
+  ${CMAKE_CURRENT_LIST_DIR}
+)
+
+add_subdirectory(PIDisplayLib build)
+
+target_link_libraries(PIDisplayLibExample 
+  PIDisplayLib
+  pico_stdlib 
+  pico_multicore 
+  hardware_spi 
+  hardware_i2c
+)
 
 # create map/bin/hex file etc.
-pico_add_extra_outputs(PIDisplayLib)
+pico_add_extra_outputs(PIDisplayLibExample)
 
 # add url via pico_set_program_url
-pico_enable_stdio_usb(PIDisplayLib 1)
-pico_enable_stdio_uart(PIDisplayLib 0)
+pico_enable_stdio_usb(PIDisplayLibExample 1)
+pico_enable_stdio_uart(PIDisplayLibExample 0)

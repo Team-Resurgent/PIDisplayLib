@@ -14,7 +14,7 @@
 #include "displaySH1122.h"
 #include "displayST7789.h"
 #include "displaySSD1306.h"
-#include "spiTest.h"
+#include "displaySSD1309.h"
 #include "color.h"
 #include <math.h>
 
@@ -27,7 +27,6 @@ void core1_entry()
 {
     while (true)
 	{
-		//spiTest::process();
 		sleep_ms(5000);
 	}
 }
@@ -41,17 +40,7 @@ int main()
 
 	printf("Initializing Device\n");
 
-	const int testConfig = 3;
-
-	if (testConfig == 0)
-	{
-		spiTest::initSpi(spi1, 1 * 1024 * 1024, false);
-		while (true)
-		{
-			spiTest::writeSpi();
-			sleep_ms(1000);
-		}
-	}
+	const int testConfig = 5;
 
 	if (testConfig == 1)
 	{
@@ -121,9 +110,43 @@ int main()
 		//display->invert(true);
 		while (true)
 		{
-			display->drawString(0xffffff, fonts::Font_8x8(), 8, 8, "StellarOS");
+			display->drawString(0xffffff, fonts::Font_8x8(), 8, 8, "Hello");
+			display->drawString(0xffffff, fonts::Font_8x8(), 8, 56, "World");
 			display->drawDisplay();
 		}
 	}
 
+	if (testConfig == 4)
+	{
+		displayDriver* display = (displayDriver*)new displaySSD1309(displayDriver::displayModeSpi);
+		display->fill(0x000000);
+		//display->rotate(180);
+		//display->invert(true);
+		while (true)
+		{
+			display->drawString(0xffffff, fonts::Font_8x8(), 8, 4, "Transparent");
+			display->drawString(0xffffff, fonts::Font_8x8(), 8, 20, "velcro...?");
+			display->drawString(0xffffff, fonts::Font_8x8(), 8, 42, "Can't see that");
+			display->drawString(0xffffff, fonts::Font_8x8(), 8, 52, "catching on...");
+			display->drawDisplay();
+		}
+	}
+
+	if (testConfig == 5)
+	{
+		displayDriver* display = (displayDriver*)new displayST7789();
+		display->fill(0xff0000);
+		display->rotate(270);
+		//display->brightness(20);
+		while (true)
+		{
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 8, "PrometheOS: V1.3.0");
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 24, "Free Mem: 112MB");
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 40, "IP: 192.168.0.100");
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 56, "FAN: 40% CPU: 35c");
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 72, "Encoder: Focus");
+			display->drawString(0xffffff, fonts::Font_12x16(), 8, 88, "Video Mode: 480p");
+			display->drawDisplay();
+		}
+	}
 }

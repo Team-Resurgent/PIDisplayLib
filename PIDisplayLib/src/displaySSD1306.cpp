@@ -69,7 +69,7 @@ displaySSD1306::displaySSD1306()
     writeCommandByte(SSD1306_CMD_DISPLAY_START_LINE);
 
     writeCommandByte(SSD1306_CMD_CHARGE_PUMP_SETTING);
-    writeCommandByte(0x14);
+    writeCommandByte(0x22);
 
     writeCommandByte(SSD1306_CMD_COLUMN_0_MAPPED_TO_SEG0);
     writeCommandByte(SSD1306_CMD_SCAN_DIRECTION_COM0_START);
@@ -182,7 +182,7 @@ void displaySSD1306::drawDisplay()
     writeCommandByte(SSD1306_CMD_DISPLAY_START_LINE | 0x0);
     
     uint16_t pages = bufferSize / pageSize;
-    for (uint16_t i=0; i<=pages; i++) 
+    for (uint16_t i = 0; i < pages; i++) 
     {
         writeData(buffer, 16);
         buffer += pageSize;
