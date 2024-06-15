@@ -119,6 +119,7 @@ void displayDriver::writeCommand(uint8_t *buff, uint32_t buff_size)
 	tempBuffer[0] = I2C_COMMAND_MODE;
 	memcpy(tempBuffer + 1, buff, buff_size);
 	i2c_write_blocking(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false);
+	free(tempBuffer);
 }
 
 void displayDriver::writeCommandByte(uint8_t cmd)
@@ -139,6 +140,7 @@ void displayDriver::writeData(uint8_t *buff, uint32_t buff_size)
 	tempBuffer[0] = I2C_DATA_MODE;
 	memcpy(tempBuffer + 1, buff, buff_size);
 	i2c_write_blocking(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false);
+	free(tempBuffer);
 }
 
 void displayDriver::writeDataByte(uint8_t data)
