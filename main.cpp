@@ -7,14 +7,14 @@
 #include "fonts.h"
 #include "deviceLegacy.h"
 #include "deviceTouch.h"
-#include "displayDriver.h"
-#include "displayGC9A01A.h"
-#include "displayILI9341.h"
-#include "displaySH1106.h"
-#include "displaySH1122.h"
-#include "displayST7789.h"
-#include "displaySSD1306.h"
-#include "displaySSD1309.h"
+#include "pixelDisplayDriver.h"
+#include "pixelDisplayGC9A01A.h"
+#include "pixelDisplayILI9341.h"
+#include "pixelDisplaySH1106.h"
+#include "pixelDisplaySH1122.h"
+#include "pixelDisplayST7789.h"
+#include "pixelDisplaySSD1306.h"
+#include "pixelDisplaySSD1309.h"
 #include "color.h"
 #include <math.h>
 
@@ -40,14 +40,14 @@ int main()
 
 	printf("Initializing Device\n");
 
-	const int testConfig = 5;
+	const int testConfig = 3;
 
 	if (testConfig == 1)
 	{
 		deviceTouch* touch = new deviceTouch();
 		touch->initSpi(spi1, 3 * 1000 * 1000);
 
-		displayDriver* display = (displayDriver*)new displayILI9341();
+		pixelDisplayDriver* display = (pixelDisplayDriver*)new pixelDisplayILI9341();
 		display->fill(0xff0000);
 		display->rotate(270);
 		display->brightness(20);
@@ -73,7 +73,7 @@ int main()
 		deviceLegacy* device = new deviceLegacy();
 		device->initSpi(spi1, 10 * 1024 * 1024);
 
-		displayDriver* display = (displayDriver*)new displaySH1122();
+		pixelDisplayDriver* display = (pixelDisplayDriver*)new pixelDisplaySH1122();
 		display->fill(0x000000);
 		display->drawDisplay();
 
@@ -103,7 +103,7 @@ int main()
 
 	if (testConfig == 3)
 	{
-		displayDriver* display = (displayDriver*)new displaySSD1306();
+		pixelDisplayDriver* display = (pixelDisplayDriver*)new pixelDisplaySSD1306();
 		printf("i2c Addres %i\n", display->scanI2c());
 		display->fill(0x000000);
 		display->rotate(180);
@@ -118,7 +118,7 @@ int main()
 
 	if (testConfig == 4)
 	{
-		displayDriver* display = (displayDriver*)new displaySSD1309(displayDriver::displayModeSpi);
+		pixelDisplayDriver* display = (pixelDisplayDriver*)new pixelDisplaySSD1309(displayModeSpi);
 		display->fill(0x000000);
 		//display->rotate(180);
 		//display->invert(true);
@@ -134,7 +134,7 @@ int main()
 
 	if (testConfig == 5)
 	{
-		displayDriver* display = (displayDriver*)new displayST7789();
+		pixelDisplayDriver* display = (pixelDisplayDriver*)new pixelDisplayST7789();
 		display->fill(0xff0000);
 		display->rotate(270);
 		//display->brightness(20);

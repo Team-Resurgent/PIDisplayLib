@@ -1,31 +1,27 @@
 #pragma once
 
-#include "displayBuffer.h"
+#include "displayBase.h"
+#include "pixelDisplayBuffer.h"
 #include "fonts.h"
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "hardware/i2c.h"
 #include "hardware/structs/spi.h"
 
-class displayDriver
+class pixelDisplayDriver : displayBase
 {
 
 public:
 
-    enum displayMode
-    {
-        displayModeSpi,
-        displayModeI2c
-    };
-
-    ~displayDriver();
-
-    void initDisplayBuffer(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel);
-    displayBuffer* getDisplayBuffer();
+    ~pixelDisplayDriver();
 
     void initSpi(spi_inst_t* spi, uint32_t baudRate);
     void initI2c(i2c_inst_t* i2c, uint32_t address,  uint32_t baudRate);
     int32_t scanI2c();
+
+    void initDisplayBuffer(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel);
+    pixelDisplayBuffer* getDisplayBuffer();
+
     void writeCommand(uint8_t *buff, uint32_t buff_size);
     void writeCommandByte(uint8_t cmd);
     void writeData(uint8_t *buff, uint32_t buff_size);
@@ -55,9 +51,5 @@ public:
     // draw image
 
 public:
-    displayBuffer* mDisplayBuffer;
-    bool mIsSpi;
-    spi_inst_t* mSpi;
-    i2c_inst_t* mI2c;
-    uint32_t mI2cAddress;
+    pixelDisplayBuffer* mDisplayBuffer;
 };

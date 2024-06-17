@@ -1,7 +1,7 @@
 #pragma once
 
-#include "displayDriver.h"
-#include "displayBuffer.h"
+#include "pixelDisplayDriver.h"
+#include "pixelDisplayBuffer.h"
 #include "fonts.h"
 #include "hardware/spi.h"
 #include "hardware/structs/spi.h"
@@ -13,10 +13,10 @@
 #define DISPLAY_SH1122_HEIGHT 64
 #define DISPLAY_SH1122_BITS_PER_PIXEL 4
 
-class displaySH1122 : displayDriver
+class pixelDisplaySH1122 : pixelDisplayDriver
 {
 public:
-    displaySH1122();
+    pixelDisplaySH1122();
 
     void drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character);
     void drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message);

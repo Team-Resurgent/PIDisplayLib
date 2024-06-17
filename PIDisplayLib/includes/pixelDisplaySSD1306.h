@@ -1,24 +1,23 @@
 #pragma once
 
-#include "displayDriver.h"
-#include "displayBuffer.h"
+#include "pixelDisplayDriver.h"
+#include "pixelDisplayBuffer.h"
 #include "fonts.h"
 #include "hardware/spi.h"
+#include "hardware/i2c.h"
 #include "hardware/structs/spi.h"
 
 // Config
-#define DISPLAY_ILI9341_SPI spi0
-#define DISPLAY_ILI9341_BAUDRATE (10 * 1024 * 1024)
-#define DISPLAY_ILI9341_WIDTH 240
-#define DISPLAY_ILI9341_HEIGHT 320
-#define DISPLAY_ILI9341_X_SHIFT 0 
-#define DISPLAY_ILI9341_Y_SHIFT 0
-#define DISPLAY_ILI9341_BITS_PER_PIXEL 16
+#define DISPLAY_SSD1306_I2C i2c1
+#define DISPLAY_SSD1306_BAUDRATE (1 * 1024 * 1024)
+#define DISPLAY_SSD1306_WIDTH 128
+#define DISPLAY_SSD1306_HEIGHT 64
+#define DISPLAY_SSD1306_BITS_PER_PIXEL 1
 
-class displayILI9341 : displayDriver
+class pixelDisplaySSD1306 : pixelDisplayDriver
 {
 public:
-    displayILI9341();
+    pixelDisplaySSD1306();
 
     void drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character);
     void drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message);

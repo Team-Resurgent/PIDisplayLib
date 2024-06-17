@@ -1,4 +1,4 @@
-#include "displayDriver.h"
+#include "pixelDisplayDriver.h"
 #include "displayConfig.h"
 #include "fonts.h"
 
@@ -15,14 +15,29 @@
 #define I2C_COMMAND_MODE 0x80
 #define I2C_DATA_MODE 0x40
 
-displayDriver::~displayDriver()
+pixelDisplayDriver::~pixelDisplayDriver()
 {
     delete(mDisplayBuffer);
 }
 
-void displayDriver::initDisplayBuffer(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel)
+void pixelDisplayDriver::initSpi(spi_inst_t* spi, uint32_t baudRate) 
 {
-    mDisplayBuffer = new displayBuffer(
+	return displayBase::initSpi(spi, baudRate);
+}
+
+void pixelDisplayDriver::initI2c(i2c_inst_t* i2c, uint32_t address,  uint32_t baudRate)
+{
+	return displayBase::initI2c(i2c, address, baudRate);
+}
+
+int32_t pixelDisplayDriver::scanI2c()
+{
+	return displayBase::scanI2c();
+}
+
+void pixelDisplayDriver::initDisplayBuffer(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel)
+{
+    mDisplayBuffer = new pixelDisplayBuffer(
         width, 
         height, 
 		xShift,
@@ -31,82 +46,12 @@ void displayDriver::initDisplayBuffer(uint16_t width, uint16_t height, uint16_t 
     );
 }
 
-displayBuffer* displayDriver::getDisplayBuffer()
+pixelDisplayBuffer* pixelDisplayDriver::getDisplayBuffer()
 {
     return mDisplayBuffer;
 }
 
-void displayDriver::initSpi(spi_inst_t* spi, uint32_t baudRate)
-{
-	mIsSpi = true;
-	mSpi = spi;
-
-	if (SPI_DISPLAY_BACKLIGHT >= 0)
-	{
-    	gpio_init(SPI_DISPLAY_BACKLIGHT);
-    	gpio_put(SPI_DISPLAY_BACKLIGHT, 1);
-    	gpio_set_dir(SPI_DISPLAY_BACKLIGHT, GPIO_OUT);
-	}
-
-    gpio_init(SPI_DISPLAY_RST);
-    gpio_put(SPI_DISPLAY_RST, 1);
-    gpio_set_dir(SPI_DISPLAY_RST, GPIO_OUT);
-
-    gpio_init(SPI_DISPLAY_DC);
-    gpio_put(SPI_DISPLAY_DC, 0);
-    gpio_set_dir(SPI_DISPLAY_DC, GPIO_OUT);
-
-    spi_init(mSpi, baudRate);
-	spi_set_slave(mSpi, false);
-    gpio_set_function(SPI_DISPLAY_RX, GPIO_FUNC_SPI);
-    gpio_set_function(SPI_DISPLAY_SCK, GPIO_FUNC_SPI);
-    gpio_set_function(SPI_DISPLAY_TX, GPIO_FUNC_SPI);
-    gpio_set_function(SPI_DISPLAY_CSN, GPIO_FUNC_SPI);
-    bi_decl(bi_3pins_with_func((uint32_t)SPI_DISPLAY_RX, (uint32_t)SPI_DISPLAY_TX, (uint32_t)SPI_DISPLAY_SCK, GPIO_FUNC_SPI));
-
-    spi_set_format(mSpi, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
-
-    sleep_ms(10);
-	gpio_put(SPI_DISPLAY_RST, 0);
-	sleep_ms(10);
-	gpio_put(SPI_DISPLAY_RST, 1);
-}
-
-void displayDriver::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate)
-{
-	mIsSpi = false;
-	mI2c = i2c;
-	mI2cAddress = address;
-
-	if (I2C_DISPLAY_BACKLIGHT >= 0)
-	{
-    	gpio_init(I2C_DISPLAY_BACKLIGHT);
-    	gpio_put(I2C_DISPLAY_BACKLIGHT, 1);
-    	gpio_set_dir(I2C_DISPLAY_BACKLIGHT, GPIO_OUT);
-	}
-
-	i2c_init(mI2c, baudRate);
-    gpio_set_function(I2C_DISPLAY_SDA, GPIO_FUNC_I2C);
-    gpio_set_function(I2C_DISPLAY_SCL, GPIO_FUNC_I2C);
-    gpio_pull_up(I2C_DISPLAY_SDA);
-    gpio_pull_up(I2C_DISPLAY_SCL);
-    bi_decl(bi_2pins_with_func(I2C_DISPLAY_SDA, I2C_DISPLAY_SCL, GPIO_FUNC_I2C));
-}
-
-int32_t displayDriver::scanI2c()
-{
-   	uint8_t testvalue = 0;
-	for (int32_t address = 0; address < 256; address++)
-	{
-		if (i2c_write_timeout_us(mI2c, address, &testvalue, 1, false, I2C_TIMEOUT_US) == 1)
-		{
-			return address;
-		}
-	}
-	return -1;
-}
-
-void displayDriver::writeCommand(uint8_t *buff, uint32_t buff_size)
+void pixelDisplayDriver::writeCommand(uint8_t *buff, uint32_t buff_size)
 {
 	if (mIsSpi)
 	{
@@ -122,12 +67,12 @@ void displayDriver::writeCommand(uint8_t *buff, uint32_t buff_size)
 	free(tempBuffer);
 }
 
-void displayDriver::writeCommandByte(uint8_t cmd)
+void pixelDisplayDriver::writeCommandByte(uint8_t cmd)
 {
 	writeCommand(&cmd, 1);
 }
 
-void displayDriver::writeData(uint8_t *buff, uint32_t buff_size)
+void pixelDisplayDriver::writeData(uint8_t *buff, uint32_t buff_size)
 {
 	if (mIsSpi)
 	{
@@ -143,12 +88,12 @@ void displayDriver::writeData(uint8_t *buff, uint32_t buff_size)
 	free(tempBuffer);
 }
 
-void displayDriver::writeDataByte(uint8_t data)
+void pixelDisplayDriver::writeDataByte(uint8_t data)
 {
     writeData(&data, 1);
 }
 
-void displayDriver::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
+void pixelDisplayDriver::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
 {
     if (x > mDisplayBuffer->getWidth() || y > mDisplayBuffer->getHeight())
     {
@@ -174,7 +119,7 @@ void displayDriver::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uin
 	}
 }
 
-void displayDriver::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
+void pixelDisplayDriver::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
 {
 	while (*message) 
     {
@@ -184,7 +129,7 @@ void displayDriver::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, u
 	}
 }
 
-void displayDriver::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) 
+void pixelDisplayDriver::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) 
 {
 	uint16_t swap;
     uint16_t steep = abs(y1 - y0) > abs(x1 - x0);
@@ -238,7 +183,7 @@ void displayDriver::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uin
     }
 }
 
-void displayDriver::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void pixelDisplayDriver::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
 	drawLine(colorR8G8B8, x, y, x + width, y);
 	drawLine(colorR8G8B8, x, y, x, y + height);
@@ -246,14 +191,14 @@ void displayDriver::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, 
 	drawLine(colorR8G8B8, x + width, y, x + width, y + height);
 }
 
-void displayDriver::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+void pixelDisplayDriver::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
 {
 	drawLine(colorR8G8B8, x1, y1, x2, y2);
 	drawLine(colorR8G8B8, x2, y2, x3, y3);
 	drawLine(colorR8G8B8, x3, y3, x1, y1);
 }
 
-void displayDriver::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+void pixelDisplayDriver::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
 {
     int16_t f = 1 - radius;
 	int16_t ddF_x = 1;
@@ -288,7 +233,7 @@ void displayDriver::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16
 	}
 }
 
-void displayDriver::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void pixelDisplayDriver::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
     uint8_t i;
 
@@ -315,7 +260,7 @@ void displayDriver::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16
 	}
 }
 
-void displayDriver::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+void pixelDisplayDriver::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
 {
     int16_t deltax = 0, deltay = 0, x = 0, y = 0, xinc1 = 0, xinc2 = 0,
 			yinc1 = 0, yinc2 = 0, den = 0, num = 0, numadd = 0, numpixels = 0,
@@ -374,7 +319,7 @@ void displayDriver::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16
 	}
 }
 
-void displayDriver::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+void pixelDisplayDriver::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
 {
 	int16_t f = 1 - radius;
 	int16_t ddF_x = 1;

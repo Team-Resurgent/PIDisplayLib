@@ -1,4 +1,4 @@
-#include "displayGC9A01A.h"
+#include "pixelDisplayGC9A01A.h"
 #include "color.h"
 #include "fonts.h"
 
@@ -65,7 +65,7 @@
 #define GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_BGR 0x08
 #define GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB 0x00
 
-displayGC9A01A::displayGC9A01A()
+pixelDisplayGC9A01A::pixelDisplayGC9A01A()
 {
     initDisplayBuffer(
         DISPLAY_GC9A01A_WIDTH, 
@@ -353,52 +353,52 @@ displayGC9A01A::displayGC9A01A()
     drawDisplay();
 }
 
-void displayGC9A01A::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
+void pixelDisplayGC9A01A::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
 {
-    displayDriver::drawChar(colorR8G8B8, font, x, y, character);
+    pixelDisplayDriver::drawChar(colorR8G8B8, font, x, y, character);
 }
 
-void displayGC9A01A::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
+void pixelDisplayGC9A01A::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
 {
-    displayDriver::drawString(colorR8G8B8, font, x, y, message);
+    pixelDisplayDriver::drawString(colorR8G8B8, font, x, y, message);
 }
 
-void displayGC9A01A::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+void pixelDisplayGC9A01A::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
-    displayDriver::drawLine(colorR8G8B8, x0, y0, x1, y1);
+    pixelDisplayDriver::drawLine(colorR8G8B8, x0, y0, x1, y1);
 }
 
-void displayGC9A01A::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void pixelDisplayGC9A01A::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
-    displayDriver::drawRectangle(colorR8G8B8, x, y, width, height);
+    pixelDisplayDriver::drawRectangle(colorR8G8B8, x, y, width, height);
 }
 
-void displayGC9A01A::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+void pixelDisplayGC9A01A::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
 {
-    displayDriver::drawTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
+    pixelDisplayDriver::drawTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
 }
 
-void displayGC9A01A::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+void pixelDisplayGC9A01A::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
 {
-    displayDriver::drawCircle(colorR8G8B8, x, y, radius);
+    pixelDisplayDriver::drawCircle(colorR8G8B8, x, y, radius);
 }
 
-void displayGC9A01A::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void pixelDisplayGC9A01A::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
-    displayDriver::drawFilledRectangle(colorR8G8B8, x, y, width, height);
+    pixelDisplayDriver::drawFilledRectangle(colorR8G8B8, x, y, width, height);
 }
 
-void displayGC9A01A::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+void pixelDisplayGC9A01A::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
 {
-    displayDriver::drawFilledTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
+    pixelDisplayDriver::drawFilledTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
 }
 
-void displayGC9A01A::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+void pixelDisplayGC9A01A::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
 {
-    displayDriver::drawFilledCircle(colorR8G8B8, x, y, radius);
+    pixelDisplayDriver::drawFilledCircle(colorR8G8B8, x, y, radius);
 }
 
-void displayGC9A01A::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
+void pixelDisplayGC9A01A::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
 {
     if (x >= mDisplayBuffer->getWidth() || y >= mDisplayBuffer->getHeight())
     {
@@ -412,7 +412,7 @@ void displayGC9A01A::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
     buffer[pixelOffset + 1] = static_cast<uint8_t>(r5g6b5 & 0xff);
 }
 
-void displayGC9A01A::fill(uint32_t colorR8G8B8)
+void pixelDisplayGC9A01A::fill(uint32_t colorR8G8B8)
 {
     uint16_t r5g6b5 = color::convertR8G8B8toR5G6B5(colorR8G8B8);
 
@@ -435,7 +435,7 @@ void displayGC9A01A::fill(uint32_t colorR8G8B8)
     }
 }
 
-void displayGC9A01A::drawDisplay()
+void pixelDisplayGC9A01A::drawDisplay()
 {
 	uint16_t xStart = 0 + mDisplayBuffer->getXShift();
     uint16_t xEnd = mDisplayBuffer->getWidth() + mDisplayBuffer->getXShift() - 1;
@@ -454,24 +454,24 @@ void displayGC9A01A::drawDisplay()
     writeData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
 }
 
-void displayGC9A01A::brightness(uint8_t value)
+void pixelDisplayGC9A01A::brightness(uint8_t value)
 {
     // Does not seem to work
     // writeCommand(GC9A01A_WRITE_DISPLAY_BRIGHTNESS);
     // writeDataByte(value);
 }
 
-void displayGC9A01A::contrast(uint8_t value)
+void pixelDisplayGC9A01A::contrast(uint8_t value)
 {
     // NA 
 }
 
-void displayGC9A01A::invert(bool value)
+void pixelDisplayGC9A01A::invert(bool value)
 {
     writeCommandByte(value ? GC9A01A_DISPLAY_INVERSION_OFF : GC9A01A_DISPLAY_INVERSION_ON);
 }
 
-void displayGC9A01A::rotate(uint16_t degrees)
+void pixelDisplayGC9A01A::rotate(uint16_t degrees)
 {
     mDisplayBuffer->setRotation(degrees);
 

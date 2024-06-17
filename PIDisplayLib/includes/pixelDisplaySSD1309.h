@@ -1,7 +1,8 @@
 #pragma once
 
-#include "displayDriver.h"
-#include "displayBuffer.h"
+#include "displayBase.h"
+#include "pixelDisplayDriver.h"
+#include "pixelDisplayBuffer.h"
 #include "fonts.h"
 #include "hardware/spi.h"
 #include "hardware/i2c.h"
@@ -15,10 +16,10 @@
 #define DISPLAY_SSD1309_HEIGHT 64
 #define DISPLAY_SSD1309_BITS_PER_PIXEL 1
 
-class displaySSD1309 : displayDriver
+class pixelDisplaySSD1309 : pixelDisplayDriver
 {
 public:
-    displaySSD1309(displayMode mode);
+    pixelDisplaySSD1309(displayMode mode);
 
     void drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character);
     void drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message);

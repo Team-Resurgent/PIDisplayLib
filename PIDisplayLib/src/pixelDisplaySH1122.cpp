@@ -1,4 +1,4 @@
-#include "displaySH1122.h"
+#include "pixelDisplaySH1122.h"
 #include "color.h"
 #include "fonts.h"
 
@@ -31,7 +31,7 @@
 #define SH1122_CMD_SET_END 0xEE
 #define SH1122_CMD_SET_NOP 0xE3
 
-displaySH1122::displaySH1122()
+pixelDisplaySH1122::pixelDisplaySH1122()
 {
     initDisplayBuffer(
         DISPLAY_SH1122_WIDTH, 
@@ -88,52 +88,52 @@ displaySH1122::displaySH1122()
     drawDisplay();
 }
 
-void displaySH1122::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
+void pixelDisplaySH1122::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
 {
-    displayDriver::drawChar(colorR8G8B8, font, x, y, character);
+    pixelDisplayDriver::drawChar(colorR8G8B8, font, x, y, character);
 }
 
-void displaySH1122::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
+void pixelDisplaySH1122::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
 {
-    displayDriver::drawString(colorR8G8B8, font, x, y, message);
+    pixelDisplayDriver::drawString(colorR8G8B8, font, x, y, message);
 }
 
-void displaySH1122::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+void pixelDisplaySH1122::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
-    displayDriver::drawLine(colorR8G8B8, x0, y0, x1, y1);
+    pixelDisplayDriver::drawLine(colorR8G8B8, x0, y0, x1, y1);
 }
 
-void displaySH1122::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void pixelDisplaySH1122::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
-    displayDriver::drawRectangle(colorR8G8B8, x, y, width, height);
+    pixelDisplayDriver::drawRectangle(colorR8G8B8, x, y, width, height);
 }
 
-void displaySH1122::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+void pixelDisplaySH1122::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
 {
-    displayDriver::drawTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
+    pixelDisplayDriver::drawTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
 }
 
-void displaySH1122::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+void pixelDisplaySH1122::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
 {
-    displayDriver::drawCircle(colorR8G8B8, x, y, radius);
+    pixelDisplayDriver::drawCircle(colorR8G8B8, x, y, radius);
 }
 
-void displaySH1122::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void pixelDisplaySH1122::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
-    displayDriver::drawFilledRectangle(colorR8G8B8, x, y, width, height);
+    pixelDisplayDriver::drawFilledRectangle(colorR8G8B8, x, y, width, height);
 }
 
-void displaySH1122::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+void pixelDisplaySH1122::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
 {
-    displayDriver::drawFilledTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
+    pixelDisplayDriver::drawFilledTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
 }
 
-void displaySH1122::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+void pixelDisplaySH1122::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
 {
-    displayDriver::drawFilledCircle(colorR8G8B8, x, y, radius);
+    pixelDisplayDriver::drawFilledCircle(colorR8G8B8, x, y, radius);
 }
 
-void displaySH1122::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
+void pixelDisplaySH1122::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
 {
     if (x >= mDisplayBuffer->getWidth() || y >= mDisplayBuffer->getHeight())
     {
@@ -157,14 +157,14 @@ void displaySH1122::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
     buffer[pixelOffset] = currentPixel;
 }
 
-void displaySH1122::fill(uint32_t colorR8G8B8)
+void pixelDisplaySH1122::fill(uint32_t colorR8G8B8)
 {
     uint8_t gray4 = color::convertR8G8B8toGray4(colorR8G8B8);
     uint8_t value = (gray4 << 4) | gray4;
     memset(getDisplayBuffer()->getBuffer(), value, getDisplayBuffer()->getBufferSize());
 }
 
-void displaySH1122::drawDisplay()
+void pixelDisplaySH1122::drawDisplay()
 {
     uint8_t rowAddrData[] = {SH1122_CMD_SET_ROW_ADDR, 0x00};
     writeCommand(rowAddrData, sizeof(rowAddrData));
@@ -174,23 +174,23 @@ void displaySH1122::drawDisplay()
     writeData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
 }
 
-void displaySH1122::brightness(uint8_t value)
+void pixelDisplaySH1122::brightness(uint8_t value)
 {
     // NA
 }
 
-void displaySH1122::contrast(uint8_t value)
+void pixelDisplaySH1122::contrast(uint8_t value)
 {
     uint8_t contrastData[] = {SH1122_CMD_SET_CONTRAST_CURRENT, value};
     writeCommand(contrastData, sizeof(contrastData));
 }
 
-void displaySH1122::invert(bool value)
+void pixelDisplaySH1122::invert(bool value)
 {
     writeCommandByte(value ? SH1122_CMD_SET_REVERSE_DISPLAY : SH1122_CMD_SET_NORMAL_DISPLAY);
 }
 
-void displaySH1122::rotate(uint16_t degrees)
+void pixelDisplaySH1122::rotate(uint16_t degrees)
 {
     mDisplayBuffer->setRotation(degrees);
 

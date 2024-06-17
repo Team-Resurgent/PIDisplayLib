@@ -1,4 +1,4 @@
-#include "displayST7789.h"
+#include "pixelDisplayST7789.h"
 #include "color.h"
 #include "fonts.h"
 
@@ -81,7 +81,7 @@
 #define ST7789_MEMORY_ADDRESS_DATA_CONTROL_BGR 0x08
 #define ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB 0x00
 
-displayST7789::displayST7789()
+pixelDisplayST7789::pixelDisplayST7789()
 {
     initDisplayBuffer(
         DISPLAY_ST7789_WIDTH, 
@@ -140,52 +140,52 @@ displayST7789::displayST7789()
     drawDisplay();
 }
 
-void displayST7789::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
+void pixelDisplayST7789::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
 {
-    displayDriver::drawChar(colorR8G8B8, font, x, y, character);
+    pixelDisplayDriver::drawChar(colorR8G8B8, font, x, y, character);
 }
 
-void displayST7789::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
+void pixelDisplayST7789::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
 {
-    displayDriver::drawString(colorR8G8B8, font, x, y, message);
+    pixelDisplayDriver::drawString(colorR8G8B8, font, x, y, message);
 }
 
-void displayST7789::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+void pixelDisplayST7789::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
-    displayDriver::drawLine(colorR8G8B8, x0, y0, x1, y1);
+    pixelDisplayDriver::drawLine(colorR8G8B8, x0, y0, x1, y1);
 }
 
-void displayST7789::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void pixelDisplayST7789::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
-    displayDriver::drawRectangle(colorR8G8B8, x, y, width, height);
+    pixelDisplayDriver::drawRectangle(colorR8G8B8, x, y, width, height);
 }
 
-void displayST7789::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+void pixelDisplayST7789::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
 {
-    displayDriver::drawTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
+    pixelDisplayDriver::drawTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
 }
 
-void displayST7789::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+void pixelDisplayST7789::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
 {
-    displayDriver::drawCircle(colorR8G8B8, x, y, radius);
+    pixelDisplayDriver::drawCircle(colorR8G8B8, x, y, radius);
 }
 
-void displayST7789::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void pixelDisplayST7789::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
-    displayDriver::drawFilledRectangle(colorR8G8B8, x, y, width, height);
+    pixelDisplayDriver::drawFilledRectangle(colorR8G8B8, x, y, width, height);
 }
 
-void displayST7789::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+void pixelDisplayST7789::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
 {
-    displayDriver::drawFilledTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
+    pixelDisplayDriver::drawFilledTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
 }
 
-void displayST7789::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+void pixelDisplayST7789::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
 {
-    displayDriver::drawFilledCircle(colorR8G8B8, x, y, radius);
+    pixelDisplayDriver::drawFilledCircle(colorR8G8B8, x, y, radius);
 }
 
-void displayST7789::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
+void pixelDisplayST7789::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
 {
     if (x >= mDisplayBuffer->getWidth() || y >= mDisplayBuffer->getHeight())
     {
@@ -199,7 +199,7 @@ void displayST7789::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
     buffer[pixelOffset + 1] = static_cast<uint8_t>(r5g6b5 & 0xff);
 }
 
-void displayST7789::fill(uint32_t colorR8G8B8)
+void pixelDisplayST7789::fill(uint32_t colorR8G8B8)
 {
     uint16_t r5g6b5 = color::convertR8G8B8toR5G6B5(colorR8G8B8);
 
@@ -222,7 +222,7 @@ void displayST7789::fill(uint32_t colorR8G8B8)
     }
 }
 
-void displayST7789::drawDisplay()
+void pixelDisplayST7789::drawDisplay()
 {
 	uint16_t xStart = 0 + mDisplayBuffer->getXShift();
     uint16_t xEnd = mDisplayBuffer->getWidth() + mDisplayBuffer->getXShift() - 1;
@@ -241,24 +241,24 @@ void displayST7789::drawDisplay()
     writeData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
 }
 
-void displayST7789::brightness(uint8_t value)
+void pixelDisplayST7789::brightness(uint8_t value)
 {
     // Does not seem to work
     // writeCommand(ST7789_WRITE_DISPLAY_BRIGHTNESS);
     // writeDataByte(value);
 }
 
-void displayST7789::contrast(uint8_t value)
+void pixelDisplayST7789::contrast(uint8_t value)
 {
     // NA 
 }
 
-void displayST7789::invert(bool value)
+void pixelDisplayST7789::invert(bool value)
 {
     writeCommandByte(value ? ST7789_DISPLAY_INVERSION_OFF : ST7789_DISPLAY_INVERSION_ON);
 }
 
-void displayST7789::rotate(uint16_t degrees)
+void pixelDisplayST7789::rotate(uint16_t degrees)
 {
     mDisplayBuffer->setRotation(degrees);
 

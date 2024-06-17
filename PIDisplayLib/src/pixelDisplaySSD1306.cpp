@@ -1,4 +1,4 @@
-#include "displaySSD1306.h"
+#include "pixelDisplaySSD1306.h"
 #include "displayConfig.h"
 #include "color.h"
 #include "fonts.h"
@@ -43,7 +43,7 @@
 #define SSD1306_CMD_COMH_DESLECT_LEVEL 0xDB
 #define SSD1306_CMD_NOP 0xE3
 
-displaySSD1306::displaySSD1306()
+pixelDisplaySSD1306::pixelDisplaySSD1306()
 {
     initDisplayBuffer(
         DISPLAY_SSD1306_WIDTH, 
@@ -69,7 +69,7 @@ displaySSD1306::displaySSD1306()
     writeCommandByte(SSD1306_CMD_DISPLAY_START_LINE);
 
     writeCommandByte(SSD1306_CMD_CHARGE_PUMP_SETTING);
-    writeCommandByte(0x22);
+    writeCommandByte(0x14); //0x22 for 64 pixel
 
     writeCommandByte(SSD1306_CMD_COLUMN_0_MAPPED_TO_SEG0);
     writeCommandByte(SSD1306_CMD_SCAN_DIRECTION_COM0_START);
@@ -98,52 +98,52 @@ displaySSD1306::displaySSD1306()
     drawDisplay();
 }
 
-void displaySSD1306::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
+void pixelDisplaySSD1306::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
 {
-    displayDriver::drawChar(colorR8G8B8, font, x, y, character);
+    pixelDisplayDriver::drawChar(colorR8G8B8, font, x, y, character);
 }
 
-void displaySSD1306::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
+void pixelDisplaySSD1306::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
 {
-    displayDriver::drawString(colorR8G8B8, font, x, y, message);
+    pixelDisplayDriver::drawString(colorR8G8B8, font, x, y, message);
 }
 
-void displaySSD1306::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+void pixelDisplaySSD1306::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
-    displayDriver::drawLine(colorR8G8B8, x0, y0, x1, y1);
+    pixelDisplayDriver::drawLine(colorR8G8B8, x0, y0, x1, y1);
 }
 
-void displaySSD1306::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void pixelDisplaySSD1306::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
-    displayDriver::drawRectangle(colorR8G8B8, x, y, width, height);
+    pixelDisplayDriver::drawRectangle(colorR8G8B8, x, y, width, height);
 }
 
-void displaySSD1306::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+void pixelDisplaySSD1306::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
 {
-    displayDriver::drawTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
+    pixelDisplayDriver::drawTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
 }
 
-void displaySSD1306::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+void pixelDisplaySSD1306::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
 {
-    displayDriver::drawCircle(colorR8G8B8, x, y, radius);
+    pixelDisplayDriver::drawCircle(colorR8G8B8, x, y, radius);
 }
 
-void displaySSD1306::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void pixelDisplaySSD1306::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
-    displayDriver::drawFilledRectangle(colorR8G8B8, x, y, width, height);
+    pixelDisplayDriver::drawFilledRectangle(colorR8G8B8, x, y, width, height);
 }
 
-void displaySSD1306::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+void pixelDisplaySSD1306::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
 {
-    displayDriver::drawFilledTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
+    pixelDisplayDriver::drawFilledTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
 }
 
-void displaySSD1306::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+void pixelDisplaySSD1306::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
 {
-    displayDriver::drawFilledCircle(colorR8G8B8, x, y, radius);
+    pixelDisplayDriver::drawFilledCircle(colorR8G8B8, x, y, radius);
 }
 
-void displaySSD1306::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
+void pixelDisplaySSD1306::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
 {
     if (x >= mDisplayBuffer->getWidth() || y >= mDisplayBuffer->getHeight())
     {
@@ -160,7 +160,7 @@ void displaySSD1306::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
     buffer[pixelOffset] = currentPixel;
 }
 
-void displaySSD1306::fill(uint32_t colorR8G8B8)
+void pixelDisplaySSD1306::fill(uint32_t colorR8G8B8)
 {
     uint8_t gray1 = color::convertR8G8B8toGray1(colorR8G8B8);
     uint8_t value = 
@@ -171,7 +171,7 @@ void displaySSD1306::fill(uint32_t colorR8G8B8)
     memset(getDisplayBuffer()->getBuffer(), value, getDisplayBuffer()->getBufferSize());
 }
 
-void displaySSD1306::drawDisplay()
+void pixelDisplaySSD1306::drawDisplay()
 {
     uint8_t* buffer = getDisplayBuffer()->getBuffer();
     uint32_t pageSize = 16;
@@ -189,24 +189,23 @@ void displaySSD1306::drawDisplay()
     }
 }
 
-
-void displaySSD1306::brightness(uint8_t value)
+void pixelDisplaySSD1306::brightness(uint8_t value)
 {
     // NA
 }
 
-void displaySSD1306::contrast(uint8_t value)
+void pixelDisplaySSD1306::contrast(uint8_t value)
 {
     writeCommandByte(SSD1306_CMD_CONTRAST_CONTROL);
     writeDataByte(value);
 }
 
-void displaySSD1306::invert(bool value)
+void pixelDisplaySSD1306::invert(bool value)
 {
     writeCommandByte(value ? SSD1306_CMD_INVERSE_DISPLAY : SSD1306_CMD_NORMAL_DISPLAY);
 }
 
-void displaySSD1306::rotate(uint16_t degrees)
+void pixelDisplaySSD1306::rotate(uint16_t degrees)
 {
     mDisplayBuffer->setRotation(degrees);
 

@@ -1,24 +1,24 @@
 #pragma once
 
-#include "displayDriver.h"
-#include "displayBuffer.h"
+#include "pixelDisplayDriver.h"
+#include "pixelDisplayBuffer.h"
 #include "fonts.h"
 #include "hardware/spi.h"
 #include "hardware/structs/spi.h"
 
 // Config
-#define DISPLAY_GC9A01A_SPI spi0
-#define DISPLAY_GC9A01A_BAUDRATE (10 * 1024 * 1024)
-#define DISPLAY_GC9A01A_WIDTH 240
-#define DISPLAY_GC9A01A_HEIGHT 240
-#define DISPLAY_GC9A01A_X_SHIFT 0 
-#define DISPLAY_GC9A01A_Y_SHIFT 0
-#define DISPLAY_GC9A01A_BITS_PER_PIXEL 16
+#define DISPLAY_ST7789_SPI spi0
+#define DISPLAY_ST7789_BAUDRATE (10 * 1024 * 1024)
+#define DISPLAY_ST7789_WIDTH 240
+#define DISPLAY_ST7789_HEIGHT 320
+#define DISPLAY_ST7789_X_SHIFT 0 
+#define DISPLAY_ST7789_Y_SHIFT 0
+#define DISPLAY_ST7789_BITS_PER_PIXEL 16
 
-class displayGC9A01A : displayDriver
+class pixelDisplayST7789 : pixelDisplayDriver
 {
 public:
-    displayGC9A01A();
+    pixelDisplayST7789();
 
     void drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character);
     void drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message);
