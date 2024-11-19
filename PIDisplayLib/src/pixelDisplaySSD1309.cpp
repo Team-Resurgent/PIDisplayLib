@@ -55,7 +55,8 @@ pixelDisplaySSD1309::pixelDisplaySSD1309(displayMode mode)
 
     if (mode == displayModeI2c)
     {
-        initI2c(DISPLAY_SSD1309_I2C, I2C_DISPLAY_ADDRESS, DISPLAY_SSD1309_BAUDRATE);
+        uint8_t i2cAddress = I2C_DISPLAY_ADDRESS == -1 ? scanI2c() : I2C_DISPLAY_ADDRESS;
+        initI2c(DISPLAY_SSD1309_I2C, i2cAddress, DISPLAY_SSD1309_BAUDRATE);
     }
     else
     {

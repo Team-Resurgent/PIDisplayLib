@@ -73,9 +73,9 @@ void displayBase::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate)
 
 int32_t displayBase::scanI2c()
 {
-   	uint8_t testvalue = 0;
 	for (int32_t address = 0; address < 256; address++)
 	{
+   		uint8_t testvalue = 0;
 		if (i2c_write_timeout_us(mI2c, address, &testvalue, 1, false, I2C_TIMEOUT_US) == 1)
 		{
 			return address;

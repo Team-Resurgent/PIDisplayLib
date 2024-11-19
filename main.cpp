@@ -6,6 +6,8 @@
 
 #include "fonts.h"
 #include "deviceLegacy.h"
+#include "deviceRTC.h"
+#include "deviceEEPROM.h"
 #include "deviceTouch.h"
 #include "pixelDisplayDriver.h"
 #include "pixelDisplayGC9A01A.h"
@@ -15,6 +17,8 @@
 #include "pixelDisplayST7789.h"
 #include "pixelDisplaySSD1306.h"
 #include "pixelDisplaySSD1309.h"
+#include "textDisplayDriver.h"
+#include "textDisplayUS2066.h"
 #include "color.h"
 #include <math.h>
 
@@ -40,7 +44,26 @@ int main()
 
 	printf("Initializing Device\n");
 
-	const int testConfig = 3;
+	const int testConfig = 7;
+
+	if (testConfig == 0)
+	{
+		printf("testconfig 0\n");
+		textDisplayDriver* display = (textDisplayDriver*)new textDisplayUS2066();
+		while (true)
+		{
+			display->setCursor(0, 0);
+			display->printMessage("Hello");
+			display->setCursor(1, 0);
+			display->printMessage("World");
+			display->setCursor(2, 0);
+			display->printMessage("Yet");
+			display->setCursor(3, 0);
+			display->printMessage("Again");
+			
+			printf("testconfig 0 done\n");
+		}
+	}
 
 	if (testConfig == 1)
 	{
@@ -148,5 +171,57 @@ int main()
 			display->drawString(0xffffff, fonts::Font_12x16(), 8, 88, "Video Mode: 480p");
 			display->drawDisplay();
 		}
+	}
+
+	if (testConfig == 6)
+	{
+		deviceRTC* rtc = new deviceRTC();
+		rtc->initI2c(0x68);
+
+		datetime_t datetime;
+		datetime.day = 21;
+		datetime.month = 6;
+		datetime.year = 2024;
+		datetime.dotw = 5;
+		datetime.hour = 14;
+		datetime.min = 44;
+		datetime.sec = 0;
+		// bool setOk = rtc->setDateTime(&datetime);
+		// printf("Date set ok = %i\n", setOk);
+
+		while (true)
+		{
+			bool getOk = rtc->getDateTime(&datetime);
+			if (getOk)
+			{
+				printf("Datetime Day = %i\n", datetime.day);
+				printf("Datetime Month = %i\n", datetime.month);
+				printf("Datetime Year = %i\n", datetime.year);
+				printf("Datetime Dotw = %i\n", datetime.dotw);
+				printf("Datetime Hour = %i\n", datetime.hour);
+				printf("Datetime Min = %i\n", datetime.min);
+				printf("Datetime Sec = %i\n", datetime.sec);
+			}
+
+			float temperature;
+			bool getTemp = rtc->getTemperature(&temperature);
+			if (getTemp)
+			{
+				printf("Temp Degrees C = %f\n", temperature);
+			}
+
+			sleep_ms(1000);
+		}
+		delete rtc;
+	}
+
+	if (testConfig == 7)
+	{
+		printf("scanning\n");
+		deviceEEPROM* eeprom = new deviceEEPROM();
+		eeprom->initI2c(0x54);
+		eeprom->scanI2c();
+		printf("scan done\n");
+		eeprom->read();
 	}
 }

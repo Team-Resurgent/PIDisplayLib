@@ -63,7 +63,7 @@ void pixelDisplayDriver::writeCommand(uint8_t *buff, uint32_t buff_size)
 	uint8_t* tempBuffer = (uint8_t*)malloc(buff_size + 1);
 	tempBuffer[0] = I2C_COMMAND_MODE;
 	memcpy(tempBuffer + 1, buff, buff_size);
-	i2c_write_blocking(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false);
+	i2c_write_timeout_us(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false, I2C_TIMEOUT_US);
 	free(tempBuffer);
 }
 
@@ -84,7 +84,7 @@ void pixelDisplayDriver::writeData(uint8_t *buff, uint32_t buff_size)
 	uint8_t* tempBuffer = (uint8_t*)malloc(buff_size + 1);
 	tempBuffer[0] = I2C_DATA_MODE;
 	memcpy(tempBuffer + 1, buff, buff_size);
-	i2c_write_blocking(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false);
+	i2c_write_timeout_us(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false, I2C_TIMEOUT_US);
 	free(tempBuffer);
 }
 
