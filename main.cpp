@@ -44,7 +44,7 @@ int main()
 
 	printf("Initializing Device\n");
 
-	const int testConfig = 7;
+	const int testConfig = 0;
 
 	if (testConfig == 0)
 	{
@@ -60,8 +60,10 @@ int main()
 			display->printMessage("Yet");
 			display->setCursor(3, 0);
 			display->printMessage("Again");
+
+			sleep_ms(1000);
 			
-			printf("testconfig 0 done\n");
+			//printf("testconfig 0 done\n");
 		}
 	}
 

@@ -69,6 +69,8 @@ void displayBase::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate)
     gpio_pull_up(I2C_DISPLAY_SDA);
     gpio_pull_up(I2C_DISPLAY_SCL);
     bi_decl(bi_2pins_with_func(I2C_DISPLAY_SDA, I2C_DISPLAY_SCL, GPIO_FUNC_I2C));
+
+	mI2cAddress = address == -1 ? scanI2c() : address;
 }
 
 int32_t displayBase::scanI2c()
@@ -82,4 +84,9 @@ int32_t displayBase::scanI2c()
 		}
 	}
 	return -1;
+}
+
+int32_t displayBase::getI2cAddress()
+{
+	return mI2cAddress;
 }

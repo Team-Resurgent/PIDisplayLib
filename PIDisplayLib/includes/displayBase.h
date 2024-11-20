@@ -17,6 +17,7 @@ public:
     void initSpi(spi_inst_t* spi, uint32_t baudRate);
     void initI2c(i2c_inst_t* i2c, uint32_t address,  uint32_t baudRate);
     int32_t scanI2c();
+    int32_t getI2cAddress();
 public:
     bool mIsSpi;
     spi_inst_t* mSpi;

@@ -8,20 +8,34 @@
 #define US2066_DISPLAY_MODE 0x08
 #define US2066_DISPLAY_MODE_OFF_FLAG 0x00
 #define US2066_DISPLAY_MODE_ON_FLAG 0x04
-#define US2066_DISPLAY_MODE_CURSOR_FLAG 0x02
-#define US2066_DISPLAY_MODE_BLINK_FLAG 0x01
+#define US2066_DISPLAY_MODE_CURSOR_OFF_FLAG 0x00
+#define US2066_DISPLAY_MODE_CURSOR_ON_FLAG 0x02
+#define US2066_DISPLAY_MODE_BLINK_OFF_FLAG 0x00
+#define US2066_DISPLAY_MODE_BLINK_ON_FLAG 0x01
+
+#define US2066_EXTENDED_MDOE 0x08
+#define US2066_EXTENDED_MDOE_5DOT_FLAG 0x00
+#define US2066_EXTENDED_MDOE_6DOT_FLAG 0x04
+#define US2066_EXTENDED_MDOE_INVERT_CURSOR_OFF_FLAG 0x00
+#define US2066_EXTENDED_MDOE_INVERT_CURSOR_FLAG 0x02
+#define US2066_EXTENDED_MDOE_1TO2ROWS_FLAG 0x00
+#define US2066_EXTENDED_MDOE_3TO4ROWS_FLAG 0x01
 
 textDisplayUS2066::textDisplayUS2066()
 {
     printf("scan i2c\n");
 
-    uint8_t i2cAddress = I2C_DISPLAY_ADDRESS == -1 ? scanI2c() : I2C_DISPLAY_ADDRESS;
-        printf("Using address %i\n", i2cAddress);
-    initI2c(DISPLAY_US2066_I2C, i2cAddress, DISPLAY_US2066_BAUDRATE);
+    initI2c(DISPLAY_US2066_I2C, I2C_DISPLAY_ADDRESS, DISPLAY_US2066_BAUDRATE);
 
-    printf("Using address %i\n", i2cAddress);
+    printf("Using address %i\n", getI2cAddress());
 
+    writeCommandByte(0x2a);  // function set (extended command set)
+    writeCommandByte(0x71);  // function selection A, disable internal Vdd regualtor
+    writeDataByte(0x00);
+
+    writeCommandByte(0x28);  // function set (fundamental command set)
     writeCommandByte(US2066_DISPLAY_MODE | US2066_DISPLAY_MODE_OFF_FLAG);
+
 
     //Set display clock devide ratio, oscillator freq
     writeCommandByte(0x2a); //RE=1
@@ -29,16 +43,14 @@ textDisplayUS2066::textDisplayUS2066()
     writeCommandByte(0xd5);
     writeCommandByte(0x70);
     writeCommandByte(0x78); //SD=0
-
+//https://github.com/NewhavenDisplay/NHD_US2066/blob/master/NHD_US2066.cpp
     //Set display mode
-    writeCommandByte(0x08);
-
-    //Set remap
+    writeCommandByte(US2066_EXTENDED_MDOE | US2066_EXTENDED_MDOE_5DOT_FLAG | US2066_EXTENDED_MDOE_INVERT_CURSOR_OFF_FLAG | US2066_EXTENDED_MDOE_3TO4ROWS_FLAG);
     writeCommandByte(0x06);
 
     //CGROM/CGRAM Management
     writeCommandByte(0x72);
-    writeDataByte(0x01);    //ROM A
+    writeDataByte(0x00);    //ROM A
     
     //Set OLED Characterization
     writeCommandByte(0x2a); //RE=1
@@ -48,9 +60,12 @@ textDisplayUS2066::textDisplayUS2066()
     writeCommandByte(0xda);
     writeCommandByte(0x10);
 
+    writeCommandByte(0xdc);
+    writeCommandByte(0x00);
+
     //Set contrast control
     writeCommandByte(0x81);
-    writeCommandByte(0xff);
+    writeCommandByte(0x7f);
 
     //Set precharge period
     writeCommandByte(0xd9);
@@ -58,7 +73,7 @@ textDisplayUS2066::textDisplayUS2066()
 
     //Set VCOMH Deselect level
     writeCommandByte(0xdb); 
-    writeCommandByte(0x30);
+    writeCommandByte(0x40);
 
     //Exiting Set OLED Characterization
     writeCommandByte(0x78); //SD=0
@@ -81,7 +96,7 @@ void textDisplayUS2066::setCursor(uint16_t row, uint16_t col)
         return;
     }
 
-    int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
+    int row_offsets[] = { 0x00, 0x20, 0x40, 0x60 };
     writeCommandByte(0x80 | row_offsets[row] | col);
 }
 

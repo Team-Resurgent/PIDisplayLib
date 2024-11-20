@@ -31,6 +31,11 @@ int32_t textDisplayDriver::scanI2c()
 	return displayBase::scanI2c();
 }
 
+int32_t textDisplayDriver::getI2cAddress()
+{
+	return displayBase::getI2cAddress();
+}
+
 void textDisplayDriver::writeCommand(uint8_t *buff, uint32_t buff_size)
 {
 	if (mIsSpi)

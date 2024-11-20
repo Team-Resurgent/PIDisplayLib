@@ -13,6 +13,7 @@ public:
     void initSpi(spi_inst_t* spi, uint32_t baudRate);
     void initI2c(i2c_inst_t* i2c, uint32_t address,  uint32_t baudRate);
     int32_t scanI2c();
+    int32_t getI2cAddress();
 
     void writeCommand(uint8_t *buff, uint32_t buff_size);
     void writeCommandByte(uint8_t cmd);
