@@ -14,16 +14,7 @@
 #define DEVICE_EEPROM_I2C_BAUDRATE (100000)
 #define DEVICE_EEPROM_I2C_TIMEOUT_US 100000
 
-#define DEVICE_EEPROM_DATETIME_REG 0x00
-#define DEVICE_EEPROM_ALARM1_REG 0x07
-#define DEVICE_EEPROM_ALARM2_REG 0x0B
-#define DEVICE_EEPROM_CONTROL_REG 0x0E
-#define DEVICE_EEPROM_STATUS_REG 0x0F
-#define DEVICE_EEPROM_AGING_OFFSET_REG 0x10
-#define DEVICE_EEPROM_TEMPERATURE_REG 0x11
-
-#define EXTRACT_DATE_VALUE(value) ((((value & 0xf0) >> 4) * 10) + (value & 0x0f))
-#define COMPOSE_DATE_VALUE(value) ((((value - (value % 10)) / 10) << 4) | (value % 10));
+#define DEVICE_EEPROM_REG 0x00
 
 void deviceEEPROM::initI2c(uint32_t address)
 {
@@ -52,7 +43,7 @@ void deviceEEPROM::scanI2c()
 
 bool deviceEEPROM::read()
 {
-    uint8_t reg = DEVICE_EEPROM_DATETIME_REG;
+    uint8_t reg = DEVICE_EEPROM_REG;
 
     if (i2c_write_timeout_us(DEVICE_EEPROM_I2C, mI2cAddress, &reg, 1, true, DEVICE_EEPROM_I2C_TIMEOUT_US) != 1)
     {
