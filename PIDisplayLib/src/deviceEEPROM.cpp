@@ -25,8 +25,6 @@
 #define EXTRACT_DATE_VALUE(value) ((((value & 0xf0) >> 4) * 10) + (value & 0x0f))
 #define COMPOSE_DATE_VALUE(value) ((((value - (value % 10)) / 10) << 4) | (value % 10));
 
-//https://github.com/antgon/pico-ds3231/blob/main/lib/ds3231.c
-
 void deviceEEPROM::initI2c(uint32_t address)
 {
 	mI2cAddress = address;
@@ -37,25 +35,6 @@ void deviceEEPROM::initI2c(uint32_t address)
     gpio_pull_up(DEVICE_EEPROM_I2C_SDA);
     gpio_pull_up(DEVICE_EEPROM_I2C_SCL);
     bi_decl(bi_2pins_with_func(DEVICE_EEPROM_I2C_SDA, DEVICE_EEPROM_I2C_SCL, GPIO_FUNC_I2C));
-
-// while (true)
-// {
-//     sleep_ms(1000);
-
-//     uint8_t reg = 0;
-//     int xx = i2c_write_timeout_us(DEVICE_EEPROM_I2C, 0x68, &reg, 1, true, DEVICE_EEPROM_I2C_TIMEOUT_US);  
-//     printf("r1 %i\n", xx);
-
-//     uint8_t buffer[7];
-//     memset(buffer, 0, 7);
-//     int yy = i2c_read_timeout_us(DEVICE_EEPROM_I2C, 0x68, buffer, 7, false, DEVICE_EEPROM_I2C_TIMEOUT_US);
-//     printf("r2 %i\n", yy);
-
-//     for (int i = 0; i < 7; i++)
-//     {
-//            printf("I2C %i = %i.\n", i, buffer[i]);
-//     }
-// };
 }
 
 void deviceEEPROM::scanI2c()
