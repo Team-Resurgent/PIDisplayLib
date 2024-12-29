@@ -16,25 +16,25 @@
 
 #define DEVICE_EEPROM_REG 0x00
 
-void deviceEEPROM::initI2c(uint32_t address)
+void deviceEEPROM::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate, uint8_t sdaPin, uint8_t sclPin)
 {
+    mI2c = i2c;
     mI2cAddress = address;
 
-    i2c_init(DEVICE_EEPROM_I2C, DEVICE_EEPROM_I2C_BAUDRATE);
-    gpio_set_function(DEVICE_EEPROM_I2C_SDA, GPIO_FUNC_I2C);
-    gpio_set_function(DEVICE_EEPROM_I2C_SCL, GPIO_FUNC_I2C);
-    gpio_pull_up(DEVICE_EEPROM_I2C_SDA);
-    gpio_pull_up(DEVICE_EEPROM_I2C_SCL);
-    bi_decl(bi_2pins_with_func(DEVICE_EEPROM_I2C_SDA, DEVICE_EEPROM_I2C_SCL, GPIO_FUNC_I2C));
+    i2c_init(mI2c, baudRate);
+    gpio_set_function(sdaPin, GPIO_FUNC_I2C);
+    gpio_set_function(sclPin, GPIO_FUNC_I2C);
+    gpio_pull_up(sdaPin);
+    gpio_pull_up(sclPin);
 }
 
-void deviceEEPROM::scanI2c()
+void deviceEEPROM::scanI2c(i2c_inst_t* i2c)
 {
     uint8_t testvalue = 0;
     for (int32_t address = 0; address < 256; address++)
     {
         uint8_t reg = 0;
-        if (i2c_write_timeout_us(DEVICE_EEPROM_I2C, address, &reg, 1, false, DEVICE_EEPROM_I2C_TIMEOUT_US) == 1)
+        if (i2c_write_timeout_us(i2c, address, &reg, 1, false, DEVICE_EEPROM_I2C_TIMEOUT_US) == 1)
         {
             printf("Found I2C device on address 0x%02x.\n", address);
         }
@@ -45,14 +45,14 @@ bool deviceEEPROM::read()
 {
     uint8_t reg = DEVICE_EEPROM_REG;
 
-    if (i2c_write_timeout_us(DEVICE_EEPROM_I2C, mI2cAddress, &reg, 1, true, DEVICE_EEPROM_I2C_TIMEOUT_US) != 1)
+    if (i2c_write_timeout_us(mI2c, mI2cAddress, &reg, 1, true, DEVICE_EEPROM_I2C_TIMEOUT_US) != 1)
     {
         printf("Fail1\n");
         return false;
     }
 
     uint8_t buffer[256];
-    if (i2c_read_timeout_us(DEVICE_EEPROM_I2C, mI2cAddress, buffer, 256, false, DEVICE_EEPROM_I2C_TIMEOUT_US) != 256)
+    if (i2c_read_timeout_us(mI2c, mI2cAddress, buffer, 256, false, DEVICE_EEPROM_I2C_TIMEOUT_US) != 256)
     {
         printf("Fail2\n");
         return false;

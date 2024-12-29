@@ -81,63 +81,21 @@
 #define ST7789_MEMORY_ADDRESS_DATA_CONTROL_BGR 0x08
 #define ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB 0x00
 
-pixelDisplayST7789::pixelDisplayST7789()
+pixelDisplayST7789::pixelDisplayST7789(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel)
 {
     initDisplayBuffer(
-        DISPLAY_ST7789_WIDTH, 
-        DISPLAY_ST7789_HEIGHT, 
-        DISPLAY_ST7789_X_SHIFT,
-        DISPLAY_ST7789_Y_SHIFT,
-        DISPLAY_ST7789_BITS_PER_PIXEL
+        width, 
+        height, 
+        xShift,
+        yShift,
+        bitsPerPixel
     );
+}
 
-    initSpi(DISPLAY_ST7789_SPI, DISPLAY_ST7789_BAUDRATE);
-
-    writeCommandByte(ST7789_SOFTWARE_RESET);
-    sleep_ms(100);
-
-    writeCommandByte(ST7789_INTERFACE_PIXEL_FORMAT);	
-    writeDataByte(ST7789_INTERFACE_PIXEL_FORMAT_16BIT);
-
-  	writeCommandByte(ST7789_PORCH_CONTROL);	
-	uint8_t porchData[] = { 0x0c, 0x0c, 0x00, 0x33, 0x33 };
-	writeData(porchData, sizeof(porchData));
-
-    writeCommandByte(ST7789_GATE_CONTROL1);
-    writeDataByte(0x35);
-    writeCommandByte(ST7789_VCOM_SETTING);
-    writeDataByte(0x20);
-    writeCommandByte(ST7789_LCM_CONTROL);
-    writeDataByte(0x2c);
-    writeCommandByte(ST7789_VDV_VRH_COMMAND_ENABLE);	
-    writeDataByte(0x01);
-    writeCommandByte(ST7789_VRH_SET);	
-    writeDataByte(0x0b);		
-    writeCommandByte(ST7789_VDH_SET);	
-    writeDataByte(0x20);		
-    writeCommandByte(ST7789_FRAME_RATE_CONTROL2);		
-    writeDataByte(0x0F);		
-    writeCommandByte(ST7789_POWER_CONTROL1);	
-
-	uint8_t powerData[] = { 0xa4, 0xa1 };
-	writeData(powerData, sizeof(powerData));
-
-	writeCommandByte(ST7789_POSITIVE_VOLTAGE_GAMMA_CONTROL);
-    uint8_t positiveGammaData[] = {0xD0, 0x04, 0x0D, 0x11, 0x13, 0x2B, 0x3F, 0x54, 0x4C, 0x18, 0x0D, 0x0B, 0x1F, 0x23};
-    writeData(positiveGammaData, sizeof(positiveGammaData));
-
-    writeCommandByte(ST7789_NEGATIVE_VOLTAGE_GAMMA_CONTROL);
-    uint8_t negativeGammaData[] = {0xD0, 0x04, 0x0C, 0x11, 0x13, 0x2C, 0x3F, 0x44, 0x51, 0x2F, 0x1F, 0x1F, 0x20, 0x23};
-    writeData(negativeGammaData, sizeof(negativeGammaData));
-
-    writeCommandByte(ST7789_DISPLAY_INVERSION_ON);
-	writeCommandByte(ST7789_SLEEP_OUT);
-  	writeCommandByte(ST7789_PARTIAL_MODE_OFF);
-  	writeCommandByte(ST7789_DISPLAY_ON);
-
-    rotate(0);
-
-    drawDisplay();
+void pixelDisplayST7789::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
+{
+	pixelDisplayDriver::initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+    init();
 }
 
 void pixelDisplayST7789::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
@@ -293,4 +251,55 @@ void pixelDisplayST7789::rotate(uint16_t degrees)
             ST7789_MEMORY_ADDRESS_DATA_CONTROL_MY | 
             ST7789_MEMORY_ADDRESS_DATA_CONTROL_RGB));
     }
+}
+
+// Private
+
+void pixelDisplayST7789::init()
+{
+    writeCommandByte(ST7789_SOFTWARE_RESET);
+    sleep_ms(100);
+
+    writeCommandByte(ST7789_INTERFACE_PIXEL_FORMAT);	
+    writeDataByte(ST7789_INTERFACE_PIXEL_FORMAT_16BIT);
+
+  	writeCommandByte(ST7789_PORCH_CONTROL);	
+	uint8_t porchData[] = { 0x0c, 0x0c, 0x00, 0x33, 0x33 };
+	writeData(porchData, sizeof(porchData));
+
+    writeCommandByte(ST7789_GATE_CONTROL1);
+    writeDataByte(0x35);
+    writeCommandByte(ST7789_VCOM_SETTING);
+    writeDataByte(0x20);
+    writeCommandByte(ST7789_LCM_CONTROL);
+    writeDataByte(0x2c);
+    writeCommandByte(ST7789_VDV_VRH_COMMAND_ENABLE);	
+    writeDataByte(0x01);
+    writeCommandByte(ST7789_VRH_SET);	
+    writeDataByte(0x0b);		
+    writeCommandByte(ST7789_VDH_SET);	
+    writeDataByte(0x20);		
+    writeCommandByte(ST7789_FRAME_RATE_CONTROL2);		
+    writeDataByte(0x0F);		
+    writeCommandByte(ST7789_POWER_CONTROL1);	
+
+	uint8_t powerData[] = { 0xa4, 0xa1 };
+	writeData(powerData, sizeof(powerData));
+
+	writeCommandByte(ST7789_POSITIVE_VOLTAGE_GAMMA_CONTROL);
+    uint8_t positiveGammaData[] = {0xD0, 0x04, 0x0D, 0x11, 0x13, 0x2B, 0x3F, 0x54, 0x4C, 0x18, 0x0D, 0x0B, 0x1F, 0x23};
+    writeData(positiveGammaData, sizeof(positiveGammaData));
+
+    writeCommandByte(ST7789_NEGATIVE_VOLTAGE_GAMMA_CONTROL);
+    uint8_t negativeGammaData[] = {0xD0, 0x04, 0x0C, 0x11, 0x13, 0x2C, 0x3F, 0x44, 0x51, 0x2F, 0x1F, 0x1F, 0x20, 0x23};
+    writeData(negativeGammaData, sizeof(negativeGammaData));
+
+    writeCommandByte(ST7789_DISPLAY_INVERSION_ON);
+	writeCommandByte(ST7789_SLEEP_OUT);
+  	writeCommandByte(ST7789_PARTIAL_MODE_OFF);
+  	writeCommandByte(ST7789_DISPLAY_ON);
+
+    rotate(0);
+
+    drawDisplay();
 }

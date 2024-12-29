@@ -7,11 +7,6 @@
 #include <cstdio>
 #include <cstring>
 
-#define DEVICE_RTC_I2C i2c0
-#define DEVICE_RTC_ADDRESS 0x68
-#define DEVICE_RTC_I2C_SDA 16
-#define DEVICE_RTC_I2C_SCL 17
-#define DEVICE_RTC_I2C_BAUDRATE (100000)
 #define DEVICE_RTC_I2C_TIMEOUT_US 100000
 
 #define DEVICE_RTC_DATETIME_REG 0x00
@@ -27,16 +22,16 @@
 
 //https://github.com/antgon/pico-ds3231/blob/main/lib/ds3231.c
 
-void deviceRTC::initI2c(uint32_t address)
+void deviceRTC::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate, uint8_t sdaPin, uint8_t sclPin)
 {
+    mI2c = i2c;
 	mI2cAddress = address;
 
-	i2c_init(DEVICE_RTC_I2C, DEVICE_RTC_I2C_BAUDRATE);
-    gpio_set_function(DEVICE_RTC_I2C_SDA, GPIO_FUNC_I2C);
-    gpio_set_function(DEVICE_RTC_I2C_SCL, GPIO_FUNC_I2C);
-    gpio_pull_up(DEVICE_RTC_I2C_SDA);
-    gpio_pull_up(DEVICE_RTC_I2C_SCL);
-    bi_decl(bi_2pins_with_func(DEVICE_RTC_I2C_SDA, DEVICE_RTC_I2C_SCL, GPIO_FUNC_I2C));
+	i2c_init(mI2c, baudRate);
+    gpio_set_function(sdaPin, GPIO_FUNC_I2C);
+    gpio_set_function(sclPin, GPIO_FUNC_I2C);
+    gpio_pull_up(sdaPin);
+    gpio_pull_up(sclPin);
 
 // while (true)
 // {
@@ -58,13 +53,13 @@ void deviceRTC::initI2c(uint32_t address)
 // };
 }
 
-void deviceRTC::scanI2c()
+void deviceRTC::scanI2c(i2c_inst_t* i2c)
 {
    	uint8_t testvalue = 0;
 	for (int32_t address = 0; address < 256; address++)
 	{
         uint8_t reg = 0;
-		if (i2c_write_timeout_us(DEVICE_RTC_I2C, address, &reg, 1, false, DEVICE_RTC_I2C_TIMEOUT_US) == 1)
+		if (i2c_write_timeout_us(i2c, address, &reg, 1, false, DEVICE_RTC_I2C_TIMEOUT_US) == 1)
 		{
             printf("Found I2C device on address 0x%02x.\n", address);
         }
@@ -83,19 +78,19 @@ bool deviceRTC::setDateTime(datetime_t* dataTime)
     buffer[6] = COMPOSE_DATE_VALUE(dataTime->month);
     buffer[7] = COMPOSE_DATE_VALUE(dataTime->year % 100);
 
-    if (i2c_write_timeout_us(DEVICE_RTC_I2C, mI2cAddress, buffer, 8, false, DEVICE_RTC_I2C_TIMEOUT_US) != 8)
+    if (i2c_write_timeout_us(mI2c, mI2cAddress, buffer, 8, false, DEVICE_RTC_I2C_TIMEOUT_US) != 8)
     {
         return false;
     }
 
     uint8_t reg = DEVICE_RTC_STATUS_REG;
-    if (i2c_write_timeout_us(DEVICE_RTC_I2C, mI2cAddress, &reg, 1, true, DEVICE_RTC_I2C_TIMEOUT_US) != 1)
+    if (i2c_write_timeout_us(mI2c, mI2cAddress, &reg, 1, true, DEVICE_RTC_I2C_TIMEOUT_US) != 1)
     {
         return false;
     }
 
     uint8_t status;
-    if (i2c_read_timeout_us(DEVICE_RTC_I2C, mI2cAddress, &status, 1, true, DEVICE_RTC_I2C_TIMEOUT_US) != 1)
+    if (i2c_read_timeout_us(mI2c, mI2cAddress, &status, 1, true, DEVICE_RTC_I2C_TIMEOUT_US) != 1)
     {
         return false;
     }
@@ -103,7 +98,7 @@ bool deviceRTC::setDateTime(datetime_t* dataTime)
     status &= ~(1 << 7);
 
     uint8_t buf[] = {DEVICE_RTC_STATUS_REG, status};
-    if (i2c_write_timeout_us(DEVICE_RTC_I2C, mI2cAddress, buf, 2, false, DEVICE_RTC_I2C_TIMEOUT_US) != 2)
+    if (i2c_write_timeout_us(mI2c, mI2cAddress, buf, 2, false, DEVICE_RTC_I2C_TIMEOUT_US) != 2)
     {
         return false;
     }
@@ -115,13 +110,13 @@ bool deviceRTC::getDateTime(datetime_t* dataTime)
 {
     uint8_t reg = DEVICE_RTC_DATETIME_REG;
     
-    if (i2c_write_timeout_us(DEVICE_RTC_I2C, mI2cAddress, &reg, 1, true, DEVICE_RTC_I2C_TIMEOUT_US) != 1)
+    if (i2c_write_timeout_us(mI2c, mI2cAddress, &reg, 1, true, DEVICE_RTC_I2C_TIMEOUT_US) != 1)
     {
         return false;
     }
 
     uint8_t buffer[7];
-    if (i2c_read_timeout_us(DEVICE_RTC_I2C, mI2cAddress, buffer, 7, false, DEVICE_RTC_I2C_TIMEOUT_US) != 7)
+    if (i2c_read_timeout_us(mI2c, mI2cAddress, buffer, 7, false, DEVICE_RTC_I2C_TIMEOUT_US) != 7)
     {
         return false;
     }
@@ -150,13 +145,13 @@ bool deviceRTC::getTemperature(float *val)
     uint8_t reg = DEVICE_RTC_TEMPERATURE_REG;
     float frac;
     
-    if (i2c_write_timeout_us(DEVICE_RTC_I2C, mI2cAddress, &reg, 1, false, DEVICE_RTC_I2C_TIMEOUT_US) != 1)
+    if (i2c_write_timeout_us(mI2c, mI2cAddress, &reg, 1, false, DEVICE_RTC_I2C_TIMEOUT_US) != 1)
     {
         return false;
     }
 
     uint8_t buffer[2];
-    if (i2c_read_timeout_us(DEVICE_RTC_I2C, mI2cAddress, buffer, 2, false, DEVICE_RTC_I2C_TIMEOUT_US) != 2)
+    if (i2c_read_timeout_us(mI2c, mI2cAddress, buffer, 2, false, DEVICE_RTC_I2C_TIMEOUT_US) != 2)
     {
         return false;
     }

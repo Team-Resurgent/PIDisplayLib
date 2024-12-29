@@ -65,18 +65,184 @@
 #define GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_BGR 0x08
 #define GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB 0x00
 
-pixelDisplayGC9A01A::pixelDisplayGC9A01A()
+pixelDisplayGC9A01A::pixelDisplayGC9A01A(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel)
 {
     initDisplayBuffer(
-        DISPLAY_GC9A01A_WIDTH, 
-        DISPLAY_GC9A01A_HEIGHT, 
-        DISPLAY_GC9A01A_X_SHIFT,
-        DISPLAY_GC9A01A_Y_SHIFT,
-        DISPLAY_GC9A01A_BITS_PER_PIXEL
+        width, 
+        height, 
+        xShift,
+        yShift,
+        bitsPerPixel
     );
+}
 
-    initSpi(DISPLAY_GC9A01A_SPI, DISPLAY_GC9A01A_BAUDRATE);
+void pixelDisplayGC9A01A::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
+{
+	pixelDisplayDriver::initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+    init();
+}
 
+void pixelDisplayGC9A01A::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
+{
+    pixelDisplayDriver::drawChar(colorR8G8B8, font, x, y, character);
+}
+
+void pixelDisplayGC9A01A::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
+{
+    pixelDisplayDriver::drawString(colorR8G8B8, font, x, y, message);
+}
+
+void pixelDisplayGC9A01A::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+{
+    pixelDisplayDriver::drawLine(colorR8G8B8, x0, y0, x1, y1);
+}
+
+void pixelDisplayGC9A01A::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+{
+    pixelDisplayDriver::drawRectangle(colorR8G8B8, x, y, width, height);
+}
+
+void pixelDisplayGC9A01A::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+{
+    pixelDisplayDriver::drawTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
+}
+
+void pixelDisplayGC9A01A::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+{
+    pixelDisplayDriver::drawCircle(colorR8G8B8, x, y, radius);
+}
+
+void pixelDisplayGC9A01A::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+{
+    pixelDisplayDriver::drawFilledRectangle(colorR8G8B8, x, y, width, height);
+}
+
+void pixelDisplayGC9A01A::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
+{
+    pixelDisplayDriver::drawFilledTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
+}
+
+void pixelDisplayGC9A01A::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
+{
+    pixelDisplayDriver::drawFilledCircle(colorR8G8B8, x, y, radius);
+}
+
+void pixelDisplayGC9A01A::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
+{
+    if (x >= mDisplayBuffer->getWidth() || y >= mDisplayBuffer->getHeight())
+    {
+        return;
+    }
+
+    uint16_t r5g6b5 = color::convertR8G8B8toR5G6B5(colorR8G8B8);
+    uint8_t* buffer = getDisplayBuffer()->getBuffer();
+    uint32_t pixelOffset = (y * (mDisplayBuffer->getWidth() << 1)) + (x << 1);
+    buffer[pixelOffset] = static_cast<uint8_t>((r5g6b5 & 0xff00) >> 8);
+    buffer[pixelOffset + 1] = static_cast<uint8_t>(r5g6b5 & 0xff);
+}
+
+void pixelDisplayGC9A01A::fill(uint32_t colorR8G8B8)
+{
+    uint16_t r5g6b5 = color::convertR8G8B8toR5G6B5(colorR8G8B8);
+
+    uint32_t rowStride = mDisplayBuffer->getWidth() << 1;
+    uint8_t* rowData = (uint8_t*)malloc(rowStride);
+
+    uint32_t offset = 0;
+    for (uint32_t i = 0; i < mDisplayBuffer->getWidth(); i++)
+    {
+        rowData[offset] = static_cast<uint8_t>(r5g6b5 >> 8);
+        rowData[offset + 1] = static_cast<uint8_t>(r5g6b5 & 0xff);
+        offset += 2;
+    }
+
+    uint8_t* buffer = getDisplayBuffer()->getBuffer();
+    for (uint32_t i = 0; i < mDisplayBuffer->getHeight(); i++) 
+    {
+        memcpy(buffer, rowData, rowStride);
+        buffer += rowStride;
+    }
+}
+
+void pixelDisplayGC9A01A::drawDisplay()
+{
+	uint16_t xStart = 0 + mDisplayBuffer->getXShift();
+    uint16_t xEnd = mDisplayBuffer->getWidth() + mDisplayBuffer->getXShift() - 1;
+	uint16_t yStart = 0 + mDisplayBuffer->getYShift();
+    uint16_t yEnd = mDisplayBuffer->getHeight() + mDisplayBuffer->getYShift() - 1;
+
+	writeCommandByte(GC9A01A_COLUMN_ADDRESS_SET);
+    uint8_t columnData[] = {(uint8_t)(xStart >> 8), (uint8_t)(xStart & 0xFF), (uint8_t)(xEnd >> 8), (uint8_t)(xEnd & 0xFF)};
+    writeData(columnData, sizeof(columnData));
+
+	writeCommandByte(GC9A01A_ROW_ADDRESS_SET);
+    uint8_t rowData[] = {(uint8_t)(yStart >> 8), (uint8_t)(yStart & 0xFF), (uint8_t)(yEnd >> 8), (uint8_t)(yEnd & 0xFF)};
+    writeData(rowData, sizeof(rowData));
+                    
+	writeCommandByte(GC9A01A_MEMORY_WRITE);
+    writeData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
+}
+
+void pixelDisplayGC9A01A::brightness(uint8_t value)
+{
+    // Does not seem to work
+    // writeCommand(GC9A01A_WRITE_DISPLAY_BRIGHTNESS);
+    // writeDataByte(value);
+}
+
+void pixelDisplayGC9A01A::contrast(uint8_t value)
+{
+    // NA 
+}
+
+void pixelDisplayGC9A01A::invert(bool value)
+{
+    writeCommandByte(value ? GC9A01A_DISPLAY_INVERSION_OFF : GC9A01A_DISPLAY_INVERSION_ON);
+}
+
+void pixelDisplayGC9A01A::rotate(uint16_t degrees)
+{
+    mDisplayBuffer->setRotation(degrees);
+
+    if (degrees == 0)
+    {
+        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte(
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MX | 
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB);
+    }
+    else if (degrees == 90)
+    {
+        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte((uint8_t)(
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MV | 
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB)
+        );
+    }
+    else if (degrees == 180)
+    {
+        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
+	    writeDataByte((uint8_t)(
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MY | 
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB)
+        );
+    }
+    else if (degrees == 270)
+    {
+        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
+        writeDataByte((uint8_t)(
+            
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MX | 
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MV | 
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MY | 
+            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB));
+    }
+}
+
+// Private
+
+void pixelDisplayGC9A01A::init()
+{
     writeCommandByte(GC9A01A_SOFTWARE_RESET);
     sleep_ms(100);
 
@@ -87,9 +253,9 @@ pixelDisplayGC9A01A::pixelDisplayGC9A01A()
 	// uint8_t porchData[] = { 0x0c, 0x0c, 0x00, 0x33, 0x33 };
 	// writeData(porchData, sizeof(porchData));
 
-//https://github.com/Exboom/GC9A01/blob/master/Core/Src/GC9A01.c
+    //https://github.com/Exboom/GC9A01/blob/master/Core/Src/GC9A01.c
 
-//https://github.com/adafruit/Adafruit_GC9A01A/blob/main/Adafruit_GC9A01A.cpp
+    //https://github.com/adafruit/Adafruit_GC9A01A/blob/main/Adafruit_GC9A01A.cpp
 
     // Unknown
     writeCommandByte(0xEB);
@@ -351,161 +517,4 @@ pixelDisplayGC9A01A::pixelDisplayGC9A01A()
     rotate(0);
 
     drawDisplay();
-}
-
-void pixelDisplayGC9A01A::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
-{
-    pixelDisplayDriver::drawChar(colorR8G8B8, font, x, y, character);
-}
-
-void pixelDisplayGC9A01A::drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message)
-{
-    pixelDisplayDriver::drawString(colorR8G8B8, font, x, y, message);
-}
-
-void pixelDisplayGC9A01A::drawLine(uint32_t colorR8G8B8, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
-{
-    pixelDisplayDriver::drawLine(colorR8G8B8, x0, y0, x1, y1);
-}
-
-void pixelDisplayGC9A01A::drawRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
-{
-    pixelDisplayDriver::drawRectangle(colorR8G8B8, x, y, width, height);
-}
-
-void pixelDisplayGC9A01A::drawTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
-{
-    pixelDisplayDriver::drawTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
-}
-
-void pixelDisplayGC9A01A::drawCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
-{
-    pixelDisplayDriver::drawCircle(colorR8G8B8, x, y, radius);
-}
-
-void pixelDisplayGC9A01A::drawFilledRectangle(uint32_t colorR8G8B8, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
-{
-    pixelDisplayDriver::drawFilledRectangle(colorR8G8B8, x, y, width, height);
-}
-
-void pixelDisplayGC9A01A::drawFilledTriangle(uint32_t colorR8G8B8, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
-{
-    pixelDisplayDriver::drawFilledTriangle(colorR8G8B8, x1, y1, x2, y2, x3, y3);
-}
-
-void pixelDisplayGC9A01A::drawFilledCircle(uint32_t colorR8G8B8, int16_t x, int16_t y, int16_t radius)
-{
-    pixelDisplayDriver::drawFilledCircle(colorR8G8B8, x, y, radius);
-}
-
-void pixelDisplayGC9A01A::drawPixel(uint32_t colorR8G8B8, uint16_t x, uint16_t y)
-{
-    if (x >= mDisplayBuffer->getWidth() || y >= mDisplayBuffer->getHeight())
-    {
-        return;
-    }
-
-    uint16_t r5g6b5 = color::convertR8G8B8toR5G6B5(colorR8G8B8);
-    uint8_t* buffer = getDisplayBuffer()->getBuffer();
-    uint32_t pixelOffset = (y * (mDisplayBuffer->getWidth() << 1)) + (x << 1);
-    buffer[pixelOffset] = static_cast<uint8_t>((r5g6b5 & 0xff00) >> 8);
-    buffer[pixelOffset + 1] = static_cast<uint8_t>(r5g6b5 & 0xff);
-}
-
-void pixelDisplayGC9A01A::fill(uint32_t colorR8G8B8)
-{
-    uint16_t r5g6b5 = color::convertR8G8B8toR5G6B5(colorR8G8B8);
-
-    uint32_t rowStride = mDisplayBuffer->getWidth() << 1;
-    uint8_t* rowData = (uint8_t*)malloc(rowStride);
-
-    uint32_t offset = 0;
-    for (uint32_t i = 0; i < mDisplayBuffer->getWidth(); i++)
-    {
-        rowData[offset] = static_cast<uint8_t>(r5g6b5 >> 8);
-        rowData[offset + 1] = static_cast<uint8_t>(r5g6b5 & 0xff);
-        offset += 2;
-    }
-
-    uint8_t* buffer = getDisplayBuffer()->getBuffer();
-    for (uint32_t i = 0; i < mDisplayBuffer->getHeight(); i++) 
-    {
-        memcpy(buffer, rowData, rowStride);
-        buffer += rowStride;
-    }
-}
-
-void pixelDisplayGC9A01A::drawDisplay()
-{
-	uint16_t xStart = 0 + mDisplayBuffer->getXShift();
-    uint16_t xEnd = mDisplayBuffer->getWidth() + mDisplayBuffer->getXShift() - 1;
-	uint16_t yStart = 0 + mDisplayBuffer->getYShift();
-    uint16_t yEnd = mDisplayBuffer->getHeight() + mDisplayBuffer->getYShift() - 1;
-
-	writeCommandByte(GC9A01A_COLUMN_ADDRESS_SET);
-    uint8_t columnData[] = {(uint8_t)(xStart >> 8), (uint8_t)(xStart & 0xFF), (uint8_t)(xEnd >> 8), (uint8_t)(xEnd & 0xFF)};
-    writeData(columnData, sizeof(columnData));
-
-	writeCommandByte(GC9A01A_ROW_ADDRESS_SET);
-    uint8_t rowData[] = {(uint8_t)(yStart >> 8), (uint8_t)(yStart & 0xFF), (uint8_t)(yEnd >> 8), (uint8_t)(yEnd & 0xFF)};
-    writeData(rowData, sizeof(rowData));
-                    
-	writeCommandByte(GC9A01A_MEMORY_WRITE);
-    writeData(getDisplayBuffer()->getBuffer(), getDisplayBuffer()->getBufferSize());
-}
-
-void pixelDisplayGC9A01A::brightness(uint8_t value)
-{
-    // Does not seem to work
-    // writeCommand(GC9A01A_WRITE_DISPLAY_BRIGHTNESS);
-    // writeDataByte(value);
-}
-
-void pixelDisplayGC9A01A::contrast(uint8_t value)
-{
-    // NA 
-}
-
-void pixelDisplayGC9A01A::invert(bool value)
-{
-    writeCommandByte(value ? GC9A01A_DISPLAY_INVERSION_OFF : GC9A01A_DISPLAY_INVERSION_ON);
-}
-
-void pixelDisplayGC9A01A::rotate(uint16_t degrees)
-{
-    mDisplayBuffer->setRotation(degrees);
-
-    if (degrees == 0)
-    {
-        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeDataByte(
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MX | 
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB);
-    }
-    else if (degrees == 90)
-    {
-        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeDataByte((uint8_t)(
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MV | 
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB)
-        );
-    }
-    else if (degrees == 180)
-    {
-        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
-	    writeDataByte((uint8_t)(
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MY | 
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB)
-        );
-    }
-    else if (degrees == 270)
-    {
-        writeCommandByte(GC9A01A_MEMORY_ADDRESS_DATA_CONTROL);	
-        writeDataByte((uint8_t)(
-            
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MX | 
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MV | 
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_MY | 
-            GC9A01A_MEMORY_ADDRESS_DATA_CONTROL_RGB));
-    }
 }

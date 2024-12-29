@@ -31,61 +31,21 @@
 #define SH1122_CMD_SET_END 0xEE
 #define SH1122_CMD_SET_NOP 0xE3
 
-pixelDisplaySH1122::pixelDisplaySH1122()
+pixelDisplaySH1122::pixelDisplaySH1122(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel)
 {
     initDisplayBuffer(
-        DISPLAY_SH1122_WIDTH, 
-        DISPLAY_SH1122_HEIGHT, 
-        0,
-        0,
-        DISPLAY_SH1122_BITS_PER_PIXEL
+        width, 
+        height, 
+        xShift,
+        yShift,
+        bitsPerPixel
     );
+}
 
-    initSpi(DISPLAY_SH1122_SPI, DISPLAY_SH1122_BAUDRATE);
-
-    writeCommandByte(SH1122_CMD_SET_DISPLAY_OFF);
-    writeCommandByte(SH1122_CMD_SET_ENTIRE_DISPLAY_OFF);
-    writeCommandByte(SH1122_CMD_SET_DISPLAY_START_LINE | 0);
-
-    uint8_t contrastData[] = {SH1122_CMD_SET_CONTRAST_CURRENT, 0x80};
-    writeCommand(contrastData, sizeof(contrastData));
-
-    writeCommandByte(SH1122_CMD_SET_SEGMENT_REMAP | 0x00);
-    writeCommandByte(SH1122_CMD_SET_NORMAL_DISPLAY);
-
-    uint8_t multiplexData[] = {SH1122_CMD_SET_MULTIPLEX_RATIO, DISPLAY_SH1122_HEIGHT - 1};
-    writeCommand(multiplexData, sizeof(multiplexData));
-
-    uint8_t dcdcData[] = {SH1122_CMD_SET_DCDC_SETTING, 0x81};
-    writeCommand(dcdcData, sizeof(dcdcData));
-
-    writeCommandByte(SH1122_CMD_SET_SCAN_DIRECTION | 0x00);
-
-    uint8_t displayOffetData[] = {SH1122_CMD_SET_DISPLAY_OFFSET, 0x00};
-    writeCommand(displayOffetData, sizeof(displayOffetData));
-
-    uint8_t clockDividerData[] = {SH1122_CMD_SET_CLOCK_DIVIDER, 0x50};
-    writeCommand(clockDividerData, sizeof(clockDividerData));
-
-    uint8_t dischargePeriodData[] = {SH1122_CMD_SET_DISCHARGE_PRECHARGE_PERIOD, 0x22};
-    writeCommand(dischargePeriodData, sizeof(dischargePeriodData));
-
-    uint8_t vcomDeselectData[] = {SH1122_CMD_SET_VCOM_DESELECT_LEVEL, 0x35};
-    writeCommand(vcomDeselectData, sizeof(vcomDeselectData));
-
-    uint8_t vsgemData[] = {SH1122_CMD_SET_VSEGM_LEVEL, 0x35};
-    writeCommand(vsgemData, sizeof(vsgemData));
-
-    writeCommandByte(SH1122_CMD_SET_DISCHARGE_VSL_LEVEL | 0x00);
-
-    uint8_t rowAddrData[] = {SH1122_CMD_SET_ROW_ADDR, 0x00};
-    writeCommand(rowAddrData, sizeof(rowAddrData));
-
-    writeCommandByte(SH1122_CMD_SET_LOW_COLUMN_ADDR);
-    writeCommandByte(SH1122_CMD_SET_HIGH_COLUMN_ADDR);
-    writeCommandByte(SH1122_CMD_SET_DISPLAY_ON);
-
-    drawDisplay();
+void pixelDisplaySH1122::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
+{
+	pixelDisplayDriver::initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+    init();
 }
 
 void pixelDisplaySH1122::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
@@ -206,4 +166,53 @@ void pixelDisplaySH1122::rotate(uint16_t degrees)
 	    writeCommandByte(SH1122_CMD_SET_SEGMENT_REMAP | 0x01);
 	    writeCommandByte(SH1122_CMD_SET_SCAN_DIRECTION | 0x08);
     }
+}
+
+// Private
+
+void pixelDisplaySH1122::init()
+{
+    writeCommandByte(SH1122_CMD_SET_DISPLAY_OFF);
+    writeCommandByte(SH1122_CMD_SET_ENTIRE_DISPLAY_OFF);
+    writeCommandByte(SH1122_CMD_SET_DISPLAY_START_LINE | 0);
+
+    uint8_t contrastData[] = {SH1122_CMD_SET_CONTRAST_CURRENT, 0x80};
+    writeCommand(contrastData, sizeof(contrastData));
+
+    writeCommandByte(SH1122_CMD_SET_SEGMENT_REMAP | 0x00);
+    writeCommandByte(SH1122_CMD_SET_NORMAL_DISPLAY);
+
+    uint8_t multiplexData[] = {SH1122_CMD_SET_MULTIPLEX_RATIO, (uint8_t)(mDisplayBuffer->getHeight() - 1)};
+    writeCommand(multiplexData, sizeof(multiplexData));
+
+    uint8_t dcdcData[] = {SH1122_CMD_SET_DCDC_SETTING, 0x81};
+    writeCommand(dcdcData, sizeof(dcdcData));
+
+    writeCommandByte(SH1122_CMD_SET_SCAN_DIRECTION | 0x00);
+
+    uint8_t displayOffetData[] = {SH1122_CMD_SET_DISPLAY_OFFSET, 0x00};
+    writeCommand(displayOffetData, sizeof(displayOffetData));
+
+    uint8_t clockDividerData[] = {SH1122_CMD_SET_CLOCK_DIVIDER, 0x50};
+    writeCommand(clockDividerData, sizeof(clockDividerData));
+
+    uint8_t dischargePeriodData[] = {SH1122_CMD_SET_DISCHARGE_PRECHARGE_PERIOD, 0x22};
+    writeCommand(dischargePeriodData, sizeof(dischargePeriodData));
+
+    uint8_t vcomDeselectData[] = {SH1122_CMD_SET_VCOM_DESELECT_LEVEL, 0x35};
+    writeCommand(vcomDeselectData, sizeof(vcomDeselectData));
+
+    uint8_t vsgemData[] = {SH1122_CMD_SET_VSEGM_LEVEL, 0x35};
+    writeCommand(vsgemData, sizeof(vsgemData));
+
+    writeCommandByte(SH1122_CMD_SET_DISCHARGE_VSL_LEVEL | 0x00);
+
+    uint8_t rowAddrData[] = {SH1122_CMD_SET_ROW_ADDR, 0x00};
+    writeCommand(rowAddrData, sizeof(rowAddrData));
+
+    writeCommandByte(SH1122_CMD_SET_LOW_COLUMN_ADDR);
+    writeCommandByte(SH1122_CMD_SET_HIGH_COLUMN_ADDR);
+    writeCommandByte(SH1122_CMD_SET_DISPLAY_ON);
+
+    drawDisplay();
 }

@@ -14,61 +14,59 @@
 #define I2C_COMMAND_MODE 0x80
 #define I2C_DATA_MODE 0x40
 
-void displayBase::initSpi(spi_inst_t* spi, uint32_t baudRate)
+void displayBase::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin)
 {
 	mIsSpi = true;
 	mSpi = spi;
+	mDcPin = dcPin;
 
-	if (SPI_DISPLAY_BACKLIGHT >= 0)
+	if (backlightPin >= 0 && backlightPin <= 30)
 	{
-    	gpio_init(SPI_DISPLAY_BACKLIGHT);
-    	gpio_put(SPI_DISPLAY_BACKLIGHT, 1);
-    	gpio_set_dir(SPI_DISPLAY_BACKLIGHT, GPIO_OUT);
+    	gpio_init(backlightPin);
+    	gpio_put(backlightPin, 1);
+    	gpio_set_dir(backlightPin, GPIO_OUT);
 	}
 
-    gpio_init(SPI_DISPLAY_RST);
-    gpio_put(SPI_DISPLAY_RST, 1);
-    gpio_set_dir(SPI_DISPLAY_RST, GPIO_OUT);
+    gpio_init(rstPin);
+    gpio_put(rstPin, 1);
+    gpio_set_dir(rstPin, GPIO_OUT);
 
-    gpio_init(SPI_DISPLAY_DC);
-    gpio_put(SPI_DISPLAY_DC, 0);
-    gpio_set_dir(SPI_DISPLAY_DC, GPIO_OUT);
+    gpio_init(dcPin);
+    gpio_put(dcPin, 0);
+    gpio_set_dir(dcPin, GPIO_OUT);
 
     spi_init(mSpi, baudRate);
 	spi_set_slave(mSpi, false);
-    gpio_set_function(SPI_DISPLAY_RX, GPIO_FUNC_SPI);
-    gpio_set_function(SPI_DISPLAY_SCK, GPIO_FUNC_SPI);
-    gpio_set_function(SPI_DISPLAY_TX, GPIO_FUNC_SPI);
-    gpio_set_function(SPI_DISPLAY_CSN, GPIO_FUNC_SPI);
-    bi_decl(bi_3pins_with_func((uint32_t)SPI_DISPLAY_RX, (uint32_t)SPI_DISPLAY_TX, (uint32_t)SPI_DISPLAY_SCK, GPIO_FUNC_SPI));
+    gpio_set_function(rxPin, GPIO_FUNC_SPI);
+    gpio_set_function(sckPin, GPIO_FUNC_SPI);
+    gpio_set_function(csnPin, GPIO_FUNC_SPI);
 
     spi_set_format(mSpi, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
 
     sleep_ms(10);
-	gpio_put(SPI_DISPLAY_RST, 0);
+	gpio_put(rstPin, 0);
 	sleep_ms(10);
-	gpio_put(SPI_DISPLAY_RST, 1);
+	gpio_put(rstPin, 1);
 }
 
-void displayBase::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate)
+void displayBase::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate, uint8_t sdaPin, uint8_t sclPin, uint8_t backlightPin)
 {
 	mIsSpi = false;
 	mI2c = i2c;
-	mI2cAddress = address;
+	mI2cAddress = address == -1 ? scanI2c() : address;
 
-	if (I2C_DISPLAY_BACKLIGHT >= 0)
+	if (backlightPin >= 0 && backlightPin <= 30)
 	{
-    	gpio_init(I2C_DISPLAY_BACKLIGHT);
-    	gpio_put(I2C_DISPLAY_BACKLIGHT, 1);
-    	gpio_set_dir(I2C_DISPLAY_BACKLIGHT, GPIO_OUT);
+    	gpio_init(backlightPin);
+    	gpio_put(backlightPin, 1);
+    	gpio_set_dir(backlightPin, GPIO_OUT);
 	}
 
 	i2c_init(mI2c, baudRate);
-    gpio_set_function(I2C_DISPLAY_SDA, GPIO_FUNC_I2C);
-    gpio_set_function(I2C_DISPLAY_SCL, GPIO_FUNC_I2C);
-    gpio_pull_up(I2C_DISPLAY_SDA);
-    gpio_pull_up(I2C_DISPLAY_SCL);
-    bi_decl(bi_2pins_with_func(I2C_DISPLAY_SDA, I2C_DISPLAY_SCL, GPIO_FUNC_I2C));
+    gpio_set_function(sdaPin, GPIO_FUNC_I2C);
+    gpio_set_function(sclPin, GPIO_FUNC_I2C);
+    gpio_pull_up(sdaPin);
+    gpio_pull_up(sclPin);
 
 	mI2cAddress = address == -1 ? scanI2c() : address;
 }

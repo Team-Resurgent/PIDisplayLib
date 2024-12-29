@@ -72,71 +72,21 @@
 #define ILI9341_MEMORY_ADDRESS_DATA_CONTROL_BGR 0x00
 #define ILI9341_MEMORY_ADDRESS_DATA_CONTROL_RGB 0x08
 
-pixelDisplayILI9341::pixelDisplayILI9341()
+pixelDisplayILI9341::pixelDisplayILI9341(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel)
 {
     initDisplayBuffer(
-        DISPLAY_ILI9341_WIDTH, 
-        DISPLAY_ILI9341_HEIGHT, 
-        DISPLAY_ILI9341_X_SHIFT,
-        DISPLAY_ILI9341_Y_SHIFT,
-        DISPLAY_ILI9341_BITS_PER_PIXEL
+        width, 
+        height, 
+        xShift,
+        yShift,
+        bitsPerPixel
     );
+}
 
-    initSpi(DISPLAY_ILI9341_SPI, DISPLAY_ILI9341_BAUDRATE);
-
-    writeCommandByte(ILI9341_SOFTWARE_RESET);
-    sleep_ms(100);
-
-    writeCommandByte(0xea);
-    uint8_t unknown6[] = {0x00, 0x00};
-    writeData(unknown6, sizeof(unknown6));   
-    
-    writeCommandByte(ILI9341_POWER_CONTROL1);
-    writeDataByte(0x23);   
-
-    writeCommandByte(ILI9341_POWER_CONTROL2);
-    writeDataByte(0x10);  
-
-    writeCommandByte(ILI9341_VCOM_CONTROL1);
-    uint8_t vcomControl1[] = {0x3e, 0x28};
-    writeData(vcomControl1, sizeof(vcomControl1)); 
-
-    writeCommandByte(ILI9341_VCOM_CONTROL2);
-    writeDataByte(0x86);  
-
-    writeCommandByte(ILI9341_VERTICAL_SCROLLING_START_ADDRESS);
-    writeDataByte(0x00);  
-
-    writeCommandByte(ILI9341_INTERFACE_PIXEL_FORMAT);
-    writeDataByte(ILI9341_INTERFACE_PIXEL_FORMAT_16BIT);  
-
-    writeCommandByte(ILI9341_FRAME_CONTROL_NORMAL);
-    uint8_t frameRateControl[] = {0x00, 0x18};
-	writeData(frameRateControl, sizeof(frameRateControl));
-
-    writeCommandByte(ILI9341_DISPLAY_FUNCTION_CONTROL);
-    uint8_t displayFunction[] = {0x08, 0x82, 0x27};
-	writeData(displayFunction, sizeof(displayFunction));
-
-    writeCommandByte(ILI9341_GAMMA_SET);
-    writeDataByte(0x01);  
-
-    writeCommandByte(ILI9341_POSITIVE_VOLTAGE_GAMMA_CONTROL);
-    uint8_t positiveGamma[] = {0x0F, 0x31, 0x2B, 0x0C, 0x0E, 0x08, 0x4E, 0xF1, 0x37, 0x07, 0x10, 0x03, 0x0E, 0x09, 0x00};
-    writeData(positiveGamma, sizeof(positiveGamma));
-
-    writeCommandByte(ILI9341_NEGATIVE_VOLTAGE_GAMMA_CONTROL);
-    uint8_t negativeGamma[] = {0x00, 0x0E, 0x14, 0x03, 0x11, 0x07, 0x31, 0xC1, 0x48, 0x08, 0x0F, 0x0C, 0x31, 0x36, 0x0F};
-    writeData(negativeGamma, sizeof(negativeGamma));
-
-    writeCommandByte(ILI9341_DISPLAY_INVERSION_OFF);
-	writeCommandByte(ILI9341_SLEEP_OUT);
-  	writeCommandByte(ILI9341_PARTIAL_MODE_OFF);
-  	writeCommandByte(ILI9341_DISPLAY_ON);
-
-    rotate(0);
-
-    drawDisplay();
+void pixelDisplayILI9341::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
+{
+	pixelDisplayDriver::initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+    init();
 }
 
 void pixelDisplayILI9341::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
@@ -292,4 +242,63 @@ void pixelDisplayILI9341::rotate(uint16_t degrees)
             ILI9341_MEMORY_ADDRESS_DATA_CONTROL_MV | 
             ILI9341_MEMORY_ADDRESS_DATA_CONTROL_RGB));
     }
+}
+
+// Private
+
+void pixelDisplayILI9341::init()
+{
+    writeCommandByte(ILI9341_SOFTWARE_RESET);
+    sleep_ms(100);
+
+    writeCommandByte(0xea);
+    uint8_t unknown6[] = {0x00, 0x00};
+    writeData(unknown6, sizeof(unknown6));   
+    
+    writeCommandByte(ILI9341_POWER_CONTROL1);
+    writeDataByte(0x23);   
+
+    writeCommandByte(ILI9341_POWER_CONTROL2);
+    writeDataByte(0x10);  
+
+    writeCommandByte(ILI9341_VCOM_CONTROL1);
+    uint8_t vcomControl1[] = {0x3e, 0x28};
+    writeData(vcomControl1, sizeof(vcomControl1)); 
+
+    writeCommandByte(ILI9341_VCOM_CONTROL2);
+    writeDataByte(0x86);  
+
+    writeCommandByte(ILI9341_VERTICAL_SCROLLING_START_ADDRESS);
+    writeDataByte(0x00);  
+
+    writeCommandByte(ILI9341_INTERFACE_PIXEL_FORMAT);
+    writeDataByte(ILI9341_INTERFACE_PIXEL_FORMAT_16BIT);  
+
+    writeCommandByte(ILI9341_FRAME_CONTROL_NORMAL);
+    uint8_t frameRateControl[] = {0x00, 0x18};
+	writeData(frameRateControl, sizeof(frameRateControl));
+
+    writeCommandByte(ILI9341_DISPLAY_FUNCTION_CONTROL);
+    uint8_t displayFunction[] = {0x08, 0x82, 0x27};
+	writeData(displayFunction, sizeof(displayFunction));
+
+    writeCommandByte(ILI9341_GAMMA_SET);
+    writeDataByte(0x01);  
+
+    writeCommandByte(ILI9341_POSITIVE_VOLTAGE_GAMMA_CONTROL);
+    uint8_t positiveGamma[] = {0x0F, 0x31, 0x2B, 0x0C, 0x0E, 0x08, 0x4E, 0xF1, 0x37, 0x07, 0x10, 0x03, 0x0E, 0x09, 0x00};
+    writeData(positiveGamma, sizeof(positiveGamma));
+
+    writeCommandByte(ILI9341_NEGATIVE_VOLTAGE_GAMMA_CONTROL);
+    uint8_t negativeGamma[] = {0x00, 0x0E, 0x14, 0x03, 0x11, 0x07, 0x31, 0xC1, 0x48, 0x08, 0x0F, 0x0C, 0x31, 0x36, 0x0F};
+    writeData(negativeGamma, sizeof(negativeGamma));
+
+    writeCommandByte(ILI9341_DISPLAY_INVERSION_OFF);
+	writeCommandByte(ILI9341_SLEEP_OUT);
+  	writeCommandByte(ILI9341_PARTIAL_MODE_OFF);
+  	writeCommandByte(ILI9341_DISPLAY_ON);
+
+    rotate(0);
+
+    drawDisplay();
 }

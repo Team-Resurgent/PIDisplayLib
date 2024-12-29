@@ -10,8 +10,8 @@ class textDisplayDriver : displayBase
 {
 public:
 
-    void initSpi(spi_inst_t* spi, uint32_t baudRate);
-    void initI2c(i2c_inst_t* i2c, uint32_t address,  uint32_t baudRate);
+    void initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin);
+    void initI2c(i2c_inst_t* i2c, uint32_t address,  uint32_t baudRate, uint8_t sdaPin, uint8_t sclPin, uint8_t backlightPin);
     int32_t scanI2c();
     int32_t getI2cAddress();
 

@@ -7,11 +7,7 @@
 
 #include <cstdio>
 #include <cstring>
-
-#define SPI_LEGACY_TX 15
-#define SPI_LEGACY_SCK 14
-#define SPI_LEGACY_CSN 13
-#define SPI_LEGACY_RX 12
+#include <malloc.h>
 
 #define LEGACY_CURSOR_UP 65
 #define LEGACY_CURSOR_DOWN 66
@@ -34,7 +30,7 @@
 #define LEGACY_SET_BACKLIGHT 14
 #define LEGACY_SET_CONTRAST 15
 #define LEGACY_SET_CURSOR_POSITION 17
-#define LEGACY_DRAW_BAR_GRAPH 18 
+#define LEGACY_DRAW_BAR_GRAPH 18
 #define LEGACY_SCROLL_ON 19
 #define LEGACY_SCROLL_OFF 20
 #define LEGACY_WRAP_ON 23
@@ -44,7 +40,12 @@
 #define LEGACY_CURSOR_MOVE 27
 #define LEGACY_LARGE_NUMBER 28
 
-deviceLegacy::deviceLegacy()
+#define SPI_LEGACY_TX 15
+#define SPI_LEGACY_SCK 14
+#define SPI_LEGACY_CSN 13
+#define SPI_LEGACY_RX 12
+
+deviceLegacy::deviceLegacy(uint8_t rows, uint8_t cols)
 {
     memset(mBuffer, -1, sizeof(mBuffer));
     mBufferRxPos = 0;
@@ -53,30 +54,39 @@ deviceLegacy::deviceLegacy()
     mBrightness = 100;
     mContrast = 0;
 
+    mRows = rows;
+    mCols = cols;
+
+    mDisplayBuffer = (uint8_t *)malloc(mRows * mCols);
+
     reset();
 }
 
-void deviceLegacy::initSpi(spi_inst_t* spi, uint32_t baudRate)
+deviceLegacy::~deviceLegacy()
+{
+    free(mDisplayBuffer);
+}
+
+void deviceLegacy::initSpi(spi_inst_t *spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin)
 {
     mSpi = spi;
 
     spi_init(mSpi, baudRate);
     spi_set_slave(mSpi, true);
-    gpio_set_function(SPI_LEGACY_RX, GPIO_FUNC_SPI);
-    gpio_set_function(SPI_LEGACY_SCK, GPIO_FUNC_SPI);
-    gpio_set_function(SPI_LEGACY_TX, GPIO_FUNC_SPI);
-    gpio_set_function(SPI_LEGACY_CSN, GPIO_FUNC_SPI);
-    bi_decl(bi_4pins_with_func((uint32_t)SPI_LEGACY_RX, (uint32_t)SPI_LEGACY_TX, (uint32_t)SPI_LEGACY_SCK, (uint32_t)SPI_LEGACY_CSN, GPIO_FUNC_SPI));
+    gpio_set_function(rxPin, GPIO_FUNC_SPI);
+    gpio_set_function(sckPin, GPIO_FUNC_SPI);
+    gpio_set_function(csnPin, GPIO_FUNC_SPI);
+    bi_decl(bi_3pins_with_func((uint32_t)rxPin, (uint32_t)sckPin, (uint32_t)csnPin, GPIO_FUNC_SPI));
 
     spi_set_format(mSpi, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
 }
 
-int16_t deviceLegacy::peekCommand(uint16_t index) 
+int16_t deviceLegacy::peekCommand(uint16_t index)
 {
     return mBuffer[(mBufferTxPos + index) % LEGACY_BUFFER_SIZE];
 }
 
-void deviceLegacy::completeCommand() 
+void deviceLegacy::completeCommand()
 {
     mBuffer[mBufferTxPos];
     mBufferTxPos = (mBufferTxPos + 1) % LEGACY_BUFFER_SIZE;
@@ -90,208 +100,238 @@ void deviceLegacy::reset()
     mShowCursor = true;
     mWrapping = false;
     mScrolling = false;
-    for (int i = 0; i < LEGACY_ROWS * LEGACY_COLS; i++)
-    {
-        mDisplayBuffer[i] = ' ';
-    }
-    const char* message = "Please Wait...";
-    memcpy(mDisplayBuffer, message, strlen(message));
+    memset(mDisplayBuffer, 0x20, mRows * mCols);
 }
 
-void deviceLegacy::poll()
+bool deviceLegacy::poll()
 {
-    while (spi_is_readable(mSpi)) 
+    while (spi_is_readable(mSpi))
     {
         uint8_t value = 0;
-        spi_read_blocking(mSpi,  0, &value, 1);
+        spi_read_blocking(mSpi, 0, &value, 1);
         mBuffer[mBufferRxPos] = value;
         mBufferRxPos = (mBufferRxPos + 1) % LEGACY_BUFFER_SIZE;
     }
 
-     if (mBufferRxPos != mBufferTxPos) 
-     {
+    bool result = false;
+    while (mBufferRxPos != mBufferTxPos)
+    {
         int16_t peekedCommand = peekCommand(0);
-        switch (peekedCommand) 
+        switch (peekedCommand)
         {
-            case -1:
-                break;  
-            case LEGACY_CURSOR_HOME:
-                mCursorPosRow = 0;
-                mCursorPosCol = 0;
-                completeCommand();
-                break;
-            case LEGACY_HIDE_DISPLAY:
-                mShowDisplay = false;
-                completeCommand();
-                break;
-            case LEGACY_SHOW_DISPLAY:
-                mShowDisplay = true;
-                completeCommand();
-                break;
-            case LEGACY_HIDE_CURSOR:
-                mShowCursor = false;
-                completeCommand();
-                break;
-            case LEGACY_SHOW_UNDERLINE_CURSOR:
-            case LEGACY_SHOW_BLOCK_CURSOR:
-            case LEGACY_SHOW_INVERTED_CURSOR:
-                mShowCursor = true;
-                completeCommand();
-                break;
-            case LEGACY_BACKSPACE:
-                if (mCursorPosCol > 0) 
+        case -1:
+            break;
+        case LEGACY_CURSOR_HOME:
+            mCursorPosRow = 0;
+            mCursorPosCol = 0;
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_HIDE_DISPLAY:
+            mShowDisplay = false;
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_SHOW_DISPLAY:
+            mShowDisplay = true;
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_HIDE_CURSOR:
+            mShowCursor = false;
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_SHOW_UNDERLINE_CURSOR:
+        case LEGACY_SHOW_BLOCK_CURSOR:
+        case LEGACY_SHOW_INVERTED_CURSOR:
+            mShowCursor = true;
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_BACKSPACE:
+            if (mCursorPosCol > 0)
+            {
+                mCursorPosCol--;
+                mDisplayBuffer[(mCursorPosRow * mCols) + mCursorPosCol] = ' ';
+                result = true;
+            }
+            completeCommand();
+            break;
+        case LEGACY_LINE_FEED:
+            if (mCursorPosRow < mRows - 1)
+            {
+                mCursorPosRow++;
+                result = true;
+            }
+            completeCommand();
+            break;
+        case LEGACY_DELETE_IN_PLACE:
+            mDisplayBuffer[(mCursorPosRow * mCols) + mCursorPosCol] = ' ';
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_FORM_FEED:
+            memset(mDisplayBuffer, 0x20, mRows * mCols);
+            mCursorPosRow = 0;
+            mCursorPosCol = 0;
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_CARRIAGE_RETURN:
+            mCursorPosCol = 0;
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_SET_CURSOR_POSITION:
+            if (peekCommand(2) != -1)
+            {
+                uint8_t col = mBuffer[(uint8_t)(mBufferTxPos + 1)];
+                uint8_t row = mBuffer[(uint8_t)(mBufferTxPos + 2)];
+                if (col < mCols && row < mRows)
                 {
-                    mCursorPosCol--;
-                    mBuffer[(mCursorPosRow * LEGACY_COLS) + mCursorPosCol] = ' ';
+                    mCursorPosCol = col;
+                    mCursorPosRow = row;
+                    result = true;
                 }
                 completeCommand();
-                break;
-            case LEGACY_LINE_FEED:
-                if (mCursorPosRow < LEGACY_ROWS - 1) 
+                completeCommand();
+                completeCommand();
+            }
+            break;
+        case LEGACY_SET_BACKLIGHT:
+            if (peekCommand(1) != -1)
+            {
+                uint8_t brightness = mBuffer[(uint8_t)(mBufferTxPos + 1)];
+                if (brightness >= 0 && brightness <= 100)
                 {
-                    mCursorPosRow++;
+                    mBrightness = brightness;
+                    result = true;
                 }
                 completeCommand();
-                break;
-            case LEGACY_DELETE_IN_PLACE: 
-                mBuffer[(mCursorPosRow * LEGACY_COLS) + mCursorPosCol] = ' ';
                 completeCommand();
-                break;
-            case LEGACY_FORM_FEED: 
-                for (int i = 0; i < LEGACY_ROWS * LEGACY_COLS; i++)
+            }
+            break;
+        case LEGACY_SET_CONTRAST:
+            if (peekCommand(1) != -1)
+            {
+                uint8_t contrast = mBuffer[(uint8_t)(mBufferTxPos + 1)];
+                if (contrast >= 0 && contrast <= 100)
                 {
-                    mBuffer[i] = ' ';
+                    mContrast = contrast;
+                    result = true;
                 }
-                mCursorPosRow = 0;
-                mCursorPosCol = 0;
                 completeCommand();
-                break;
-            case LEGACY_CARRIAGE_RETURN: 
-                mCursorPosCol = 0;
                 completeCommand();
-                break;
-            case LEGACY_SET_CURSOR_POSITION: 
-                if (peekCommand(2) != -1) 
+            }
+            break;
+        case LEGACY_REBOOT:
+            reset();
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_CURSOR_MOVE:
+            if (peekCommand(1) == 27 && peekCommand(2) != -1)
+            {
+                switch (peekCommand(2))
                 {
-                    uint8_t col = mBuffer[(uint8_t)(mBufferTxPos + 1)];
-                    uint8_t row = mBuffer[(uint8_t)(mBufferTxPos + 2)];
-                    if (col < LEGACY_COLS && row < LEGACY_ROWS) {
-                        mCursorPosCol = col;
-                        mCursorPosRow = row;
-                    }
-                    completeCommand();
-                    completeCommand();
-                    completeCommand();
-                }
-                break;
-            case LEGACY_SET_BACKLIGHT:
-                if (peekCommand(1) != -1) 
-                { 
-                    uint8_t brightness = mBuffer[(uint8_t)(mBufferTxPos + 1)];
-                    if (brightness >= 0 && brightness <= 100) 
+                case LEGACY_CURSOR_UP:
+                    if (mCursorPosRow > 0)
                     {
-                        mBrightness = brightness;
+                        mCursorPosRow--;
+                        result = true;
                     }
-                    completeCommand();
-                    completeCommand();
-                }
-                break;
-            case LEGACY_SET_CONTRAST:
-                if (peekCommand(1) != -1) 
-                { 
-                    uint8_t contrast = mBuffer[(uint8_t)(mBufferTxPos + 1)];
-                    if (contrast >= 0 && contrast <= 100) 
+                    break;
+                case LEGACY_CURSOR_DOWN:
+                    if (mCursorPosRow < (mRows - 1))
                     {
-                        mContrast = contrast;
+                        mCursorPosRow++;
+                        result = true;
                     }
-                    completeCommand();
-                    completeCommand();
-                }
-                break;
-            case LEGACY_REBOOT:
-                reset();
-                completeCommand();
-                break;
-            case LEGACY_CURSOR_MOVE:
-                if (peekCommand(1) == 27 && peekCommand(2) != -1) 
-                {
-                    switch (peekCommand(2)) 
+                    break;
+                case LEGACY_CURSOR_RIGHT:
+                    if (mCursorPosCol < (mCols - 1))
                     {
-                        case LEGACY_CURSOR_UP:
-                            if (mCursorPosRow > 0) 
-                            {
-                                mCursorPosRow--;
-                            }
-                            break;
-                        case LEGACY_CURSOR_DOWN:
-                            if (mCursorPosRow < (LEGACY_ROWS - 1) ) 
-                            {
-                                mCursorPosRow++;
-                            }
-                            break;
-                        case LEGACY_CURSOR_RIGHT:
-                            if (mCursorPosCol < (LEGACY_COLS - 1)) 
-                            {
-                                mCursorPosCol++;
-                            }
-                            break;
-                        case LEGACY_CURSOR_LEFT:
-                            if (mCursorPosCol > 0) 
-                            {
-                                mCursorPosCol--;
-                            }
-                            break;
-                        default:
-                            break;
+                        mCursorPosCol++;
+                        result = true;
                     }
-                    completeCommand();
-                    completeCommand();
-                    completeCommand();
-                }
-                break;
-            case LEGACY_WRAP_OFF:
-                mWrapping = false;
-                completeCommand();
-                break;
-            case LEGACY_WRAP_ON:
-                mWrapping = true;
-                completeCommand();
-                break;
-            case LEGACY_SCROLL_OFF:
-                mScrolling = false;
-                completeCommand();
-                break;
-            case LEGACY_SCROLL_ON:
-                mScrolling = true;
-                completeCommand();
-                break;
-            case 32 ... 255:
-                mDisplayBuffer[(mCursorPosRow * LEGACY_COLS) + mCursorPosCol] = peekedCommand;
-                if (mCursorPosCol < LEGACY_COLS) 
-                {
-                    mCursorPosCol++;
+                    break;
+                case LEGACY_CURSOR_LEFT:
+                    if (mCursorPosCol > 0)
+                    {
+                        mCursorPosCol--;
+                        result = true;
+                    }
+                    break;
+                default:
+                    break;
                 }
                 completeCommand();
-                break;
-            case LEGACY_LARGE_NUMBER:
-            case LEGACY_DRAW_BAR_GRAPH:
-            case LEGACY_MODULE_CONFIG:
-            case LEGACY_CUSTOM_CHARACTER:
-            default:
                 completeCommand();
-                break;
+                completeCommand();
+            }
+            break;
+        case LEGACY_WRAP_OFF:
+            mWrapping = false;
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_WRAP_ON:
+            mWrapping = true;
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_SCROLL_OFF:
+            mScrolling = false;
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_SCROLL_ON:
+            mScrolling = true;
+            result = true;
+            completeCommand();
+            break;
+        case 32 ... 255:
+            mDisplayBuffer[(mCursorPosRow * mCols) + mCursorPosCol] = peekedCommand;
+            if (mCursorPosCol < mCols)
+            {
+                mCursorPosCol++;
+            }
+            result = true;
+            completeCommand();
+            break;
+        case LEGACY_LARGE_NUMBER:
+        case LEGACY_DRAW_BAR_GRAPH:
+        case LEGACY_MODULE_CONFIG:
+        case LEGACY_CUSTOM_CHARACTER:
+        default:
+            completeCommand();
+            break;
         }
-     }
+    }
+
+    if (result == true)
+    {
+        for (size_t i = 0; i < 4; i++)
+        {
+            for (size_t j = 0; j < 20; j++)
+            {
+                printf("%c", (char)mDisplayBuffer[(i * 20) +j]);
+            }
+            printf("\n");
+        }
+    }
+    return result;
 }
 
 uint8_t deviceLegacy::getRows()
 {
-    return LEGACY_ROWS;
+    return mRows;
 }
 
 uint8_t deviceLegacy::getCols()
 {
-    return LEGACY_COLS;
+    return mCols;
 }
 
 uint8_t deviceLegacy::getCursorRow()
@@ -316,7 +356,7 @@ uint8_t deviceLegacy::getContrast()
 
 uint8_t deviceLegacy::getDisplayChar(uint8_t row, uint8_t col)
 {
-    return mDisplayBuffer[(row * LEGACY_COLS) + col];
+    return mDisplayBuffer[(row * mCols) + col];
 }
 
 bool deviceLegacy::getShowDisplay()

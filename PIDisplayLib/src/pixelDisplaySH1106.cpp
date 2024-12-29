@@ -31,51 +31,32 @@
 #define SH1106_CMD_SET_END 0xEE
 #define SH1106_CMD_SET_NOP 0xE3
 
-pixelDisplaySH1106::pixelDisplaySH1106()
+pixelDisplaySH1106::pixelDisplaySH1106(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel)
 {
     initDisplayBuffer(
-        DISPLAY_SH1106_WIDTH, 
-        DISPLAY_SH1106_HEIGHT, 
-        0,
-        0,
-        DISPLAY_SH1106_BITS_PER_PIXEL
+        width, 
+        height, 
+        xShift,
+        yShift,
+        bitsPerPixel
     );
+}
 
-    initSpi(DISPLAY_SH1106_SPI, DISPLAY_SH1106_BAUDRATE);
+void pixelDisplaySH1106::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
+{
+	pixelDisplayDriver::initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+    init();
+}
 
-    writeCommandByte(SH1106_CMD_SET_DISPLAY_OFF);
-    writeCommandByte(SH1106_CMD_SET_ENTIRE_DISPLAY_OFF);
-    writeCommandByte(SH1106_CMD_SET_DISPLAY_START_LINE | 0);
+void pixelDisplaySH1106::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate, uint8_t sdaPin, uint8_t sclPin, uint8_t backlightPin)
+{
+	pixelDisplayDriver::initI2c(i2c, address, baudRate, sdaPin, sclPin, backlightPin);
+    init();
+}
 
-    uint8_t contrastData[] = {SH1106_CMD_SET_CONTRAST_CURRENT, 0x80};
-    writeCommand(contrastData, sizeof(contrastData));
-
-    writeCommandByte(SH1106_CMD_SET_SEGMENT_REMAP | 0x00);
-    writeCommandByte(SH1106_CMD_SET_NORMAL_DISPLAY);
-
-    uint8_t multiplexData[] = {SH1106_CMD_SET_MULTIPLEX_RATIO, DISPLAY_SH1106_HEIGHT - 1};
-    writeCommand(multiplexData, sizeof(multiplexData));
-
-    uint8_t dcdcData[] = {SH1106_CMD_SET_DCDC_SETTING, 0x81};
-    writeCommand(dcdcData, sizeof(dcdcData));
-
-    writeCommandByte(SH1106_CMD_SET_SCAN_DIRECTION | 0x00);
-
-    uint8_t displayOffetData[] = {SH1106_CMD_SET_DISPLAY_OFFSET, 0x00};
-    writeCommand(displayOffetData, sizeof(displayOffetData));
-
-    uint8_t clockDividerData[] = {SH1106_CMD_SET_CLOCK_DIVIDER, 0x50};
-    writeCommand(clockDividerData, sizeof(clockDividerData));
-
-    uint8_t vcomDeselectData[] = {SH1106_CMD_SET_VCOM_DESELECT_LEVEL, 0x35};
-    writeCommand(vcomDeselectData, sizeof(vcomDeselectData));
-
-    writeCommandByte(SH1106_CMD_SET_PAGE_ADDR);
-    writeCommandByte(SH1106_CMD_SET_LOW_COLUMN_ADDR);
-    writeCommandByte(SH1106_CMD_SET_HIGH_COLUMN_ADDR);
-    writeCommandByte(SH1106_CMD_SET_DISPLAY_ON);
-
-    drawDisplay();
+int32_t pixelDisplaySH1106::scanI2c()
+{
+	return pixelDisplayDriver::scanI2c();
 }
 
 void pixelDisplaySH1106::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
@@ -199,4 +180,43 @@ void pixelDisplaySH1106::rotate(uint16_t degrees)
 	    writeCommandByte(SH1106_CMD_SET_SEGMENT_REMAP | 0x01);
 	    writeCommandByte(SH1106_CMD_SET_SCAN_DIRECTION | 0x08);
     }
+}
+
+// Private
+
+void pixelDisplaySH1106::init()
+{
+    writeCommandByte(SH1106_CMD_SET_DISPLAY_OFF);
+    writeCommandByte(SH1106_CMD_SET_ENTIRE_DISPLAY_OFF);
+    writeCommandByte(SH1106_CMD_SET_DISPLAY_START_LINE | 0);
+
+    uint8_t contrastData[] = {SH1106_CMD_SET_CONTRAST_CURRENT, 0x80};
+    writeCommand(contrastData, sizeof(contrastData));
+
+    writeCommandByte(SH1106_CMD_SET_SEGMENT_REMAP | 0x00);
+    writeCommandByte(SH1106_CMD_SET_NORMAL_DISPLAY);
+
+    uint8_t multiplexData[] = {SH1106_CMD_SET_MULTIPLEX_RATIO, mDisplayBuffer->getHeight() - 1};
+    writeCommand(multiplexData, sizeof(multiplexData));
+
+    uint8_t dcdcData[] = {SH1106_CMD_SET_DCDC_SETTING, 0x81};
+    writeCommand(dcdcData, sizeof(dcdcData));
+
+    writeCommandByte(SH1106_CMD_SET_SCAN_DIRECTION | 0x00);
+
+    uint8_t displayOffetData[] = {SH1106_CMD_SET_DISPLAY_OFFSET, 0x00};
+    writeCommand(displayOffetData, sizeof(displayOffetData));
+
+    uint8_t clockDividerData[] = {SH1106_CMD_SET_CLOCK_DIVIDER, 0x50};
+    writeCommand(clockDividerData, sizeof(clockDividerData));
+
+    uint8_t vcomDeselectData[] = {SH1106_CMD_SET_VCOM_DESELECT_LEVEL, 0x35};
+    writeCommand(vcomDeselectData, sizeof(vcomDeselectData));
+
+    writeCommandByte(SH1106_CMD_SET_PAGE_ADDR);
+    writeCommandByte(SH1106_CMD_SET_LOW_COLUMN_ADDR);
+    writeCommandByte(SH1106_CMD_SET_HIGH_COLUMN_ADDR);
+    writeCommandByte(SH1106_CMD_SET_DISPLAY_ON);
+
+    drawDisplay();
 }
