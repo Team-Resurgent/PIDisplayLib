@@ -6,6 +6,8 @@
 
 #include "fonts.h"
 #include "deviceLegacy.h"
+#include "deviceRTC.h"
+#include "deviceEEPROM.h"
 #include "deviceTouch.h"
 #include "pixelDisplayDriver.h"
 #include "pixelDisplayGC9A01A.h"
@@ -15,39 +17,107 @@
 #include "pixelDisplayST7789.h"
 #include "pixelDisplaySSD1306.h"
 #include "pixelDisplaySSD1309.h"
+#include "textDisplayDriver.h"
+#include "textDisplayUS2066.h"
 #include "color.h"
-#include <math.h>
 
-#define DISPLAY SH1122
-//#define DISPLAY ST7789 
+auto_init_mutex(mutex);
 
-#define FLAG_VALUE 123
+static deviceLegacy* device = NULL;
+static bool refresh = false;
 
-void core1_entry() 
+void render_loop() 
 {
+	const uint16_t width = 128;
+	const uint16_t height = 64;
+	const uint16_t xShift = 0;
+	const uint16_t yShift = 0;
+	const uint16_t bitsPerPixel = 1;
+
+	spi_inst_t* spi = spi0;
+	const uint32_t baudRate = 100 * 1000;
+	const uint8_t rxPin = 13;
+	const uint8_t sckPin = 10;
+	const uint8_t csnPin = 9;
+	const uint8_t rstPin = 12;
+	const uint8_t dcPin = 8;
+	const uint8_t backlightPin = 20;
+
+	pixelDisplaySSD1309* display = new pixelDisplaySSD1309(width, height, xShift, yShift, bitsPerPixel);
+	display->initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+	display->fill(0x000000);
+	display->drawDisplay();
+
     while (true)
 	{
-		sleep_ms(5000);
+		mutex_enter_blocking(&mutex);
+		bool needRefresh = refresh;
+		refresh = false;
+		mutex_exit(&mutex);
+
+		if (needRefresh == true)
+		{
+			display->fill(0x000000);
+			for (int y = 0; y < device->getRows(); y++)
+			{
+				for (int x = 0; x < device->getCols(); x++)
+				{
+					display->drawChar(0xffffff, fonts::Font_6x8(), (x * 6) + 2, y << 3, device->getDisplayChar(y, x));
+				}
+			}
+			display->drawDisplay();
+		}
+		sleep_ms(1000);
 	}
 }
 
 int main() 
 {
     stdio_init_all();
-	multicore_launch_core1(core1_entry);
 
-	sleep_ms(2000);
+	const int testConfig = 2;
 
-	printf("Initializing Device\n");
+	if (testConfig == 0)
+	{
+		printf("testconfig 0\n");
+		textDisplayUS2066* display = new textDisplayUS2066();
+		while (true)
+		{
+			display->setCursor(0, 0);
+			display->printMessage("Hello");
+			display->setCursor(1, 0);
+			display->printMessage("World");
+			display->setCursor(2, 0);
+			display->printMessage("Yet");
+			display->setCursor(3, 0);
+			display->printMessage("Again");
 
-	const int testConfig = 3;
+			sleep_ms(1000);
+			
+			//printf("testconfig 0 done\n");
+		}
+	}
 
 	if (testConfig == 1)
 	{
-		deviceTouch* touch = new deviceTouch();
-		touch->initSpi(spi1, 3 * 1000 * 1000);
+		const uint16_t width = 240;
+		const uint16_t height = 320;
+		const uint16_t xShift = 0;
+		const uint16_t yShift = 0;
+		const uint16_t bitsPerPixel = 16;
 
-		pixelDisplayDriver* display = (pixelDisplayDriver*)new pixelDisplayILI9341();
+		spi_inst_t* spi = spi0;
+		const uint32_t baudRate = 100 * 1000;
+		const uint8_t rxPin = 13;
+		const uint8_t sckPin = 10;
+		const uint8_t csnPin = 9;
+		const uint8_t rstPin = 12;
+		const uint8_t dcPin = 8;
+		const uint8_t backlightPin = 20;
+
+		pixelDisplayILI9341* display = new pixelDisplayILI9341(width, height, xShift, yShift, bitsPerPixel);
+		display->initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+
 		display->fill(0xff0000);
 		display->rotate(270);
 		display->brightness(20);
@@ -61,50 +131,55 @@ int main()
 			display->drawString(0xffffff, fonts::Font_12x16(), 8, 88, "Video Mode: 480p");
 			display->drawDisplay();
 
-			uint16_t x = 0xffff;
-			uint16_t y = 0xffff;
-			touch->readTouchPos(x, y);
 			sleep_ms(10);
 		}
 	}
 
+	// Test of spi2par
 	if (testConfig == 2)
 	{
-		deviceLegacy* device = new deviceLegacy();
-		device->initSpi(spi1, 10 * 1024 * 1024);
+		spi_inst_t* spi = spi0;
+		const uint32_t baudRate = 100 * 1000;
+		const uint8_t rxPin = 0;
+		const uint8_t csnPin = 1;
+		const uint8_t sckPin = 2;
 
-		pixelDisplayDriver* display = (pixelDisplayDriver*)new pixelDisplaySH1122();
-		display->fill(0x000000);
-		display->drawDisplay();
+		device = new deviceLegacy(4, 20);
+		device->initSpi(spi, baudRate, rxPin, sckPin, csnPin);
+		multicore_launch_core1(render_loop);
 
-		uint32_t counter = 0;
 		while (true)
 		{
-			device->poll();
-			counter++;
-
-			if (counter == 1000)
+			bool needRefresh = device->poll();
+			if (needRefresh == true)
 			{
-				counter = 0;
-				display->fill(0x000000);
-				for (int y = 0; y < device->getRows(); y++)
-				{
-					for (int x = 0; x < device->getCols(); x++)
-					{
-						display->drawChar(0xffffff, fonts::Font_12x16(), (x * 12) + 8, y << 4, device->getDisplayChar(y, x));
-					}
-				}
-				display->drawDisplay();
+				mutex_enter_blocking(&mutex);
+				refresh = true;
+				mutex_exit(&mutex);
 			}
-
 			sleep_ms(1);
 		}
 	}
 
 	if (testConfig == 3)
 	{
-		pixelDisplayDriver* display = (pixelDisplayDriver*)new pixelDisplaySSD1306();
+		const uint16_t width = 128;
+		const uint16_t height = 64;
+		const uint16_t xShift = 0;
+		const uint16_t yShift = 0;
+		const uint16_t bitsPerPixel = 1;
+
+		i2c_inst_t* i2c = i2c0;
+		const uint32_t baudRate = 100 * 1000;
+		const uint8_t address = -1;
+		const uint8_t sdaPin = 13;
+		const uint8_t sclPin = 10;
+		const uint8_t backlightPin = 20;
+
+		pixelDisplaySSD1306* display = new pixelDisplaySSD1306(width, height, xShift, yShift, bitsPerPixel);
+		display->initI2c(i2c, address, baudRate, sdaPin, sclPin, backlightPin);
 		printf("i2c Addres %i\n", display->scanI2c());
+
 		display->fill(0x000000);
 		display->rotate(180);
 		//display->invert(true);
@@ -118,7 +193,24 @@ int main()
 
 	if (testConfig == 4)
 	{
-		pixelDisplayDriver* display = (pixelDisplayDriver*)new pixelDisplaySSD1309(displayModeSpi);
+		const uint16_t width = 128;
+		const uint16_t height = 64;
+		const uint16_t xShift = 0;
+		const uint16_t yShift = 0;
+		const uint16_t bitsPerPixel = 1;
+
+		spi_inst_t* spi = spi0;
+		const uint32_t baudRate = 100 * 1000;
+		const uint8_t rxPin = 13;
+		const uint8_t sckPin = 10;
+		const uint8_t csnPin = 9;
+		const uint8_t rstPin = 12;
+		const uint8_t dcPin = 8;
+		const uint8_t backlightPin = 20;
+
+		pixelDisplaySSD1309* display = new pixelDisplaySSD1309(width, height, xShift, yShift, bitsPerPixel);
+		display->initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+
 		display->fill(0x000000);
 		//display->rotate(180);
 		//display->invert(true);
@@ -134,7 +226,24 @@ int main()
 
 	if (testConfig == 5)
 	{
-		pixelDisplayDriver* display = (pixelDisplayDriver*)new pixelDisplayST7789();
+		const uint16_t width = 240;
+		const uint16_t height = 320;
+		const uint16_t xShift = 0;
+		const uint16_t yShift = 0;
+		const uint16_t bitsPerPixel = 16;
+
+		spi_inst_t* spi = spi0;
+		const uint32_t baudRate = 100 * 1000;
+		const uint8_t rxPin = 13;
+		const uint8_t sckPin = 10;
+		const uint8_t csnPin = 9;
+		const uint8_t rstPin = 12;
+		const uint8_t dcPin = 8;
+		const uint8_t backlightPin = 20;
+
+		pixelDisplayST7789* display = new pixelDisplayST7789(width, height, xShift, yShift, bitsPerPixel);
+		display->initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+
 		display->fill(0xff0000);
 		display->rotate(270);
 		//display->brightness(20);
@@ -148,5 +257,54 @@ int main()
 			display->drawString(0xffffff, fonts::Font_12x16(), 8, 88, "Video Mode: 480p");
 			display->drawDisplay();
 		}
+	}
+
+	if (testConfig == 6)
+	{
+		i2c_inst_t* i2c = i2c0;
+		const uint32_t baudRate = 100 * 1000;
+		const uint8_t address = 0x68;
+		const uint8_t sdaPin = 13;
+		const uint8_t sclPin = 10;
+		const uint8_t backlightPin = 20;
+
+		deviceRTC* rtc = new deviceRTC();
+		rtc->initI2c(i2c, address, baudRate, sdaPin, sclPin);
+
+		datetime_t datetime;
+		datetime.day = 21;
+		datetime.month = 6;
+		datetime.year = 2024;
+		datetime.dotw = 5;
+		datetime.hour = 14;
+		datetime.min = 44;
+		datetime.sec = 0;
+		// bool setOk = rtc->setDateTime(&datetime);
+		// printf("Date set ok = %i\n", setOk);
+
+		while (true)
+		{
+			bool getOk = rtc->getDateTime(&datetime);
+			if (getOk)
+			{
+				printf("Datetime Day = %i\n", datetime.day);
+				printf("Datetime Month = %i\n", datetime.month);
+				printf("Datetime Year = %i\n", datetime.year);
+				printf("Datetime Dotw = %i\n", datetime.dotw);
+				printf("Datetime Hour = %i\n", datetime.hour);
+				printf("Datetime Min = %i\n", datetime.min);
+				printf("Datetime Sec = %i\n", datetime.sec);
+			}
+
+			float temperature;
+			bool getTemp = rtc->getTemperature(&temperature);
+			if (getTemp)
+			{
+				printf("Temp Degrees C = %f\n", temperature);
+			}
+
+			sleep_ms(1000);
+		}
+		delete rtc;
 	}
 }

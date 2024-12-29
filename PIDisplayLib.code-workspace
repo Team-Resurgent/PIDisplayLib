@@ -64,7 +64,8 @@
 			"utility": "cpp",
 			"cstring": "cpp",
 			"limits": "cpp",
-			"cstdlib": "cpp"
+			"cstdlib": "cpp",
+			"atomic": "cpp"
 		}
 	}
 }

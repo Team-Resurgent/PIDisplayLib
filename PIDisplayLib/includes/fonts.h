@@ -11,7 +11,7 @@ typedef struct {
 class fonts
 {
 public:
+    static FontDef Font_6x8();
     static FontDef Font_8x8();
     static FontDef Font_12x16();
-    static uint16_t* Saber();
 };

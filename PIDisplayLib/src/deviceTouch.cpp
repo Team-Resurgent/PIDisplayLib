@@ -8,37 +8,31 @@
 #include <cstdio>
 #include <cstring>
 
-#define SPI_TOUCH_SPI spi1
-#define SPI_TOUCH_IRQ 11
-#define SPI_TOUCH_RX 12
-#define SPI_TOUCH_CSN 13
-#define SPI_TOUCH_SCK 14
-#define SPI_TOUCH_TX 15
-
 #define MAX_LEN 3
 #define	XPT_START 0x80
 #define XPT_XPOS 0x50
 #define XPT_YPOS 0x10
 #define XPT_SER 0x04
 
-void deviceTouch::initSpi(spi_inst_t* spi, uint32_t baudRate)
+void deviceTouch::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t irqPin, uint8_t rxPin, uint8_t txPin, uint8_t sckPin, uint8_t csnPin)
 {
     mSpi = spi;
+    mIrqPin = irqPin;
+    mCsnPin = csnPin;
 
-    gpio_init(SPI_TOUCH_IRQ);
-    gpio_set_dir(SPI_TOUCH_IRQ, GPIO_IN);
-    gpio_pull_up(SPI_TOUCH_IRQ);
+    gpio_init(mIrqPin);
+    gpio_set_dir(mIrqPin, GPIO_IN);
+    gpio_pull_up(mIrqPin);
 
-    gpio_init(SPI_TOUCH_CSN);
-    gpio_put(SPI_TOUCH_CSN, 1);
-    gpio_set_dir(SPI_TOUCH_CSN, GPIO_OUT);
+    gpio_init(mCsnPin);
+    gpio_put(mCsnPin, 1);
+    gpio_set_dir(mCsnPin, GPIO_OUT);
 
     spi_init(mSpi, baudRate);
     spi_set_slave(mSpi, false);
-    gpio_set_function(SPI_TOUCH_RX, GPIO_FUNC_SPI);
-    gpio_set_function(SPI_TOUCH_SCK, GPIO_FUNC_SPI);
-    gpio_set_function(SPI_TOUCH_TX, GPIO_FUNC_SPI);
-    bi_decl(bi_4pins_with_func((uint32_t)SPI_TOUCH_RX, (uint32_t)SPI_TOUCH_TX, (uint32_t)SPI_TOUCH_SCK, (uint32_t)SPI_TOUCH_CSN, GPIO_FUNC_SPI));
+    gpio_set_function(rxPin, GPIO_FUNC_SPI);
+    gpio_set_function(sckPin, GPIO_FUNC_SPI);
+    gpio_set_function(txPin, GPIO_FUNC_SPI);
 
     spi_set_format(mSpi, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
 }
@@ -52,7 +46,7 @@ uint16_t deviceTouch::readADC(uint8_t cmd)
     uint8_t temp;
     uint16_t value = 0;
 
-    gpio_put(SPI_TOUCH_CSN, 0);
+    gpio_put(mCsnPin, 0);
     spi_write_blocking(mSpi, &cmd, 1);
     sleep_us(200);
 
@@ -62,7 +56,7 @@ uint16_t deviceTouch::readADC(uint8_t cmd)
     value != temp;
     value >>= 3;   
 
-    gpio_put(SPI_TOUCH_CSN, 1);
+    gpio_put(mCsnPin, 1);
 	return value;
 }
 
@@ -137,7 +131,7 @@ bool deviceTouch::readPositionTwiceADC(uint16_t& pXCh_Adc, uint16_t& pYCh_Adc)
 
 void deviceTouch::readTouchPos(uint16_t& x, uint16_t& y)
 {
-    bool noTouch = gpio_get(SPI_TOUCH_IRQ);
+    bool noTouch = gpio_get(mIrqPin);
     if (noTouch == false)
     {
         bool error = readPositionTwiceADC(x, y);

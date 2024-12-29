@@ -3,19 +3,18 @@
 #include "hardware/spi.h"
 #include "hardware/structs/spi.h"
 
-#define LEGACY_ROWS 4
-#define LEGACY_COLS 20
 #define LEGACY_BUFFER_SIZE 256
 
 class deviceLegacy
 {
 public:
-    deviceLegacy();
-    void initSpi(spi_inst_t* spi, uint32_t baudRate);
+    deviceLegacy(uint8_t rows, uint8_t cols);
+    ~deviceLegacy();
+    void initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin);
     int16_t peekCommand(uint16_t index);
     void completeCommand();
     void reset();
-    void poll();
+    bool poll();
     
     uint8_t getRows();
     uint8_t getCols();
@@ -42,5 +41,8 @@ private:
     bool mWrapping;
     bool mScrolling;
 
-    uint8_t mDisplayBuffer[LEGACY_ROWS * LEGACY_COLS];
+    uint8_t mRows;
+    uint8_t mCols;
+
+    uint8_t* mDisplayBuffer;
 };

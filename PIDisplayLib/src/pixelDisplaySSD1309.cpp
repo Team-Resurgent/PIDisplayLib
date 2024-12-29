@@ -43,66 +43,32 @@
 #define SSD1309_CMD_COMH_DESLECT_LEVEL 0xDB
 #define SSD1309_CMD_NOP 0xE3
 
-pixelDisplaySSD1309::pixelDisplaySSD1309(displayMode mode)
+pixelDisplaySSD1309::pixelDisplaySSD1309(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel)
 {
     initDisplayBuffer(
-        DISPLAY_SSD1309_WIDTH, 
-        DISPLAY_SSD1309_HEIGHT, 
-        0,
-        0,
-        DISPLAY_SSD1309_BITS_PER_PIXEL
+        width, 
+        height, 
+        xShift,
+        yShift,
+        bitsPerPixel
     );
+}
 
-    if (mode == displayModeI2c)
-    {
-        initI2c(DISPLAY_SSD1309_I2C, I2C_DISPLAY_ADDRESS, DISPLAY_SSD1309_BAUDRATE);
-    }
-    else
-    {
-        initSpi(DISPLAY_SSD1309_SPI, DISPLAY_SSD1309_BAUDRATE);
-    }
+void pixelDisplaySSD1309::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
+{
+	pixelDisplayDriver::initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+    init();
+}
 
-    writeCommandByte(SSD1309_CMD_DISPLAY_OFF);
+void pixelDisplaySSD1309::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate, uint8_t sdaPin, uint8_t sclPin, uint8_t backlightPin)
+{
+	pixelDisplayDriver::initI2c(i2c, address, baudRate, sdaPin, sclPin, backlightPin);
+    init();
+}
 
-    writeCommandByte(SSD1309_CMD_DISPLAY_CLOCK_DIVIDE);
-    writeCommandByte(0x80);
- 
-    writeCommandByte(SSD1309_CMD_MULTIPLEX_RATIO);
-    writeCommandByte(DISPLAY_SSD1309_HEIGHT - 1);
-
-    writeCommandByte(SSD1309_CMD_DISPLAY_OFFSET);
-    writeCommandByte(0x00);
-
-    writeCommandByte(SSD1309_CMD_DISPLAY_START_LINE);
-
-    writeCommandByte(SSD1309_CMD_CHARGE_PUMP_SETTING);
-    writeCommandByte(0x14);
-
-    writeCommandByte(SSD1309_CMD_COLUMN_0_MAPPED_TO_SEG0);
-    writeCommandByte(SSD1309_CMD_SCAN_DIRECTION_COM0_START);
-
-    writeCommandByte(SSD1309_CMD_COM_PINS_CONF);
-    writeCommandByte(DISPLAY_SSD1309_WIDTH > 2 * DISPLAY_SSD1309_HEIGHT ? 0x02 : 0x12);
-
-    writeCommandByte(SSD1309_CMD_CONTRAST_CONTROL);
-    writeCommandByte(0xFF);
-
-    writeCommandByte(SSD1309_CMD_PRE_CHARGE_PERIOD);
-    writeCommandByte(0xF1); 
-
-    writeCommandByte(SSD1309_CMD_COMH_DESLECT_LEVEL);
-    writeCommandByte(0x30); 
-
-    writeCommandByte(SSD1309_CMD_ENTIRE_DISPLAY_OFF);
-
-    writeCommandByte(SSD1309_CMD_NORMAL_DISPLAY);
-
-    writeCommandByte(SSD1309_CMD_DISPLAY_ON);
-
-    writeCommandByte(SSD1309_CMD_MEMORY_ADDRESSING_MODE);
-    writeCommandByte(0x10);
-
-    drawDisplay();
+int32_t pixelDisplaySSD1309::scanI2c()
+{
+	return pixelDisplayDriver::scanI2c();
 }
 
 void pixelDisplaySSD1309::drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character)
@@ -226,4 +192,51 @@ void pixelDisplaySSD1309::rotate(uint16_t degrees)
         writeCommandByte(SSD1309_CMD_COLUMN_127_MAPPED_TO_SEG0);
         writeCommandByte(SSD1309_CMD_SCAN_DIRECTION_COM1_START);
     }
+}
+
+// Private
+
+void pixelDisplaySSD1309::init()
+{
+    writeCommandByte(SSD1309_CMD_DISPLAY_OFF);
+
+    writeCommandByte(SSD1309_CMD_DISPLAY_CLOCK_DIVIDE);
+    writeCommandByte(0x80);
+ 
+    writeCommandByte(SSD1309_CMD_MULTIPLEX_RATIO);
+    writeCommandByte(mDisplayBuffer->getHeight() - 1);
+
+    writeCommandByte(SSD1309_CMD_DISPLAY_OFFSET);
+    writeCommandByte(0x00);
+
+    writeCommandByte(SSD1309_CMD_DISPLAY_START_LINE);
+
+    writeCommandByte(SSD1309_CMD_CHARGE_PUMP_SETTING);
+    writeCommandByte(0x14);
+
+    writeCommandByte(SSD1309_CMD_COLUMN_0_MAPPED_TO_SEG0);
+    writeCommandByte(SSD1309_CMD_SCAN_DIRECTION_COM0_START);
+
+    writeCommandByte(SSD1309_CMD_COM_PINS_CONF);
+    writeCommandByte(mDisplayBuffer->getWidth() > 2 * mDisplayBuffer->getHeight() ? 0x02 : 0x12);
+
+    writeCommandByte(SSD1309_CMD_CONTRAST_CONTROL);
+    writeCommandByte(0xFF);
+
+    writeCommandByte(SSD1309_CMD_PRE_CHARGE_PERIOD);
+    writeCommandByte(0xF1); 
+
+    writeCommandByte(SSD1309_CMD_COMH_DESLECT_LEVEL);
+    writeCommandByte(0x30); 
+
+    writeCommandByte(SSD1309_CMD_ENTIRE_DISPLAY_OFF);
+
+    writeCommandByte(SSD1309_CMD_NORMAL_DISPLAY);
+
+    writeCommandByte(SSD1309_CMD_DISPLAY_ON);
+
+    writeCommandByte(SSD1309_CMD_MEMORY_ADDRESSING_MODE);
+    writeCommandByte(0x10);
+
+    drawDisplay();
 }

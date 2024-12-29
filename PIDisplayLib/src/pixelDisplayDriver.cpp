@@ -20,14 +20,14 @@ pixelDisplayDriver::~pixelDisplayDriver()
     delete(mDisplayBuffer);
 }
 
-void pixelDisplayDriver::initSpi(spi_inst_t* spi, uint32_t baudRate) 
+void pixelDisplayDriver::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
 {
-	return displayBase::initSpi(spi, baudRate);
+	displayBase::initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
 }
 
-void pixelDisplayDriver::initI2c(i2c_inst_t* i2c, uint32_t address,  uint32_t baudRate)
+void pixelDisplayDriver::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate, uint8_t sdaPin, uint8_t sclPin, uint8_t backlightPin)
 {
-	return displayBase::initI2c(i2c, address, baudRate);
+	displayBase::initI2c(i2c, address, baudRate, sdaPin, sclPin, backlightPin);
 }
 
 int32_t pixelDisplayDriver::scanI2c()
@@ -55,7 +55,7 @@ void pixelDisplayDriver::writeCommand(uint8_t *buff, uint32_t buff_size)
 {
 	if (mIsSpi)
 	{
-		gpio_put(SPI_DISPLAY_DC, 0);
+		gpio_put(mDcPin, 0);
     	spi_write_blocking(mSpi, buff, buff_size);
 		return;
 	}
@@ -63,7 +63,7 @@ void pixelDisplayDriver::writeCommand(uint8_t *buff, uint32_t buff_size)
 	uint8_t* tempBuffer = (uint8_t*)malloc(buff_size + 1);
 	tempBuffer[0] = I2C_COMMAND_MODE;
 	memcpy(tempBuffer + 1, buff, buff_size);
-	i2c_write_blocking(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false);
+	i2c_write_timeout_us(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false, I2C_TIMEOUT_US);
 	free(tempBuffer);
 }
 
@@ -76,7 +76,7 @@ void pixelDisplayDriver::writeData(uint8_t *buff, uint32_t buff_size)
 {
 	if (mIsSpi)
 	{
-		gpio_put(SPI_DISPLAY_DC, 1);
+		gpio_put(mDcPin, 1);
     	spi_write_blocking(mSpi, buff, buff_size);
 		return;
 	}
@@ -84,7 +84,7 @@ void pixelDisplayDriver::writeData(uint8_t *buff, uint32_t buff_size)
 	uint8_t* tempBuffer = (uint8_t*)malloc(buff_size + 1);
 	tempBuffer[0] = I2C_DATA_MODE;
 	memcpy(tempBuffer + 1, buff, buff_size);
-	i2c_write_blocking(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false);
+	i2c_write_timeout_us(mI2c, mI2cAddress, tempBuffer, buff_size + 1, false, I2C_TIMEOUT_US);
 	free(tempBuffer);
 }
 

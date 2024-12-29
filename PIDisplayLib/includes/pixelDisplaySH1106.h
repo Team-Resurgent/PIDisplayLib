@@ -6,17 +6,14 @@
 #include "hardware/spi.h"
 #include "hardware/structs/spi.h"
 
-// Config
-#define DISPLAY_SH1106_SPI spi0
-#define DISPLAY_SH1106_BAUDRATE (10 * 1024 * 1024)
-#define DISPLAY_SH1106_WIDTH 128
-#define DISPLAY_SH1106_HEIGHT 64
-#define DISPLAY_SH1106_BITS_PER_PIXEL 1
-
 class pixelDisplaySH1106 : pixelDisplayDriver
 {
 public:
-    pixelDisplaySH1106();
+    pixelDisplaySH1106(uint16_t width, uint16_t height, uint16_t xShift, uint16_t yShift, uint8_t bitsPerPixel);
+
+    void initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin);
+    void initI2c(i2c_inst_t* i2c, uint32_t address,  uint32_t baudRate, uint8_t sdaPin, uint8_t sclPin, uint8_t backlightPin);
+    int32_t scanI2c();
 
     void drawChar(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, char character);
     void drawString(uint32_t colorR8G8B8, FontDef font, uint16_t x, uint16_t y, const char *message);
@@ -37,4 +34,6 @@ public:
     void contrast(uint8_t value);
     void invert(bool value);
     void rotate(uint16_t degrees);
+private:
+    void init();
 };
