@@ -196,7 +196,7 @@ void pixelDisplaySH1106::init()
     writeCommandByte(SH1106_CMD_SET_SEGMENT_REMAP | 0x00);
     writeCommandByte(SH1106_CMD_SET_NORMAL_DISPLAY);
 
-    uint8_t multiplexData[] = {SH1106_CMD_SET_MULTIPLEX_RATIO, mDisplayBuffer->getHeight() - 1};
+    uint8_t multiplexData[] = {SH1106_CMD_SET_MULTIPLEX_RATIO, (uint8_t)(mDisplayBuffer->getHeight() - 1)};
     writeCommand(multiplexData, sizeof(multiplexData));
 
     uint8_t dcdcData[] = {SH1106_CMD_SET_DCDC_SETTING, 0x81};
