@@ -16,9 +16,9 @@
 #define I2C_COMMAND_MODE 0x80
 #define I2C_DATA_MODE 0x40
 
-void textDisplayDriver::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
+void textDisplayDriver::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t txPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
 {
-	displayBase::initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+	displayBase::initSpi(spi, baudRate, txPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
 }
 
 void textDisplayDriver::initI2c(i2c_inst_t* i2c, uint32_t address, uint32_t baudRate, uint8_t sdaPin, uint8_t sclPin, uint8_t backlightPin)

@@ -25,9 +25,9 @@ textDisplayUS2066::textDisplayUS2066()
 {
 }
 
-void textDisplayUS2066::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
+void textDisplayUS2066::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t txPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
 {
-	textDisplayDriver::initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+	textDisplayDriver::initSpi(spi, baudRate, txPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
     init();
 }
 

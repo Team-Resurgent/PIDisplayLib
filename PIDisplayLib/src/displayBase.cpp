@@ -14,7 +14,7 @@
 #define I2C_COMMAND_MODE 0x80
 #define I2C_DATA_MODE 0x40
 
-void displayBase::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin)
+void displayBase::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t txPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin)
 {
 	mIsSpi = true;
 	mSpi = spi;
@@ -37,7 +37,7 @@ void displayBase::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uin
 
     spi_init(mSpi, baudRate);
 	spi_set_slave(mSpi, false);
-    gpio_set_function(rxPin, GPIO_FUNC_SPI);
+    gpio_set_function(txPin, GPIO_FUNC_SPI);
     gpio_set_function(sckPin, GPIO_FUNC_SPI);
     gpio_set_function(csnPin, GPIO_FUNC_SPI);
 

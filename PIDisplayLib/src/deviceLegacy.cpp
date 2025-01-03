@@ -76,7 +76,6 @@ void deviceLegacy::initSpi(spi_inst_t *spi, uint32_t baudRate, uint8_t rxPin, ui
     gpio_set_function(rxPin, GPIO_FUNC_SPI);
     gpio_set_function(sckPin, GPIO_FUNC_SPI);
     gpio_set_function(csnPin, GPIO_FUNC_SPI);
-    bi_decl(bi_3pins_with_func((uint32_t)rxPin, (uint32_t)sckPin, (uint32_t)csnPin, GPIO_FUNC_SPI));
 
     spi_set_format(mSpi, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
 }

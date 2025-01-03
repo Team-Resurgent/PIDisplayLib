@@ -54,9 +54,9 @@ pixelDisplaySSD1306::pixelDisplaySSD1306(uint16_t width, uint16_t height, uint16
     );
 }
 
-void pixelDisplaySSD1306::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t rxPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
+void pixelDisplaySSD1306::initSpi(spi_inst_t* spi, uint32_t baudRate, uint8_t txPin, uint8_t sckPin, uint8_t csnPin, uint8_t rstPin, uint8_t dcPin, uint8_t backlightPin) 
 {
-	pixelDisplayDriver::initSpi(spi, baudRate, rxPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
+	pixelDisplayDriver::initSpi(spi, baudRate, txPin, sckPin, csnPin, rstPin, dcPin, backlightPin);
     init();
 }
 
